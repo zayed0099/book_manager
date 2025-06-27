@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Environment variables
+.env
+
+# Flask instance folder (if used)
+instance/
+
+# Database files
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# OS or IDE-specific files
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+
+# Pytest cache
+.pytest_cache/
+.cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+
