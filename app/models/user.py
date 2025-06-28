@@ -1,4 +1,4 @@
-from app import db
+from app.extensions import db
 from book import book_manager
 
 class User(db.Model):

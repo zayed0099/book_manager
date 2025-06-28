@@ -4,14 +4,17 @@ from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from .config import Config, dbconfig, jwt_config
-from flask_jwt_extended import get_jwt_identity, JWTManager, verify_jwt_in_request
-from flask_limiter import Limiter
+from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from flask_limiter.util import get_remote_address
 from app.errors.handlers import register_error_handlers
-from app.schema.book_schema import BookSchema
-from app.schema.user_schema import UserSchema 
 from app.routes.auth_routes import auth_bp
 from app.routes.book_routes import book_bp
+from app.extensions import(
+    book_schema
+    ,books_schema
+    ,user_schema
+    ,db, jwt, limiter
+    )
 
 # Function to get user identifier
 def get_user_identifier():
@@ -20,21 +23,6 @@ def get_user_identifier():
         return str(get_jwt_identity() or get_remote_address())
     except Exception:
         return get_remote_address()
-
-# Schema instances
-book_schema = BookSchema() # for a single book
-books_schema = BookSchema(many=True) # for multiple books
-user_schema = UserSchema(many=False)
-
-# Global instances
-db = SQLAlchemy()
-jwt = JWTManager()
-limiter = Limiter(
-    key_func = get_user_identifier,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://"    
-    )
-
 
 def create_app():
     app = Flask(__name__)

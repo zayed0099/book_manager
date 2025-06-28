@@ -1,4 +1,4 @@
-from app import db
+from app.extensions import db
 
 class jwt_blacklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)

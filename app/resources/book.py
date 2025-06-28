@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.book import book_manager
 from app.errors.handlers import CustomBadRequest
-from your_app import limiter, db, book_schema, books_schema
+from app.extensions import limiter, db, book_schema, books_schema
 
 
 class Book_CR(Resource):
