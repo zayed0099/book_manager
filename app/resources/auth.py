@@ -81,8 +81,10 @@ class Login(Resource):
 
             else:
                 if check_user and check_password_hash(check_user.password , pass_txt_login):
-                    access_token = create_access_token(identity=check_user.id)
-                    refresh_token = create_refresh_token(identity=check_user.id)
+                    access_token = create_access_token(identity=check_user.id
+                        ,additional_claims={"roles": check_user.role})
+                    refresh_token = create_refresh_token(identity=check_user.id
+                        ,additional_claims={"roles": check_user.role})
                     return {"access_token": access_token, "refresh_token": refresh_token}, 200        
                 else:
                     return {"message": "Bad username or password. Login unsuccessful"}, 401
@@ -97,20 +99,28 @@ class Ref_Token(Resource):
         jti = token['jti']
         ttype = token["type"]
         now = datetime.now(timezone.utc)
-    
+        role = token['role']
+
+        user = db.session.get(User, identity)
+
         try:
             new_refresh_revoke = jwt_blacklist(jti=jti
                 ,ttype=ttype
                 ,created_at=now
-                ,user_id_jwt=identity)
+                ,user_id_jwt=identity
+                ,role= role)
             db.session.add(new_refresh_revoke)
             db.session.commit()
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e
 
-        access_token = create_access_token(identity=identity)
-        refresh_token = create_refresh_token(identity=identity)
+        access_token = create_access_token(
+            identity=identity
+            ,additional_claims={"role": user.role})
+        refresh_token = create_refresh_token(
+            identity=identity
+            ,additional_claims={"role": user.role})
         return {"access_token" : access_token, "refresh_token" : refresh_token}
 
 class Del_Token(Resource):
@@ -121,9 +131,14 @@ class Del_Token(Resource):
         token = get_jwt()
         jti = token['jti']
         ttype = token["type"]
+        role = token['role']
         now = datetime.now(timezone.utc)
         try:
-            new_re = jwt_blacklist(jti=jti, ttype=ttype, created_at=now, user_id_jwt=user_id_jwt)
+            new_re = jwt_blacklist(jti=jti
+                ,ttype=ttype
+                ,created_at=now
+                ,user_id_jwt=user_id_jwt
+                ,role= role)
             db.session.add(new_re)
             db.session.commit()
             return {'message': f'{ttype.capitalize()}: JWT token revoked.'}

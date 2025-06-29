@@ -9,7 +9,7 @@ from app.extensions import limiter, db, book_schema, books_schema
 
 
 class Book_CR(Resource):
-    method_decorators = [jwt_required()]
+    @jwt_required()
     def get(self):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 5, type=int)
@@ -48,6 +48,7 @@ class Book_CR(Resource):
             'total_pages': pagination.pages
             }, 200
 
+    @jwt_required()
     @limiter.limit("50 per day")
     def post(self):
         try:
@@ -100,7 +101,7 @@ class Book_CR(Resource):
 
 # JWT protected class to update, delete and get book by id.
 class Book_RUD(Resource):
-    method_decorators = [jwt_required()]
+    @jwt_required()
     def get(self, id):
         current_user_id = get_jwt_identity()
         book_to_work = book_manager.query.filter_by(user_id=current_user_id, id=id, is_deleted = False).first()        
@@ -110,6 +111,7 @@ class Book_RUD(Resource):
         else:
             return (book_schema.dump(book_to_work)), 200
 
+    @jwt_required()
     @limiter.limit("50 per day")
     def put(self, id):
         try:
@@ -141,6 +143,7 @@ class Book_RUD(Resource):
                 db.session.rollback()
                 raise e
     
+    @jwt_required()
     @limiter.limit("50 per day")
     def delete(self, id):
         current_user_id = get_jwt_identity()
@@ -158,7 +161,7 @@ class Book_RUD(Resource):
             raise e
 
 class Book_reuse(Resource):
-    method_decorators = [jwt_required()]
+    @jwt_required()
     def get(self):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 5, type=int)
