@@ -1,5 +1,5 @@
 from app.extensions import db
-from book import book_manager
+from datetime import datetime
 
 class User(db.Model):
     __tablename__ = 'user_db'

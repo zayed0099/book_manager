@@ -1,4 +1,5 @@
 from app.extensions import db
+from datetime import datetime
 
 class jwt_blacklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)

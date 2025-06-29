@@ -10,9 +10,9 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt
 )
-from .models.user import User
-from .models.blacklist import jwt_blacklist 
-from .errors.handlers import CustomBadRequest
+from app.models.user import User
+from app.models.blacklist import jwt_blacklist 
+from app.errors.handlers import CustomBadRequest
 from app.extensions import limiter, db, jwt, user_schema
 
 

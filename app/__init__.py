@@ -10,19 +10,7 @@ from app.errors.handlers import register_error_handlers
 from app.routes.auth_routes import auth_bp
 from app.routes.book_routes import book_bp
 from app.extensions import(
-    book_schema
-    ,books_schema
-    ,user_schema
-    ,db, jwt, limiter
-    )
-
-# Function to get user identifier
-def get_user_identifier():
-    try:
-        verify_jwt_in_request(optional=True)
-        return str(get_jwt_identity() or get_remote_address())
-    except Exception:
-        return get_remote_address()
+    book_schema,db, jwt, limiter)
 
 def create_app():
     app = Flask(__name__)
@@ -35,6 +23,11 @@ def create_app():
     limiter.init_app(app)
     db.init_app(app)
     jwt.init_app(app)
+
+    from app.models import User, book_manager, jwt_blacklist
+
+    with app.app_context(): # creating all the database tables
+        db.create_all()
 
     register_error_handlers(app)
     app.register_blueprint(auth_bp)

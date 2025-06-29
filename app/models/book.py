@@ -1,5 +1,4 @@
 from app.extensions import db
-from user import User
 
 class book_manager(db.Model):
     id = db.Column(db.Integer, primary_key=True)
