@@ -37,9 +37,9 @@ def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
 # "Return True (i.e., token is revoked) only if we found the token in the blocklist."
 
 def admin_required(func):
-	@wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
-		token = get_jwt()
+        token = get_jwt()
         role = token.get('role', None)
 
         if role == 'admin':
@@ -47,5 +47,5 @@ def admin_required(func):
         else:
             return {'message': 'Access denied'}, 403
 
-	return wrapper
-	
+    return wrapper
+    
