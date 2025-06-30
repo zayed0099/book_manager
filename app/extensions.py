@@ -1,10 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager, get_jwt
-from app.schema import BookSchema, UserSchema
 from flask_limiter import Limiter
+from functools import wraps
+
+# Local Import
+from app.schema import BookSchema, UserSchema
 from app.models.blacklist import jwt_blacklist
 from app.models.user import User
-from functools import wraps
 
 # Schema instances
 book_schema = BookSchema() # for a single book

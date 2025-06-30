@@ -1,11 +1,14 @@
 from flask_restful import Resource, request, abort
-from app.extensions import limiter, db, jwt, user_schema, admin_required
 from datetime import datetime, timezone
-from app.models import User, book_manager, jwt_blacklist
 from werkzeug.security import generate_password_hash
-from app.errors.handlers import CustomBadRequest
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
+
+# Local Import
+from app.extensions import limiter, db, jwt, user_schema, admin_required
+from app.models import User, book_manager, jwt_blacklist
+from app.errors.handlers import CustomBadRequest
+
 
 '''
 admin can see how manu users in there. 
@@ -16,7 +19,7 @@ control flow of all new user joining/account deletion
 '''
 
 # A route to get all the admin info and ban/unban them
-class admin_crud(Resource):
+class Admin_Crud(Resource):
 	@jwt_required()
 	@admin_required()
 	def get(self):
@@ -136,7 +139,55 @@ class admin_crud(Resource):
 				try:
 					check_user.role = 'user'
 					db.session.commit()
-					return {'message' : 'User removed from admin. Go to /user/manage to ban him from being a user too.'}
+					return {'message' : 'User removed from admin. Go to /user/<int:id> to ban him from being a user too.'}
 				except SQLAlchemyError as e:
 					db.session.rollback()
 					raise e
+
+class Admin_Book_Manage(Resource):
+	@jwt_required()
+	@admin_required()
+	def get(self):
+		page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 5, type=int)
+
+        title_get = request.args.get('title', '', type=str)
+        author = request.args.get('author', '', type=str)
+
+        title = title_get.strip().lower()
+
+        # admin can generally see all the books + only user specific books too.
+        user_id = request.args.get('user_id', 'Unfiltered', type=int)
+        
+        filters = [book_manager.is_deleted == False]
+
+        if title and author:
+            filters.append(book_manager.normalized_title == title)
+            filters.append(book_manager.author == author)
+        elif author:
+            filters.append(book_manager.author == author)
+        elif title:
+            filters.append(book_manager.normalized_title == title)
+        elif user_id:
+            filters.append(book_manager.user_id == user_id)        	
+
+        pagination = book_manager.query.filter(*filters).paginate(
+            page=page, per_page=per_page, error_out=False)
+
+        if not pagination.items:
+            abort(404, description="Book not found.")
+
+        else:
+            books =  books_schema.dump(pagination.items)
+
+            return {
+            'user_id' : user_id,
+            'books': books,
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'total_items': pagination.total,
+            'total_pages': pagination.pages
+            }, 200
+
+class User_Control(Resource):
+	

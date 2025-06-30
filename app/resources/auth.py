@@ -10,6 +10,8 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt
 )
+
+# Local Import
 from app.models.user import User
 from app.models.blacklist import jwt_blacklist 
 from app.errors.handlers import CustomBadRequest
@@ -80,6 +82,9 @@ class Login(Resource):
             if not check_user:
                 abort(404, description="User not found.")
 
+            elif check_user.is_banned:
+                abort(404, description="User is banned. Email to user.support@bookroad.com")
+            
             else:
                 if check_user and check_password_hash(check_user.password , pass_txt_login):
                     access_token = create_access_token(identity=check_user.id

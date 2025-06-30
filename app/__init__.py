@@ -3,14 +3,17 @@ import os
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
-from .config import Config, dbconfig, jwt_config
 from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
 from flask_limiter.util import get_remote_address
+
+# Local Import
 from app.errors.handlers import register_error_handlers
 from app.routes.auth_routes import auth_bp
 from app.routes.book_routes import book_bp
+from app.routes.admin_routes import admin_bp
 from app.extensions import(
     book_schema,db, jwt, limiter)
+from .config import Config, dbconfig, jwt_config
 
 def create_app():
     app = Flask(__name__)
@@ -32,5 +35,6 @@ def create_app():
     register_error_handlers(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(book_bp)
-
+    app.register_blueprint(admin_bp)
+    
     return app
