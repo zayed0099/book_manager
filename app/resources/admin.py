@@ -5,10 +5,11 @@ from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 
 # Local Import
-from app.extensions import limiter, db, jwt, user_schema, admin_required
+from app.extensions import (
+	limiter, db, jwt
+	,user_schema, admin_required, books_schema, book_schema)
 from app.models import User, book_manager, jwt_blacklist
 from app.errors.handlers import CustomBadRequest
-
 
 '''
 admin can see how manu users in there. 
@@ -133,13 +134,13 @@ class Admin_Crud(Resource):
 				,User.role == 'admin').first()
 
 			if not check_user:
-				return {'message' : 'user is not an admin.'}
+				return {'message' : 'User is not an admin.'}
 
 			else:
 				try:
 					check_user.role = 'user'
 					db.session.commit()
-					return {'message' : 'User removed from admin. Go to /user/<int:id> to ban him from being a user too.'}
+					return {'message' : 'User removed from admin. Go to /user/ban to ban him from being a user too.'}
 				except SQLAlchemyError as e:
 					db.session.rollback()
 					raise e
@@ -157,7 +158,7 @@ class Admin_Book_Manage(Resource):
         title = title_get.strip().lower()
 
         # admin can generally see all the books + only user specific books too.
-        user_id = request.args.get('user_id', 'Unfiltered', type=int)
+        user_id = request.args.get('user_id', default=None, type=int)
         
         filters = [book_manager.is_deleted == False]
 
@@ -169,7 +170,18 @@ class Admin_Book_Manage(Resource):
         elif title:
             filters.append(book_manager.normalized_title == title)
         elif user_id:
-            filters.append(book_manager.user_id == user_id)        	
+            if title and author:
+            	filters.append(book_manager.user_id == user_id)
+            	filters.append(book_manager.normalized_title == title)
+            	filters.append(book_manager.author == author)
+            elif title:
+            	filters.append(book_manager.user_id == user_id)
+            	filters.append(book_manager.normalized_title == title)
+            elif author:
+            	filters.append(book_manager.user_id == user_id)
+            	filters.append(book_manager.author == author)
+            else:
+            	 filters.append(book_manager.user_id == user_id)       	
 
         pagination = book_manager.query.filter(*filters).paginate(
             page=page, per_page=per_page, error_out=False)
@@ -190,4 +202,33 @@ class Admin_Book_Manage(Resource):
             }, 200
 
 class User_Control(Resource):
-	
+	@jwt_required()
+	@admin_required()
+	def delete(self):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing JSON in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
+
+		username_of_user = data.get("username")
+
+		if not username_of_user:
+			raise CustomBadRequest("Username required.")
+
+		else:
+			check_user = User.query.filter(User.username == username_of_user).first()
+
+			if not check_user:
+				return {'message' : 'User not found.'}
+
+			else:
+				try:
+					check_user.is_banned = True
+					db.session.commit()
+					return {'message' : f'User [{username_of_user}] has been banned.'}
+				except SQLAlchemyError as e:
+					db.session.rollback()
+					raise e
+
