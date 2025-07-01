@@ -23,6 +23,7 @@ control flow of all new user joining/account deletion
 class Admin_Crud(Resource):
 	@jwt_required()
 	@admin_required()
+	@limiter.limit("3 per day")
 	def get(self):
 		page = request.args.get('page', 1, type=int)
 		per_page = request.args.get('per_page', 5, type=int)
@@ -47,6 +48,7 @@ class Admin_Crud(Resource):
 	
 	@jwt_required()
 	@admin_required()
+	@limiter.limit("3 per day")
 	def post(self):
 		try:
 			data = request.get_json()
@@ -85,6 +87,7 @@ class Admin_Crud(Resource):
 
 	@jwt_required()
 	@admin_required()
+	@limiter.limit("3 per day")
 	def put(self):
 		try:
 			data = request.get_json()
@@ -116,6 +119,7 @@ class Admin_Crud(Resource):
 
 	@jwt_required()
 	@admin_required()
+	@limiter.limit("3 per day")
 	def delete(self):
 		try:
 			data = request.get_json()
@@ -160,6 +164,9 @@ class Admin_Book_Manage(Resource):
         # admin can generally see all the books + only user specific books too.
         user_id = request.args.get('user_id', default=None, type=int)
         
+        sort_query = request.args.get('sort', default=None, type=str)
+        order = request.args.get('order', 'asc', type=str)
+
         filters = [book_manager.is_deleted == False]
 
         if title and author:
@@ -182,9 +189,34 @@ class Admin_Book_Manage(Resource):
             	filters.append(book_manager.author == author)
             else:
             	 filters.append(book_manager.user_id == user_id)       	
-
-        pagination = book_manager.query.filter(*filters).paginate(
+    	
+    	if sort_query is None:
+        	pagination = book_manager.query.filter(*filters).paginate(
             page=page, per_page=per_page, error_out=False)
+    	else:
+    		if sort_query == 'title':
+    			filt = [book_manager.title.asc()]
+    		elif sort_query == 'author':
+    			filt = [book_manager.author.asc()]
+			else:
+				filt = [book_manager.title.asc()]
+
+			if order == 'desc':
+	    		if sort_query == 'title':
+	    			filt = [book_manager.title.desc()]
+	    		elif sort_query == 'author':
+	    			filt = [book_manager.author.desc()]
+				else:
+					filt = [book_manager.title.desc()]
+
+	    		pagination = book_manager.query.filter(*filters).order_by(
+	    			*filt).paginate(
+	    			page=page, per_page=per_page, error_out=False)
+
+			else:
+				pagination = book_manager.query.filter(*filters).order_by(
+	    			*filt).paginate(
+	    			page=page, per_page=per_page, error_out=False)
 
         if not pagination.items:
             abort(404, description="Book not found.")
@@ -232,3 +264,31 @@ class User_Control(Resource):
 					db.session.rollback()
 					raise e
 
+	@jwt_required()
+	@admin_required()
+	def put(self):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing JSON in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
+
+		username_of_user = data.get("username")
+
+		if not username_of_user:
+			raise CustomBadRequest("Username required.")
+		else:
+			check_user = User.query.filter(User.username == username_of_user).first()
+
+			if not check_user:
+				return {'message' : 'User not found.'}
+
+			else:
+				try:
+					check_user.is_banned = False
+					db.session.commit()
+					return {'message' : f"Access for user '{username_of_user}' has been restored."}
+				except SQLAlchemyError as e:
+					db.session.rollback()
+					raise e				
