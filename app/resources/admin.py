@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
+from app.ext_admin import logging, logger
 
 # Local Import
 from app.extensions import (
@@ -38,6 +39,7 @@ class Admin_Crud(Resource):
 		else:
 			admins =  user_schema.dump(pagination.items, many=True)
 
+			logger.info('Admin requested to see data of all admins.')
 			return {
 			'admins': admins,
 			'page': pagination.page,
@@ -80,6 +82,7 @@ class Admin_Crud(Resource):
 				try:
 					db.session.add(new_admin)
 					db.session.commit()
+					logger.info(f'{username_new_admin} has been added as new admin')
 					return {"Successful": "Head to '/login' to login and start using the api."}, 200
 				except SQLAlchemyError as e:
 					db.session.rollback()
@@ -112,6 +115,7 @@ class Admin_Crud(Resource):
 					check_user.role = 'admin'
 					db.session.commit()
 					return {'message' : 'User added as admin successfully'}
+					logger.info(f'{username_of_user} : promoted to user -> Admin')
 				except SQLAlchemyError as e:
 					db.session.rollback()
 					raise e
@@ -144,6 +148,7 @@ class Admin_Crud(Resource):
 				try:
 					check_user.role = 'user'
 					db.session.commit()
+					logger.info(f'{username_of_user} has been removed from admin.')
 					return {'message' : 'User removed from admin. Go to /user/ban to ban him from being a user too.'}
 				except SQLAlchemyError as e:
 					db.session.rollback()
@@ -171,6 +176,7 @@ class Admin_Book_Manage(Resource):
         if user_id is not None:
         	filters = [book_manager.is_deleted == False
         	,book_manager.user_id == user_id]
+        	filt = []
     	else:
     		filters = [book_manager.is_deleted == False]
     		filt = []
@@ -209,6 +215,7 @@ class Admin_Book_Manage(Resource):
         else:
             books =  books_schema.dump(pagination.items)
 
+            logger.info('Admin asked to see all book data.')
             return {
             'user_id' : user_id,
             'books': books,
@@ -244,6 +251,7 @@ class User_Control(Resource):
 				try:
 					check_user.is_banned = True
 					db.session.commit()
+					logger.info(f'User [{username_of_user}] has been banned.')
 					return {'message' : f'User [{username_of_user}] has been banned.'}
 				except SQLAlchemyError as e:
 					db.session.rollback()
@@ -273,6 +281,7 @@ class User_Control(Resource):
 				try:
 					check_user.is_banned = False
 					db.session.commit()
+					logger.info(f'User [{username_of_user}] has been unbanned.')
 					return {'message' : f"Access for user '{username_of_user}' has been restored."}
 				except SQLAlchemyError as e:
 					db.session.rollback()

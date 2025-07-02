@@ -76,8 +76,9 @@ class Login(Resource):
             username_for_login = data.get("username")
             pass_txt_login = data.get("password")
 
-            check_user = User.query.filter(User.username == username_for_login
-                ,User.is_banned=False).first()
+            check_user = User.query.filter(
+                User.username == username_for_login
+                ,User.is_banned == False).first()
 
             if not check_user:
                 abort(404, description="User not found.")
