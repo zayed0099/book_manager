@@ -167,56 +167,41 @@ class Admin_Book_Manage(Resource):
         sort_query = request.args.get('sort', default=None, type=str)
         order = request.args.get('order', 'asc', type=str)
 
-        filters = [book_manager.is_deleted == False]
+
+        if user_id is not None:
+        	filters = [book_manager.is_deleted == False
+        	,book_manager.user_id == user_id]
+    	else:
+    		filters = [book_manager.is_deleted == False]
+    		filt = []
 
         if title and author:
             filters.append(book_manager.normalized_title == title)
             filters.append(book_manager.author == author)
+        
         elif author:
             filters.append(book_manager.author == author)
+            if sort_query == 'author':
+            	filt = [book_manager.author.asc()]
+            elif sort_query == 'author' and order == 'desc':
+            	filt = [book_manager.author.desc()]
+
         elif title:
-            filters.append(book_manager.normalized_title == title)
-        elif user_id:
-            if title and author:
-            	filters.append(book_manager.user_id == user_id)
-            	filters.append(book_manager.normalized_title == title)
-            	filters.append(book_manager.author == author)
-            elif title:
-            	filters.append(book_manager.user_id == user_id)
-            	filters.append(book_manager.normalized_title == title)
-            elif author:
-            	filters.append(book_manager.user_id == user_id)
-            	filters.append(book_manager.author == author)
-            else:
-            	 filters.append(book_manager.user_id == user_id)       	
-    	
-    	if sort_query is None:
+            filters.append(book_manager.normalized_title == title)   	
+    		if sort_query == 'title':
+            	filt = [book_manager.title.asc()]
+            elif sort_query == 'title' and order == 'desc':
+            	filt = [book_manager.title.desc()]
+
+
+		if sort_query is None:
         	pagination = book_manager.query.filter(*filters).paginate(
             page=page, per_page=per_page, error_out=False)
-    	else:
-    		if sort_query == 'title':
-    			filt = [book_manager.title.asc()]
-    		elif sort_query == 'author':
-    			filt = [book_manager.author.asc()]
-			else:
-				filt = [book_manager.title.asc()]
+        else:
+        	pagination = book_manager.query.filter(*filters).order_by(
+    			*filt).paginate(
+    			page=page, per_page=per_page, error_out=False)
 
-			if order == 'desc':
-	    		if sort_query == 'title':
-	    			filt = [book_manager.title.desc()]
-	    		elif sort_query == 'author':
-	    			filt = [book_manager.author.desc()]
-				else:
-					filt = [book_manager.title.desc()]
-
-	    		pagination = book_manager.query.filter(*filters).order_by(
-	    			*filt).paginate(
-	    			page=page, per_page=per_page, error_out=False)
-
-			else:
-				pagination = book_manager.query.filter(*filters).order_by(
-	    			*filt).paginate(
-	    			page=page, per_page=per_page, error_out=False)
 
         if not pagination.items:
             abort(404, description="Book not found.")
