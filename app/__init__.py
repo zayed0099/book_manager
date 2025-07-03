@@ -1,19 +1,15 @@
 from flask import Flask
 import os
-from dotenv import load_dotenv
-from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
-from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
-from flask_limiter.util import get_remote_address
 
 # Local Import
 from app.errors.handlers import register_error_handlers
 from app.routes.auth_routes import auth_bp
 from app.routes.book_routes import book_bp
 from app.routes.admin_routes import admin_bp
-from app.extensions import(
-    book_schema,db, jwt, limiter)
+from app.extensions import db
 from .config import Config, dbconfig, jwt_config
+from app.jwt_extensions import jwt, limiter
 
 def create_app():
     app = Flask(__name__)

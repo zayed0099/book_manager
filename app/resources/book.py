@@ -6,8 +6,8 @@ from sqlalchemy.exc import SQLAlchemyError
 # Local Import
 from app.models.book import book_manager
 from app.errors.handlers import CustomBadRequest
-from app.extensions import limiter, db, book_schema, books_schema
-
+from app.extensions import db, book_schema, books_schema
+from app.jwt_extensions import limiter
 
 class Book_CR(Resource):
     @jwt_required()
@@ -22,18 +22,39 @@ class Book_CR(Resource):
 
         current_user_id = get_jwt_identity()
         
+        sort_query = request.args.get('sort', default=None, type=str)
+        order = request.args.get('order', 'asc', type=str)
+
         filters = [book_manager.user_id == current_user_id, book_manager.is_deleted == False]
+        filt = []
 
         if title and author:
             filters.append(book_manager.normalized_title == title)
             filters.append(book_manager.author == author)
+
         elif author:
             filters.append(book_manager.author == author)
+            
+            if sort_query == 'author':
+                filt = [book_manager.author.asc()]
+            elif sort_query == 'author' and order == 'desc':
+                filt = [book_manager.author.desc()]
+
         elif title:
             filters.append(book_manager.normalized_title == title)
+
+            if sort_query == 'title':
+                filt = [book_manager.title.asc()]
+            elif sort_query == 'title' and order == 'desc':
+                filt = [book_manager.title.desc()]
         
-        pagination = book_manager.query.filter(*filters).paginate(
+        if sort_query is None:
+            pagination = book_manager.query.filter(*filters).paginate(
             page=page, per_page=per_page, error_out=False)
+        else:
+            pagination = book_manager.query.filter(*filters).order_by(
+                *filt).paginate(
+                page=page, per_page=per_page, error_out=False)
 
         if not pagination.items:
             abort(404, description="Book not found.")
@@ -186,3 +207,140 @@ class Book_reuse(Resource):
             'total_items': pagination.total,
             'total_pages': pagination.pages
             }, 200
+
+class Book_Favourite(Resource):
+    @jwt_required()
+    def get(self):
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 5, type=int)
+
+        title_get = request.args.get('title', '', type=str)
+        author = request.args.get('author', '', type=str)
+
+        title = title_get.strip().lower()
+
+        current_user_id = get_jwt_identity()
+        
+        sort_query = request.args.get('sort', default=None, type=str)
+        order = request.args.get('order', 'asc', type=str)
+
+        filters = [
+            book_manager.user_id == current_user_id,
+            book_manager.favourite == True,
+            book_manager.is_deleted == False,
+        ]
+
+        filt = []
+
+        if title and author:
+            filters.append(book_manager.normalized_title == title)
+            filters.append(book_manager.author == author)
+
+        elif author:
+            filters.append(book_manager.author == author)
+            
+            if sort_query == 'author':
+                filt = [book_manager.author.asc()]
+            elif sort_query == 'author' and order == 'desc':
+                filt = [book_manager.author.desc()]
+
+        elif title:
+            filters.append(book_manager.normalized_title == title)
+
+            if sort_query == 'title':
+                filt = [book_manager.title.asc()]
+            elif sort_query == 'title' and order == 'desc':
+                filt = [book_manager.title.desc()]
+        
+        if sort_query is None:
+            pagination = book_manager.query.filter(*filters).paginate(
+            page=page, per_page=per_page, error_out=False)
+        else:
+            pagination = book_manager.query.filter(*filters).order_by(
+                *filt).paginate(
+                page=page, per_page=per_page, error_out=False)
+
+        if not pagination.items:
+            abort(404, description="Book not found.")
+
+        else:
+            books =  books_schema.dump(pagination.items)
+
+            return {
+            'favourite books': books,
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'total_items': pagination.total,
+            'total_pages': pagination.pages
+            }, 200
+
+    @jwt_required()
+    def put(self):
+        try:
+            data = request.get_json()
+            if data is None:
+                raise CustomBadRequest("Missing JSON in request.")
+        except BadRequest:
+            raise CustomBadRequest("Invalid JSON format.")
+
+        title = data.get('title')
+
+        normalized_title = title.lower().strip()
+
+        if not username_of_user:
+            raise CustomBadRequest("Username required.")
+        else:
+            check = book_manager.query.filter_by(
+                book_manager.normalized_title == normalized_title
+                ,book_manager.favourite == True
+                ,book_manager.is_deleted == False).first()
+
+            if check.is_deleted:
+                return {'message' : 'Book deleted. Restore to add as favourite.'}, 404
+
+            elif check.favourite:
+                return {'message' : 'Book already added as favourite.'}, 404
+
+            elif not check:
+                try:
+                    check.favourite == True
+                    db.session.commit()
+                    return {'message' : 'Book added as favourite'}, 200
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    return {'message' : 'An error occured.'}
+                    raise e
+
+    @jwt_required()
+    def delete(self):
+        try:
+            data = request.get_json()
+            if data is None:
+                raise CustomBadRequest("Missing JSON in request.")
+        except BadRequest:
+            raise CustomBadRequest("Invalid JSON format.")
+
+        title = data.get('title')
+
+        normalized_title = title.lower().strip()
+
+        if not username_of_user:
+            raise CustomBadRequest("Username required.")
+        else:
+            check = book_manager.query.filter_by(
+                book_manager.normalized_title == normalized_title
+                ,book_manager.favourite == True
+                ,book_manager.is_deleted == False).first()
+
+            if check.is_deleted:
+                return {'message' : 'Book already deleted. Head to /api/v1/recovery to restore.'}, 404
+
+            elif check.favourite:
+                try:
+                    check.favourite == False
+                    db.session.commit()
+                    return {'message' : 'Book removed from favourites.'}
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    return {'message' : 'An error occured.'}
+                    raise e

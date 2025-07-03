@@ -15,8 +15,8 @@ from flask_jwt_extended import (
 from app.models.user import User
 from app.models.blacklist import jwt_blacklist 
 from app.errors.handlers import CustomBadRequest
-from app.extensions import limiter, db, jwt, user_schema
-
+from app.extensions import db, user_schema
+from app.jwt_extensions import jwt, limiter, admin_required
 
 class AddUser(Resource):
     @limiter.limit("3 per day")

@@ -7,5 +7,5 @@ class jwt_blacklist(db.Model):
     ttype = db.Column(db.String(16), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)   
     user_id_jwt = db.Column(db.Integer, nullable=False)
-	role = db.Column(db.String(20), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
 
