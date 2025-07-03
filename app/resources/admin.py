@@ -1,5 +1,5 @@
 from flask_restful import Resource, request, abort
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
@@ -285,3 +285,18 @@ class User_Control(Resource):
                 except SQLAlchemyError as e:
                     db.session.rollback()
                     raise e             
+
+class Jwt_Manage(Resource):
+    @jwt_required()
+    @admin_required()
+    def delete(self):
+        now = datetime.now(timezone.utc)
+
+        for token in jwt_blacklist.query.all():
+            if  token.created_at >= (token.created_at + timedelta(days=15)):
+                try:
+                    db.session.delete(token)
+                    db.session.commit()
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    raise e                
