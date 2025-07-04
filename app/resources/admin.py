@@ -193,17 +193,19 @@ class Admin_Book_Manage(Resource):
         
         elif author:
             filters.append(book_manager.author == author)
-            if sort_query == 'author':
-                filt = [book_manager.author.asc()]
-            elif sort_query == 'author' and order == 'desc':
+            if sort_query == 'author' and order == 'desc':
                 filt = [book_manager.author.desc()]
+            elif sort_query == 'author':
+                filt = [book_manager.author.asc()]
+            
 
         elif title:
             filters.append(book_manager.normalized_title == title)      
-            if sort_query == 'title':
-                filt = [book_manager.title.asc()]
-            elif sort_query == 'title' and order == 'desc':
+            if sort_query == 'title' and order == 'desc':
                 filt = [book_manager.title.desc()]
+            elif sort_query == 'title':
+                filt = [book_manager.title.asc()]
+            
 
 
         if sort_query is None:

@@ -40,18 +40,18 @@ class Book_CR(Resource):
         elif author:
             filters.append(book_manager.author == author)
             
-            if sort_query == 'author':
-                filt = [book_manager.author.asc()]
             if sort_query == 'author' and order == 'desc':
                 filt = [book_manager.author.desc()]
+            elif sort_query == 'author':
+                filt = [book_manager.author.asc()]
 
         elif title:
             filters.append(book_manager.normalized_title == title)
 
-            if sort_query == 'title':
-                filt = [book_manager.title.asc()]
             if sort_query == 'title' and order == 'desc':
                 filt = [book_manager.title.desc()]
+            elif sort_query == 'title':
+                filt = [book_manager.title.asc()]
         
         if sort_query is None:
             pagination = book_manager.query.filter(*filters).paginate(
@@ -230,6 +230,8 @@ class Book_Favourite(Resource):
         
         sort_query = request.args.get('sort', default=None, type=str)
         order = request.args.get('order', 'asc', type=str)
+        
+        genre = request.args.get('genre', default=None, type=str)
 
         filters = [
             book_manager.user_id == current_user_id,
@@ -239,6 +241,9 @@ class Book_Favourite(Resource):
 
         filt = []
 
+        if genre is not None:
+            filters.append(book_manager.genre == genre)
+
         if title and author:
             filters.append(book_manager.normalized_title == title)
             filters.append(book_manager.author == author)
@@ -246,18 +251,18 @@ class Book_Favourite(Resource):
         elif author:
             filters.append(book_manager.author == author)
             
-            if sort_query == 'author':
-                filt = [book_manager.author.asc()]
-            elif sort_query == 'author' and order == 'desc':
+            if sort_query == 'author' and order == 'desc':
                 filt = [book_manager.author.desc()]
+            elif sort_query == 'author':
+                filt = [book_manager.author.asc()]
 
         elif title:
             filters.append(book_manager.normalized_title == title)
 
-            if sort_query == 'title':
-                filt = [book_manager.title.asc()]
-            elif sort_query == 'title' and order == 'desc':
+            if sort_query == 'title' and order == 'desc':
                 filt = [book_manager.title.desc()]
+            elif sort_query == 'title':
+                filt = [book_manager.title.asc()]
         
         if sort_query is None:
             pagination = book_manager.query.filter(*filters).paginate(
@@ -298,9 +303,7 @@ class Book_Favourite(Resource):
             raise CustomBadRequest("Username required.")
         else:
             check = book_manager.query.filter_by(
-                book_manager.normalized_title == normalized_title
-                ,book_manager.favourite == True
-                ,book_manager.is_deleted == False).first()
+                book_manager.normalized_title == normalized_title).first()
 
             if check.is_deleted:
                 return {'message' : 'Book deleted. Restore to add as favourite.'}, 404
@@ -335,9 +338,7 @@ class Book_Favourite(Resource):
             raise CustomBadRequest("Username required.")
         else:
             check = book_manager.query.filter_by(
-                book_manager.normalized_title == normalized_title
-                ,book_manager.favourite == True
-                ,book_manager.is_deleted == False).first()
+                book_manager.normalized_title == normalized_title).first()
 
             if check.is_deleted:
                 return {'message' : 'Book already deleted. Head to /api/v1/recovery to restore.'}, 404
