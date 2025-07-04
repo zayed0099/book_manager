@@ -36,6 +36,7 @@ class AddUser(Resource):
         else:
             username_signin = data.get("username")
             pass_txt_signin = data.get("password")
+            email_signin = data.get("email")
 
             now = datetime.now(timezone.utc)
 
@@ -46,7 +47,9 @@ class AddUser(Resource):
             else:
                 new_hashed_pw_signin = generate_password_hash(pass_txt_signin)
 
-                new_user = User(username=username_signin, password=new_hashed_pw_signin, joined=now)
+                new_user = User(username=username_signin,
+                    password=new_hashed_pw_signin,
+                    email=email_signin ,joined=now)
 
                 try:
                     db.session.add(new_user)

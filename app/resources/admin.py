@@ -3,6 +3,8 @@ from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
+import random
+import string
 
 # Local Import
 from app.extensions import (
@@ -21,6 +23,7 @@ control flow of all new user joining/account deletion
 
 # A route to get all the admin info and ban/unban them
 class Admin_Crud(Resource):
+    # Getting info of all admins
     @jwt_required()
     @admin_required()
     @limiter.limit("3 per day")
@@ -47,6 +50,7 @@ class Admin_Crud(Resource):
             'total_pages': pagination.pages
             }, 200
     
+    # Adding new admin. (full new user)
     @jwt_required()
     @admin_required()
     @limiter.limit("3 per day")
@@ -87,6 +91,7 @@ class Admin_Crud(Resource):
                     db.session.rollback()
                     raise e
 
+    # Upgrading User -> admin
     @jwt_required()
     @admin_required()
     @limiter.limit("3 per day")
@@ -120,6 +125,7 @@ class Admin_Crud(Resource):
                     raise e
 
 
+    # removing someone from admin
     @jwt_required()
     @admin_required()
     @limiter.limit("3 per day")
@@ -154,6 +160,7 @@ class Admin_Crud(Resource):
                     raise e
 
 class Admin_Book_Manage(Resource):
+    # admin wanting to see all the books in the db regardless of user
     @jwt_required()
     @admin_required()
     def get(self):
@@ -225,6 +232,7 @@ class Admin_Book_Manage(Resource):
             }, 200
 
 class User_Control(Resource):
+    # banning a user from the api.
     @jwt_required()
     @admin_required()
     def delete(self):
@@ -256,6 +264,7 @@ class User_Control(Resource):
                     db.session.rollback()
                     raise e
 
+    # Unbanning a user from the api.
     @jwt_required()
     @admin_required()
     def put(self):
@@ -286,17 +295,54 @@ class User_Control(Resource):
                     db.session.rollback()
                     raise e             
 
+    @jwt_required()
+    @admin_required()
+    def post(self):
+        try:
+            data = request.get_json()
+            if data is None:
+                raise CustomBadRequest("Missing JSON in request.")
+        except BadRequest:
+            raise CustomBadRequest("Invalid JSON format.")
+
+        username_of_user = data.get("username")
+        email = data.get('email')
+
+        if not username_of_user and email:
+            raise CustomBadRequest("Username and Email both required.")
+
+        else:
+            check_user = User.query.filter(User.username == username_of_user, email == email)
+
+            if not check_user:
+                return {'message' : 'User not found.'}
+
+            else:
+                random_string = ''.join(random.choice(string.ascii_letters) for _ in range(10))
+
+                check_user.password = random_string
+                try:
+                    db.session.commit()
+                    logger.info(f'User [{username_of_user}] password has been changed..')
+                    return {'message' : f"Password for user '{username_of_user}' is : {random_string}"}
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    raise e
+
+
 class Jwt_Manage(Resource):
+    # Deleting all old jwt token from the db.
     @jwt_required()
     @admin_required()
     def delete(self):
         now = datetime.now(timezone.utc)
 
         for token in jwt_blacklist.query.all():
-            if  token.created_at >= (token.created_at + timedelta(days=15)):
+            if now >= (token.created_at + timedelta(days=15)):
                 try:
                     db.session.delete(token)
                     db.session.commit()
+                    logger.info("JWT token blacklist database has been cleared.")
                 except SQLAlchemyError as e:
                     db.session.rollback()
                     raise e                
