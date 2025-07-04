@@ -22,11 +22,16 @@ class Book_CR(Resource):
 
         current_user_id = get_jwt_identity()
         
+        genre = request.args.get('genre', default=None, type=str)
+
         sort_query = request.args.get('sort', default=None, type=str)
         order = request.args.get('order', 'asc', type=str)
 
         filters = [book_manager.user_id == current_user_id, book_manager.is_deleted == False]
         filt = []
+
+        if genre is not None:
+            filters.append(book_manager.genre == genre)
 
         if title and author:
             filters.append(book_manager.normalized_title == title)
@@ -37,7 +42,7 @@ class Book_CR(Resource):
             
             if sort_query == 'author':
                 filt = [book_manager.author.asc()]
-            elif sort_query == 'author' and order == 'desc':
+            if sort_query == 'author' and order == 'desc':
                 filt = [book_manager.author.desc()]
 
         elif title:
@@ -45,7 +50,7 @@ class Book_CR(Resource):
 
             if sort_query == 'title':
                 filt = [book_manager.title.asc()]
-            elif sort_query == 'title' and order == 'desc':
+            if sort_query == 'title' and order == 'desc':
                 filt = [book_manager.title.desc()]
         
         if sort_query is None:
@@ -88,6 +93,7 @@ class Book_CR(Resource):
         else:
             title = data.get("title")
             author = data.get("author")
+            genre = data.get("genre", None)
 
             normalized_title = title.lower().strip()
 
@@ -98,11 +104,12 @@ class Book_CR(Resource):
             
             if not del_check:
                 new_book = book_manager(
-                    title=title,
-                    author=author,
-                    normalized_title=normalized_title,
-                    user_id=get_jwt_identity(),
-                    is_deleted=False
+                    title = title,
+                    author = author,
+                    normalized_title = normalized_title,
+                    user_id = get_jwt_identity(),
+                    is_deleted = False,
+                    genre = genre
                 )
 
                 try:
