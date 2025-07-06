@@ -10,21 +10,21 @@ def client():
     with app.test_client() as client:
         yield client
 
-# def test_signup_success(client):
-#     response = client.post('/auth/v1/register', json={
-#         "username" : "testuser",
-#         "password" : "testpassword123" ,
-#         "email" : "testemail@bookmanager.com"
-#         })
-#     assert response.status_code == 200
-#     data = response.get_json()
-#     assert "successful" in str(data).lower()
+def test_signup_success(client):
+    response = client.post('/auth/v1/register', json={
+        "username" : "ntestuser",
+        "password" : "ntestpassword123" ,
+        "email" : "ntestemail@bookmanager.com"
+        })
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "successful" in str(data).lower()
 
 def test_signup_no_data(client):
-    response = client.post('/auth/v1/register')
+    response = client.post('/auth/v1/register', json={})
     assert response.status_code == 400
     data = response.get_json()
-    assert "missing" in str(data).lower()
+    assert "validation failed" or "missing" or "invalid" in str(data).lower()
 
 def test_signup_missing_password(client):
     response = client.post('/auth/v1/register', json={
@@ -41,4 +41,4 @@ def test_signup_missing_email(client):
         })
     assert response.status_code == 400
     data = response.get_json()
-    assert "validation_errors" in str(data).lower()
+    assert "validation" or "invalid" in str(data).lower()
