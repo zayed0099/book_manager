@@ -115,11 +115,11 @@ Default rate limits:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License .
 
 ## Support
 
-For support, email support@bookmanager.com or create an issue in the GitHub repository.
+For support, email zayed.ah06@gmail.com or create an issue in the GitHub repository.
 
 ## Changelog
 
