@@ -11,11 +11,9 @@ from flask_jwt_extended import (
     get_jwt
 )
 
-# Local Import
-from app.models.user import User
-from app.models.blacklist import jwt_blacklist 
+# Local Import 
 from app.errors.handlers import CustomBadRequest
-from app.extensions import db, user_schema
+from app.extensions import db
 from app.jwt_extensions import jwt, limiter, admin_required
 
 class AddUser(Resource):
@@ -28,6 +26,7 @@ class AddUser(Resource):
         except BadRequest:
             raise CustomBadRequest("Invalid JSON format.")
 
+        from app.extensions import user_schema
         errors = user_schema.validate(data)
 
         if errors:
@@ -40,6 +39,7 @@ class AddUser(Resource):
 
             now = datetime.now(timezone.utc)
 
+            from app.models import User
             check_user = User.query.filter(User.username == username_signin).first()
 
             if check_user:
@@ -70,6 +70,7 @@ class Login(Resource):
         except BadRequest:
             raise CustomBadRequest("Invalid JSON format.")
 
+        from app.extensions import user_schema
         errors = user_schema.validate(data)
 
         if errors:
@@ -79,6 +80,7 @@ class Login(Resource):
             username_for_login = data.get("username")
             pass_txt_login = data.get("password")
 
+            from app.models import User
             check_user = User.query.filter(
                 User.username == username_for_login
                 ,User.is_banned == False).first()
@@ -111,9 +113,12 @@ class Ref_Token(Resource):
         now = datetime.now(timezone.utc)
         role = token['role']
 
+        from app.models import User
         user = db.session.get(User, identity)
 
         try:
+            from app.models import jwt_blacklist
+
             new_refresh_revoke = jwt_blacklist(jti=jti
                 ,ttype=ttype
                 ,created_at=now
@@ -144,6 +149,7 @@ class Del_Token(Resource):
         role = token['role']
         now = datetime.now(timezone.utc)
         try:
+            from app.models import jwt_blacklist
             new_re = jwt_blacklist(jti=jti
                 ,ttype=ttype
                 ,created_at=now

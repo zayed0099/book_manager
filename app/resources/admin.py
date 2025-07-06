@@ -3,16 +3,15 @@ from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
+from flask_jwt_extended import jwt_required
 import random
 import string
 
 # Local Import
-from app.extensions import (
-    db, user_schema, books_schema, book_schema)
-from app.models import User, book_manager, jwt_blacklist
+from app.extensions import db
 from app.errors.handlers import CustomBadRequest
-from app.jwt_extensions import jwt, admin_required, limiter, admin_required
-from app.logging.ext_admin import logging, logger
+from app.jwt_extensions import jwt, admin_required, limiter
+from app.logging.ext_admin import logger
 '''
 admin can see how manu users in there. 
 add new admin.
@@ -25,9 +24,12 @@ control flow of all new user joining/account deletion
 class Admin_Crud(Resource):
     # Getting info of all admins
     @jwt_required()
-    @admin_required()
+    @admin_required
     @limiter.limit("3 per day")
     def get(self):
+        from app.models import User
+        from app.extensions import user_schema
+
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 5, type=int)
 
@@ -52,7 +54,7 @@ class Admin_Crud(Resource):
     
     # Adding new admin. (full new user)
     @jwt_required()
-    @admin_required()
+    @admin_required
     @limiter.limit("3 per day")
     def post(self):
         try:
@@ -70,6 +72,7 @@ class Admin_Crud(Resource):
             raise CustomBadRequest("Username and password required.")
 
         else:
+            from app.models import User
             check_user = User.query.filter(User.username == username_new_admin).first()
 
             if check_user:
@@ -93,7 +96,7 @@ class Admin_Crud(Resource):
 
     # Upgrading User -> admin
     @jwt_required()
-    @admin_required()
+    @admin_required
     @limiter.limit("3 per day")
     def put(self):
         try:
@@ -109,6 +112,7 @@ class Admin_Crud(Resource):
             raise CustomBadRequest("Username required.")
 
         else:
+            from app.models import User
             check_user = User.query.filter(User.username == username_of_user).first()
 
             if not check_user:
@@ -127,7 +131,7 @@ class Admin_Crud(Resource):
 
     # removing someone from admin
     @jwt_required()
-    @admin_required()
+    @admin_required
     @limiter.limit("3 per day")
     def delete(self):
         try:
@@ -143,6 +147,7 @@ class Admin_Crud(Resource):
             raise CustomBadRequest("Username required.")
 
         else:
+            from app.models import User
             check_user = User.query.filter(User.username == username_of_user
                 ,User.role == 'admin').first()
 
@@ -162,8 +167,10 @@ class Admin_Crud(Resource):
 class Admin_Book_Manage(Resource):
     # admin wanting to see all the books in the db regardless of user
     @jwt_required()
-    @admin_required()
+    @admin_required
     def get(self):
+        from app.models import book_manager
+
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 5, type=int)
 
@@ -221,6 +228,7 @@ class Admin_Book_Manage(Resource):
             abort(404, description="Book not found.")
 
         else:
+            from app.extensions import books_schema
             books =  books_schema.dump(pagination.items)
 
             logger.info('Admin asked to see all book data.')
@@ -236,7 +244,7 @@ class Admin_Book_Manage(Resource):
 class User_Control(Resource):
     # banning a user from the api.
     @jwt_required()
-    @admin_required()
+    @admin_required
     def delete(self):
         try:
             data = request.get_json()
@@ -251,6 +259,7 @@ class User_Control(Resource):
             raise CustomBadRequest("Username required.")
 
         else:
+            from app.models import User
             check_user = User.query.filter(User.username == username_of_user).first()
 
             if not check_user:
@@ -268,7 +277,7 @@ class User_Control(Resource):
 
     # Unbanning a user from the api.
     @jwt_required()
-    @admin_required()
+    @admin_required
     def put(self):
         try:
             data = request.get_json()
@@ -282,6 +291,7 @@ class User_Control(Resource):
         if not username_of_user:
             raise CustomBadRequest("Username required.")
         else:
+            from app.models import User
             check_user = User.query.filter(User.username == username_of_user).first()
 
             if not check_user:
@@ -298,7 +308,7 @@ class User_Control(Resource):
                     raise e             
 
     @jwt_required()
-    @admin_required()
+    @admin_required
     def post(self):
         try:
             data = request.get_json()
@@ -335,8 +345,9 @@ class User_Control(Resource):
 class Jwt_Manage(Resource):
     # Deleting all old jwt token from the db.
     @jwt_required()
-    @admin_required()
+    @admin_required
     def delete(self):
+        from app.models import jwt_blacklist
         now = datetime.now(timezone.utc)
 
         for token in jwt_blacklist.query.all():

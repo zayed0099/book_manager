@@ -1,3 +1,4 @@
+# book.py
 from app.extensions import db
 
 class book_manager(db.Model):
