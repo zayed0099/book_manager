@@ -25,17 +25,17 @@ def token():
             "refresh_token": json_data["refresh_token"]
         }
 
-# def test_refresh_token(client, token):
-#     refresh_token = token["refresh_token"]
+def test_refresh_token(client, token):
+    refresh_token = token["refresh_token"]
 
-#     response = client.post('/auth/v1/refresh', 
-#      headers={
-#         "Authorization": f"Bearer {refresh_token}"
-#     })
-#     assert response.status_code == 200
-#     json_data = response.get_json()
-#     assert "access_token" in json_data
-#     assert "refresh_token" in json_data
+    response = client.post('/auth/v1/refresh', 
+     headers={
+        "Authorization": f"Bearer {refresh_token}"
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert "access_token" in json_data
+    assert "refresh_token" in json_data
 
 def test_logout(client, token):
     access_token = token["access_token"]
