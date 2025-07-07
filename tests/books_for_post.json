@@ -1,0 +1,52 @@
+[
+  {
+    "title": "One Hundred Years of Solitude",
+    "author": "Gabriel García Márquez",
+    "genre": "Magical Realism"
+  },
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "genre": "Science Fiction"
+  },
+  {
+    "title": "Pride and Prejudice",
+    "author": "Jane Austen",
+    "genre": "Romance"
+  },
+  {
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "genre": "Southern Gothic"
+  },
+  {
+    "title": "Sapiens: A Brief History of Humankind",
+    "author": "Yuval Noah Harari",
+    "genre": "History"
+  },
+  {
+    "title": "The Haunting of Hill House",
+    "author": "Shirley Jackson",
+    "genre": "Horror"
+  },
+  {
+    "title": "The Hitchhiker's Guide to the Galaxy",
+    "author": "Douglas Adams",
+    "genre": "Satirical Science Fiction"
+  },
+  {
+    "title": "Educated",
+    "author": "Tara Westover",
+    "genre": "Memoir"
+  },
+  {
+    "title": "The Count of Monte Cristo",
+    "author": "Alexandre Dumas",
+    "genre": "Adventure"
+  },
+  {
+    "title": "Where the Crawdads Sing",
+    "author": "Delia Owens",
+    "genre": "Mystery"
+  }
+]
