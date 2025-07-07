@@ -12,9 +12,9 @@ def client():
 
 def test_signup_success(client):
     response = client.post('/auth/v1/register', json={
-        "username" : "ntestuser",
-        "password" : "ntestpassword123" ,
-        "email" : "ntestemail@bookmanager.com"
+        "username" : "zxcvbnm",
+        "password" : "zxcvbnm123@" ,
+        "email" : "zxcvbnm123@msil.com"
         })
     assert response.status_code == 200
     data = response.get_json()

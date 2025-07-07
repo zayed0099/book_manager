@@ -70,16 +70,13 @@ class Login(Resource):
         except BadRequest:
             raise CustomBadRequest("Invalid JSON format.")
 
-        from app.extensions import user_schema
-        errors = user_schema.validate(data)
+        username_for_login = data.get("username")
+        pass_txt_login = data.get("password")
 
-        if errors:
+        if not username_for_login and pass_txt_login:
             raise CustomBadRequest("Validation failed")
 
         else:
-            username_for_login = data.get("username")
-            pass_txt_login = data.get("password")
-
             from app.models import User
             check_user = User.query.filter(
                 User.username == username_for_login
