@@ -91,9 +91,9 @@ class Login(Resource):
             else:
                 if check_user and check_password_hash(check_user.password , pass_txt_login):
                     access_token = create_access_token(identity=check_user.id
-                        ,additional_claims={"roles": check_user.role})
+                        ,additional_claims={"role": check_user.role})
                     refresh_token = create_refresh_token(identity=check_user.id
-                        ,additional_claims={"roles": check_user.role})
+                        ,additional_claims={"role": check_user.role})
                     return {"access_token": access_token, "refresh_token": refresh_token}, 200        
                 else:
                     return {"message": "Bad username or password. Login unsuccessful"}, 401
@@ -110,9 +110,6 @@ class Ref_Token(Resource):
         now = datetime.now(timezone.utc)
         role = token['role']
 
-        from app.models import User
-        user = db.session.get(User, identity)
-
         try:
             from app.models import jwt_blacklist
 
@@ -127,13 +124,16 @@ class Ref_Token(Resource):
             db.session.rollback()
             raise e
 
+        from app.models import User
+        user = db.session.get(User, identity)
+
         access_token = create_access_token(
             identity=identity
             ,additional_claims={"role": user.role})
         refresh_token = create_refresh_token(
             identity=identity
             ,additional_claims={"role": user.role})
-        return {"access_token" : access_token, "refresh_token" : refresh_token}
+        return {"access_token" : access_token, "refresh_token" : refresh_token}, 200
 
 class Del_Token(Resource):
     @limiter.limit("10 per day")
@@ -154,7 +154,7 @@ class Del_Token(Resource):
                 ,role= role)
             db.session.add(new_re)
             db.session.commit()
-            return {'message': f'{ttype.capitalize()}: JWT token revoked.'}
+            return {"message": "Token revoked successfully"}, 200
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e
