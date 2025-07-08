@@ -176,7 +176,8 @@ class Book_RUD(Resource):
 
 			try:
 				book_to_work.title = data['title']
-				book_to_work.author = data['author'] 
+				book_to_work.author = data['author']
+				book_to_work.normalized_title = data['title'].lower().strip() 
 				db.session.commit()
 				return {"message" : "Updated Successfully"}, 200 
 			except SQLAlchemyError as e:

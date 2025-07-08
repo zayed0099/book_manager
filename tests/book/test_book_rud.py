@@ -24,12 +24,6 @@ def client():
 def token():
     app.config['TESTING'] = True
     with app.test_client() as client:
-        new_user = client.post('/auth/v1/register', json={
-        "username" : "bookrudtest",
-        "password" : "zxasqwerdfcv" ,
-        "email" : "bookrudtest@gmail.com"
-        })
-       
         response = client.post('/auth/v1/login', json={
             "username": "bookrudtest",
             "password": "zxasqwerdfcv"
@@ -42,20 +36,40 @@ def token():
             "refresh_token": json_data["refresh_token"]
         }
         
-
 def test_book_get_by_id(client, token):
     access_token = token["access_token"]
-
-    def test_books_pagination(client, token):
-    access_token = token["access_token"]
-    response = client.get('/api/v1/books?page=2&per_page=5',
+    
+    response = client.get('/api/v1/books/21',
     headers={
         "Authorization": f"Bearer {access_token}"
     })
     assert response.status_code == 200
     json_data = response.get_json()
-    assert "page" in str(json_data).lower()
-    assert "per_page" in str(json_data).lower()
-    assert "total_items" in str(json_data).lower()
-    assert "total_pages" in str(json_data).lower()
+    assert "test" in str(json_data).lower()
+    assert "auth_test" in str(json_data).lower()
+
+def test_book_put_by_id(client, token):
+    access_token = token["access_token"]
     
+    response = client.put('/api/v1/books/22',json={
+        "title" : "just_updated1" ,
+        "author" : "updated1"},
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert "successfully" in str(json_data).lower()
+    assert "updated" in str(json_data).lower()
+    
+def test_book_delete_by_id(client, token):
+    access_token = token["access_token"]
+    
+    response = client.delete('/api/v1/books/23',
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert "successfully" in str(json_data).lower()
+    assert "deleted" in str(json_data).lower()

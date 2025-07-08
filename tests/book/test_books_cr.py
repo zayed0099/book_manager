@@ -24,12 +24,6 @@ def client():
 def token():
     app.config['TESTING'] = True
     with app.test_client() as client:
-        new_user = client.post('/auth/v1/register', json={
-        "username" : "testcrud",
-        "password" : "44256b691@yubiG" ,
-        "email" : "test_bookcrud@mail.com"
-        })
-       
         response = client.post('/auth/v1/login', json={
             "username": "testcrud",
             "password": "44256b691@yubiG"
@@ -124,3 +118,28 @@ def test_search_author_and_title(client, token):
 #         assert json_data["title"] == book["title"]
 #         assert json_data["author"] == book["author"]
 #         assert json_data["genre"] == book["genre"]
+
+
+
+# -------- unused code----------
+# @pytest.fixture(scope="session")
+# def token():
+#     app.config['TESTING'] = True
+#     with app.test_client() as client:
+#         new_user = client.post('/auth/v1/register', json={
+#         "username" : "testcrud",
+#         "password" : "44256b691@yubiG" ,
+#         "email" : "test_bookcrud@mail.com"
+#         })
+       
+#         response = client.post('/auth/v1/login', json={
+#             "username": "testcrud",
+#             "password": "44256b691@yubiG"
+#         })
+#         assert response.status_code in [200, 201]
+#         json_data = response.get_json()
+#         assert "access_token" in json_data
+#         return {
+#             "access_token": json_data["access_token"],
+#             "refresh_token": json_data["refresh_token"]
+#         }
