@@ -23,9 +23,9 @@ def client():
 
 def test_signup_success(client):
     response = client.post('/auth/v1/register', json={
-        "username" : "bookrudtest",
-        "password" : "zxasqwerdfcv" ,
-        "email" : "bookrudtest@gmail.com"
+        "username" : "test233",
+        "password" : "vtvr35v3vbd" ,
+        "email" : "13drftg@gmail.com"
         })
     assert response.status_code == 200
     data = response.get_json()
@@ -37,7 +37,7 @@ def test_signup_no_data(client):
     data = response.get_json()
     assert "validation failed" or "missing" or "invalid" in str(data).lower()
 
-def test_signup_missing_password(client):
+def test_signup_missing_password_email(client):
     response = client.post('/auth/v1/register', json={
         "username" : "testuser_wo_pass"
         })
@@ -45,9 +45,9 @@ def test_signup_missing_password(client):
     data = response.get_json()
     assert "validation" in str(data).lower()
 
-def test_signup_missing_email(client):
+def test_signup_missing_password(client):
     response = client.post('/auth/v1/register', json={
-        "username" : "testuser_wo_mail" ,
+        "username" : "testuser_wof_mail" ,
         "email" : "123vwew@mail.com"
         })
     assert response.status_code == 400

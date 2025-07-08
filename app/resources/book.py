@@ -211,11 +211,13 @@ class Book_reuse(Resource):
 		from app.models.book import book_manager
 		from app.extensions import books_schema
 		
+		current_user_id = get_jwt_identity()
+		
 		pagination = book_manager.query.filter(
-			user_id=get_jwt_identity()
-			,is_deleted=True
-			).paginate(
-			page=page, per_page=per_page, error_out=False)
+		    book_manager.user_id == get_jwt_identity(),
+		    book_manager.is_deleted == True
+		).paginate(page=page, per_page=per_page, error_out=False)
+
 
 		if not pagination.items:
 			abort(404, description="Book not found.")
@@ -319,11 +321,13 @@ class Book_Favourite(Resource):
 		normalized_title = title.lower().strip()
 
 		from app.models.book import book_manager
-
-		if not username_of_user:
-			raise CustomBadRequest("Username required.")
+		
+		current_user_id = get_jwt_identity()
+		
+		if not title:
+			raise CustomBadRequest("title required.")
 		else:
-			check = book_manager.query.filter_by(
+			check = book_manager.query.filter_by(book_manager.user_id == current_user_id,
 				book_manager.normalized_title == normalized_title).first()
 
 			if check.is_deleted:
@@ -356,11 +360,13 @@ class Book_Favourite(Resource):
 		normalized_title = title.lower().strip()
 
 		from app.models.book import book_manager
+		
+		current_user_id = get_jwt_identity()
 
-		if not username_of_user:
-			raise CustomBadRequest("Username required.")
+		if not title:
+			raise CustomBadRequest("title required.")
 		else:
-			check = book_manager.query.filter_by(
+			check = book_manager.query.filter_by(book_manager.user_id == current_user_id,
 				book_manager.normalized_title == normalized_title).first()
 
 			if check.is_deleted:
@@ -370,8 +376,8 @@ class Book_Favourite(Resource):
 				try:
 					check.favourite == False
 					db.session.commit()
-					return {'message' : 'Book removed from favourites.'}
+					return {'message' : 'Book removed from favourites.'}, 200
 				except SQLAlchemyError as e:
 					db.session.rollback()
-					return {'message' : 'An error occured.'}
+					return {'message' : 'An error occured.'}, 500
 					raise e
