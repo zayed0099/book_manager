@@ -1,6 +1,6 @@
 # extensions.py
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_migrate import Migrate
 # Local Import
 from app.schema import BookSchema, UserSchema
 
@@ -11,6 +11,7 @@ user_schema = UserSchema(many=False)
 
 # Global instances
 db = SQLAlchemy()
+migrate = Migrate()
 
 
     

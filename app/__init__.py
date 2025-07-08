@@ -7,7 +7,7 @@ from app.errors.handlers import register_error_handlers
 from app.routes.auth_routes import auth_bp
 from app.routes.book_routes import book_bp
 from app.routes.admin_routes import admin_bp
-from app.extensions import db
+from app.extensions import db, migrate
 from .config import Config, dbconfig, jwt_config
 from app.jwt_extensions import jwt, limiter
 
@@ -22,6 +22,7 @@ def create_app():
     limiter.init_app(app)
     db.init_app(app)
     jwt.init_app(app)
+    migrate.init_app(app, db)
 
     from app.models import User, book_manager, jwt_blacklist
 
