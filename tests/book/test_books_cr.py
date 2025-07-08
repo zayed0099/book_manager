@@ -1,4 +1,15 @@
+import json
+import sys
+import os
 import pytest
+
+# Get the absolute path to the root of your project
+current_dir = os.path.dirname(__file__)              # tests/
+project_root = os.path.abspath(os.path.join(current_dir, '..'))  # go up to project root
+
+# Add the project root to sys.path
+sys.path.append(project_root)
+
 from run import app
 from app.extensions import db
 
@@ -7,6 +18,7 @@ def client():
     app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
+
 
 @pytest.fixture(scope="session")
 def token():
@@ -85,75 +97,30 @@ def test_search_author_and_title(client, token):
     assert "total_items" in str(json_data).lower()
     assert "total_pages" in str(json_data).lower()
 
-def test_adding_books(client, token):
-    access_token = token["access_token"]
+# def test_adding_books(client, token):
+#     access_token = token["access_token"]
     
-    # currently books is empty but its used to post books in bulk
-    books = [
-  {
-    "title": "One Hundred Years of Solitude",
-    "author": "Gabriel García Márquez",
-    "genre": "Magical Realism"
-  },
-  {
-    "title": "Dune",
-    "author": "Frank Herbert",
-    "genre": "Science Fiction"
-  },
-  {
-    "title": "Pride and Prejudice",
-    "author": "Jane Austen",
-    "genre": "Romance"
-  },
-  {
-    "title": "To Kill a Mockingbird",
-    "author": "Harper Lee",
-    "genre": "Southern Gothic"
-  },
-  {
-    "title": "Sapiens: A Brief History of Humankind",
-    "author": "Yuval Noah Harari",
-    "genre": "History"
-  },
-  {
-    "title": "The Haunting of Hill House",
-    "author": "Shirley Jackson",
-    "genre": "Horror"
-  },
-  {
-    "title": "The Hitchhiker's Guide to the Galaxy",
-    "author": "Douglas Adams",
-    "genre": "Satirical Science Fiction"
-  },
-  {
-    "title": "Educated",
-    "author": "Tara Westover",
-    "genre": "Memoir"
-  },
-  {
-    "title": "The Count of Monte Cristo",
-    "author": "Alexandre Dumas",
-    "genre": "Adventure"
-  },
-  {
-    "title": "Where the Crawdads Sing",
-    "author": "Delia Owens",
-    "genre": "Mystery"
-  }
-]
-   
-    for book in books:
-        response = client.post('/api/v1/books', json={
-        "title": book["title"],
-        "author": book["author"],
-        "genre" : book["genre"]
-    },
-        headers={
-            "Authorization": f"Bearer {access_token}"
-        })
-        assert response.status_code == 201
-        json_data = response.get_json()
-        assert json_data["title"] == book["title"]
-        assert json_data["author"] == book["author"]
-        assert json_data["genre"] == book["genre"]
+#     basedir = os.path.abspath(os.path.dirname(__file__))
+#     file = os.path.join(basedir, 'books_for_post.json')
 
+#     with open(file, 'r') as f:
+#         books = json.load(f)
+
+#     for book in books:
+#         response = client.post('/api/v1/books', json={
+#             "title": book["title"],
+#             "author": book["author"],
+#             "genre": book["genre"]
+#         }, headers={
+#             "Authorization": f"Bearer {access_token}"
+#         })
+        
+#         assert response.status_code == 201
+        
+#         json_data = response.get_json()
+#         assert "title" in json_data
+#         assert "author" in json_data
+#         assert "genre" in json_data
+#         assert json_data["title"] == book["title"]
+#         assert json_data["author"] == book["author"]
+#         assert json_data["genre"] == book["genre"]

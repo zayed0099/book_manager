@@ -11,8 +11,8 @@ from app.jwt_extensions import limiter
 class Book_CR(Resource):
 	@jwt_required()
 	def get(self):
-		page = request.args.get('page', 1, type=int)
-		per_page = request.args.get('per_page', 5, type=int)
+		page = request.args.get('page', default=1, type=int)
+		per_page = request.args.get('per_page', default=5, type=int)
 
 		title_get = request.args.get('title', '', type=str)
 		author = request.args.get('author', '', type=str)

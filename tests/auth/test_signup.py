@@ -1,4 +1,15 @@
 import pytest
+
+import sys
+import os
+
+# Get the absolute path to the root of your project
+current_dir = os.path.dirname(__file__)              # tests/book/
+project_root = os.path.abspath(os.path.join(current_dir, '../../..'))
+
+# Add the project root to sys.path
+sys.path.append(project_root)
+
 from run import app
 from app.extensions import db
 
@@ -12,9 +23,9 @@ def client():
 
 def test_signup_success(client):
     response = client.post('/auth/v1/register', json={
-        "username" : "zxcvbnm",
-        "password" : "zxcvbnm123@" ,
-        "email" : "zxcvbnm123@msil.com"
+        "username" : "bookrudtest",
+        "password" : "zxasqwerdfcv" ,
+        "email" : "bookrudtest@gmail.com"
         })
     assert response.status_code == 200
     data = response.get_json()
