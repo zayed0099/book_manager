@@ -83,8 +83,8 @@ def test_recover_book(client, token):
     })
     assert response.status_code == 200
     json_data = response.get_json()
-    assert "page" in str(json_data).lower()
-    assert "books" in str(json_data).lower()
+    assert "authordes" in str(json_data).lower()
+    assert "recovery_check" in str(json_data).lower()
 
 """ adding/deleting/updating books favourite test"""
 
@@ -103,8 +103,7 @@ def test_see_book_favourite(client, token):
 def test_add_book_favourites(client, token):
     access_token = token["access_token"]
     
-    response = client.put('/api/v1/favourites',json={
-        "title" : "1984"},
+    response = client.put('/api/v1/favourites/27',
     headers={
         "Authorization": f"Bearer {access_token}"
     })
@@ -116,7 +115,7 @@ def test_add_book_favourites(client, token):
 def test_delete_book_favourites(client, token):
     access_token = token["access_token"]
     
-    response = client.delete('/api/v1/favourites',json={
+    response = client.delete('/api/v1/favourites/26',json={
         "title" : "removefav"},
     headers={
         "Authorization": f"Bearer {access_token}"
