@@ -40,10 +40,11 @@ class AddUser(Resource):
             now = datetime.now(timezone.utc)
 
             from app.models import User
-            check_user = User.query.filter(User.username == username_signin).first()
+            check_user = User.query.filter(User.username == username_signin
+                ,User.email == email_signin).first()
 
             if check_user:
-                raise CustomBadRequest("Username already taken.")
+                raise CustomBadRequest("An error occured. Please, Try again")
             else:
                 new_hashed_pw_signin = generate_password_hash(pass_txt_signin)
 

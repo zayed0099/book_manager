@@ -2,6 +2,7 @@ import json
 import sys
 import os
 import pytest
+import pprint
 
 # Get the absolute path to the root of your project
 current_dir = os.path.dirname(__file__)              # tests/
@@ -36,7 +37,81 @@ def token():
             "refresh_token": json_data["refresh_token"]
         }
 
-def test_books_get_admin(client, token):
+def test_get_admin(client, token):
+    access_token = token["access_token"]
+    response = client.get('/a/v1/manage',
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+
+    pprint.pprint(json_data)
+
+    assert "page" in str(json_data).lower()
+    assert "per_page" in str(json_data).lower()
+    assert "total_items" in str(json_data).lower()
+    assert "total_pages" in str(json_data).lower()
+    assert "zxcvbnm" in str(json_data).lower()
+    assert "testadmin" in str(json_data).lower()
+
+def test_create_new_admin(client, token):
+    access_token = token["access_token"]
+    response = client.post('/a/v1/manage',json={
+        "username": "admin_crud_test_remove",
+        "password": "admincrudtest_remove" ,
+        "email" : "admincrud.remove@test.com"
+        },
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+
+    pprint.pprint(json_data)
+
+    assert "successful" in str(json_data).lower()
+    assert "login" in str(json_data).lower()
+    assert "start" in str(json_data).lower()
+
+
+def test_create_new_admin_put(client, token):
+    access_token = token["access_token"]
+    response = client.put('/a/v1/manage',json={
+        "username": "testuser"
+        },
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+
+    pprint.pprint(json_data)
+
+    assert "successful" in str(json_data).lower()
+    assert "admin" in str(json_data).lower()
+
+def test_books_delete_admin(client, token):
+    access_token = token["access_token"]
+    response = client.delete('/a/v1/manage',json={
+        "username" : "admin_crud_test_remove"
+        },
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+    assert response.status_code == 200
+    json_data = response.get_json()
+
+    pprint.pprint(json_data)
+
+    assert "removed" in str(json_data).lower()
+    assert "user" in str(json_data).lower()
+    assert "admin" in str(json_data).lower()
+    assert "ban" in str(json_data).lower()
+
+
+
+def test_books_get_book_admin(client, token):
     access_token = token["access_token"]
     response = client.get('/a/v1/books?page=1&per_page=5',
     headers={
@@ -45,7 +120,6 @@ def test_books_get_admin(client, token):
     assert response.status_code == 200
     json_data = response.get_json()
 
-    import pprint
     pprint.pprint(json_data)
 
     assert "page" in str(json_data).lower()
@@ -55,3 +129,11 @@ def test_books_get_admin(client, token):
     assert "dune" in str(json_data).lower()
     assert "one hundred years of solitude" in str(json_data).lower()
     assert "to kill a mockingbird" in str(json_data).lower()
+'''
+credentials to use later
+{
+    "username": "admin_crud_test",
+    "password": "admincrudtest" ,
+    "email" : "admincrud@test.com"
+}
+'''

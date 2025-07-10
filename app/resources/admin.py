@@ -41,7 +41,8 @@ class Admin_Crud(Resource):
             abort(404, description="No admins found.")
 
         else:
-            admins =  user_schema.dump(pagination.items, many=True)
+            from app.extensions import admin_schema
+            admins =  admin_schema.dump(pagination.items, many=True)
 
             logger.info('Admin requested to see data of all admins.')
             return {
@@ -64,14 +65,18 @@ class Admin_Crud(Resource):
         except BadRequest:
             raise CustomBadRequest("Invalid JSON format.")
 
-        username_new_admin = data.get("username")
-        pass_new_admin = data.get("password")
-        now = datetime.now(timezone.utc)
+        from app.extensions import user_schema
+        errors = user_schema.validate(data)
 
-        if not username_new_admin or not pass_new_admin:
-            raise CustomBadRequest("Username and password required.")
+        if errors:
+            raise CustomBadRequest("Validation failed")
 
         else:
+            username_new_admin = data.get("username")
+            pass_new_admin = data.get("password")
+            email_new_admin = data.get("email")
+            now = datetime.now(timezone.utc)
+
             from app.models import User
             check_user = User.query.filter(User.username == username_new_admin).first()
 
@@ -83,7 +88,8 @@ class Admin_Crud(Resource):
                 new_admin = User(username=username_new_admin
                     ,password=new_hashed_pw_admin
                     ,joined=now
-                    ,role='admin')
+                    ,role='admin'
+                    ,email=email_new_admin)
 
                 try:
                     db.session.add(new_admin)
@@ -117,6 +123,9 @@ class Admin_Crud(Resource):
 
             if not check_user:
                 abort(404, description="User not found in the database.")
+
+            elif check_user.role == "admin":
+                return {"message" : "User already a admin. Send a Delete req to remove."}
 
             else:
                 try:
@@ -228,8 +237,8 @@ class Admin_Book_Manage(Resource):
             abort(404, description="Book not found.")
 
         else:
-            from app.extensions import admin_schema
-            books =  admin_schema.dump(pagination.items)
+            from app.extensions import admin_schema_book
+            books =  admin_schema_book.dump(pagination.items)
 
             logger.info('Admin asked to see all book data.')
             return {
