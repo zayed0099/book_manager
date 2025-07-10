@@ -228,8 +228,8 @@ class Admin_Book_Manage(Resource):
             abort(404, description="Book not found.")
 
         else:
-            from app.extensions import books_schema
-            books =  books_schema.dump(pagination.items)
+            from app.extensions import admin_schema
+            books =  admin_schema.dump(pagination.items)
 
             logger.info('Admin asked to see all book data.')
             return {
