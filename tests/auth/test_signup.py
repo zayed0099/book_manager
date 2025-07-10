@@ -23,9 +23,9 @@ def client():
 
 def test_signup_success(client):
     response = client.post('/auth/v1/register', json={
-        "username" : "test233",
-        "password" : "vtvr35v3vbd" ,
-        "email" : "13drftg@gmail.com"
+        "username" : "testadmin",
+        "password" : "testadminpass" ,
+        "email" : "admin@bookroad.org"
         })
     assert response.status_code == 200
     data = response.get_json()
