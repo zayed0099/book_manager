@@ -90,10 +90,12 @@ def token():
 #     assert "testuser" in str(json_data).lower()
 #     assert "restored" in str(json_data).lower()
 
- def test_admin_delete_jwt(client, token):
+def test_admin_delete_jwt(client, token):
     access_token = token["access_token"]
-    response = client.put('/a/v1/jwt/clear',
-    headers={"Authorization": f"Bearer {access_token}"})
+    response = client.delete(
+        '/a/v1/jwt/clear',
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
     assert response.status_code == 200
     json_data = response.get_json()
 
@@ -101,4 +103,4 @@ def token():
 
     assert "tokens" in str(json_data).lower()
     assert "permitted" in str(json_data).lower()
-    assert "delete" in str(json_data).lower()   
+    assert "delete" in str(json_data).lower()

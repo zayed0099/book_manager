@@ -360,7 +360,11 @@ class Jwt_Manage(Resource):
         now = datetime.now(timezone.utc)
 
         for token in jwt_blacklist.query.all():
-            if now >= (token.created_at + timedelta(days=15)):
+            created_at = token.created_at
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+
+            if now >= (created_at + timedelta(days=15)):
                 try:
                     db.session.delete(token)
                     db.session.commit()
