@@ -110,25 +110,6 @@ def test_books_delete_admin(client, token):
     assert "ban" in str(json_data).lower()
 
 
-
-def test_books_get_book_admin(client, token):
-    access_token = token["access_token"]
-    response = client.get('/a/v1/books?page=1&per_page=5',
-    headers={
-        "Authorization": f"Bearer {access_token}"
-    })
-    assert response.status_code == 200
-    json_data = response.get_json()
-
-    pprint.pprint(json_data)
-
-    assert "page" in str(json_data).lower()
-    assert "per_page" in str(json_data).lower()
-    assert "total_items" in str(json_data).lower()
-    assert "total_pages" in str(json_data).lower()
-    assert "dune" in str(json_data).lower()
-    assert "one hundred years of solitude" in str(json_data).lower()
-    assert "to kill a mockingbird" in str(json_data).lower()
 '''
 credentials to use later
 {

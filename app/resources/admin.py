@@ -368,3 +368,5 @@ class Jwt_Manage(Resource):
                 except SQLAlchemyError as e:
                     db.session.rollback()
                     raise e                
+            else:
+                return {"message" : "Jwt tokens are still not permitted to delete."}, 200
