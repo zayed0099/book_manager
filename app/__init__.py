@@ -1,6 +1,7 @@
 from flask import Flask
 import os
 from flask_restful import Api
+from flask_cors import CORS
 
 # Local Import
 from app.errors.handlers import register_error_handlers
@@ -19,6 +20,8 @@ def create_app():
     app.config.from_object(dbconfig)
     app.config.from_object(jwt_config)
     
+    CORS(app)
+
     limiter.init_app(app)
     db.init_app(app)
     jwt.init_app(app)

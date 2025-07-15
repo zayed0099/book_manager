@@ -91,33 +91,33 @@ def test_search_author_and_title(client, token):
     assert "total_items" in str(json_data).lower()
     assert "total_pages" in str(json_data).lower()
 
-# def test_adding_books(client, token):
-#     access_token = token["access_token"]
+def test_adding_books(client, token):
+    access_token = token["access_token"]
     
-#     basedir = os.path.abspath(os.path.dirname(__file__))
-#     file = os.path.join(basedir, 'books_for_post.json')
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    file = os.path.join(basedir, 'books_for_post.json')
 
-#     with open(file, 'r') as f:
-#         books = json.load(f)
+    with open(file, 'r') as f:
+        books = json.load(f)
 
-#     for book in books:
-#         response = client.post('/api/v1/books', json={
-#             "title": book["title"],
-#             "author": book["author"],
-#             "genre": book["genre"]
-#         }, headers={
-#             "Authorization": f"Bearer {access_token}"
-#         })
+    for book in books:
+        response = client.post('/api/v1/books', json={
+            "title": book["title"],
+            "author": book["author"],
+            "genre": book["genre"]
+        }, headers={
+            "Authorization": f"Bearer {access_token}"
+        })
         
-#         assert response.status_code == 201
+        assert response.status_code == 201
         
-#         json_data = response.get_json()
-#         assert "title" in json_data
-#         assert "author" in json_data
-#         assert "genre" in json_data
-#         assert json_data["title"] == book["title"]
-#         assert json_data["author"] == book["author"]
-#         assert json_data["genre"] == book["genre"]
+        json_data = response.get_json()
+        assert "title" in json_data
+        assert "author" in json_data
+        assert "genre" in json_data
+        assert json_data["title"] == book["title"]
+        assert json_data["author"] == book["author"]
+        assert json_data["genre"] == book["genre"]
 
 
 
