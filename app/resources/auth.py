@@ -159,3 +159,10 @@ class Del_Token(Resource):
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e
+
+
+class CheckUser(Resource):
+    @jwt_required()
+    @limiter.limit("5 per day")
+    def get(self):
+        return {"message": "Valid", "user_id": get_jwt_identity()}, 200
