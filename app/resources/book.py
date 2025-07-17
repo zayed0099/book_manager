@@ -233,6 +233,32 @@ class Book_reuse(Resource):
             'total_pages': pagination.pages
             }, 200
 
+
+class BookRecover(Resource):
+    @jwt_required()
+    def put(self, id):
+        from app.models.book import book_manager
+        current_user_id = get_jwt_identity()
+        
+        check = book_manager.query.filter(
+            book_manager.user_id == current_user_id,
+            book_manager.id == id).first()
+        
+        if not check:
+            return {"message" : "Book not found"}, 404
+
+        else:
+            if check.is_deleted:
+                try:
+                    check.is_deleted = False
+                    db.session.commit()
+                    return {'message' : 'Book recovered.'}, 200
+                except SQLAlchemyError as e:
+                    db.session.rollback()
+                    return {'message' : 'An error occured.'}, 404
+            else:
+                return {'message' : 'Book is already recovered. No need to send another recovery request.'}, 200
+
 class Book_Favourite_get(Resource):
     @jwt_required()
     def get(self):
