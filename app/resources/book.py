@@ -186,6 +186,51 @@ class Book_RUD(Resource):
     
     @jwt_required()
     @limiter.limit("50 per day")
+    def patch(self, id):
+        try:
+            data = request.get_json()
+            if data is None:
+                raise CustomBadRequest("Missing JSON in request.")
+        except BadRequest:
+            raise CustomBadRequest("Invalid JSON format.")
+
+        current_user_id = get_jwt_identity()
+        from app.models.book import book_manager
+        book_tw = book_manager.query.filter_by(user_id=current_user_id, id=id).first()
+        
+        if not book_tw:
+            abort(404, description="Book not found.")
+
+        if any(key in data for key in ['title', 'author', 'genre']):
+            if 'title' in data:
+                book_tw.title = data['title']
+            
+            if 'author' in data:
+                book_tw.author = data['author']
+
+            if 'genre' in data:
+                book_tw.genre = data['genre']
+
+            try:
+                db.session.commit()
+                return {
+                        "message": "Data updated Successfully",
+                        "book": {
+                            "title": book_tw.title,
+                            "author": book_tw.author,
+                            "genre": book_tw.genre
+                        }
+                    }, 200
+
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                return {'message' : 'An error occured'}, 404
+
+        else:
+            return {'message' : 'ERROR! The data format is not correct.'}, 400
+
+    @jwt_required()
+    @limiter.limit("50 per day")
     def delete(self, id):
         current_user_id = get_jwt_identity()
         
