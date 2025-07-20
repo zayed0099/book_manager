@@ -4,8 +4,6 @@ from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import jwt_required
-import random
-import string
 
 # Local Import
 from app.extensions import db
@@ -100,78 +98,57 @@ class Admin_Crud(Resource):
                     db.session.rollback()
                     raise e
 
+class AdminUD(Resource):
     # Upgrading User -> admin
     @jwt_required()
     @admin_required
     @limiter.limit("3 per day")
-    def put(self):
-        try:
-            data = request.get_json()
-            if data is None:
-                raise CustomBadRequest("Missing JSON in request.")
-        except BadRequest:
-            raise CustomBadRequest("Invalid JSON format.")
+    def put(self, id):
+        from app.models import User
+        check_user = User.query.filter(User.id == id).first()
 
-        username_of_user = data.get("username")
+        if not check_user:
+            abort(404, description="User not found in the database.")
 
-        if not username_of_user:
-            raise CustomBadRequest("Username required.")
+        elif check_user.role == "admin":
+            return {"message" : "User already a admin. Send a Delete req to remove."}, 400
 
         else:
-            from app.models import User
-            check_user = User.query.filter(User.username == username_of_user).first()
-
-            if not check_user:
-                abort(404, description="User not found in the database.")
-
-            elif check_user.role == "admin":
-                return {"message" : "User already a admin. Send a Delete req to remove."}
-
-            else:
-                try:
-                    check_user.role = 'admin'
-                    db.session.commit()
-                    return {'message' : 'User added as admin successfully'}
-                    logger.info(f'{username_of_user} : promoted to user -> Admin')
-                except SQLAlchemyError as e:
-                    db.session.rollback()
-                    raise e
-
+            try:
+                check_user.role = 'admin'
+                db.session.commit()
+                logger.info(f'{check_user.username} : promoted to user -> Admin')
+                return {'message' : 'User added as admin successfully'}, 200
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                raise e
 
     # removing someone from admin
     @jwt_required()
     @admin_required
     @limiter.limit("3 per day")
-    def delete(self):
-        try:
-            data = request.get_json()
-            if data is None:
-                raise CustomBadRequest("Missing JSON in request.")
-        except BadRequest:
-            raise CustomBadRequest("Invalid JSON format.")
+    def delete(self, id):
+        from app.models import User
+        check_user = User.query.filter(User.id == id
+            ,User.role == 'admin').first()
 
-        username_of_user = data.get("username")
-
-        if not username_of_user:
-            raise CustomBadRequest("Username required.")
+        if not check_user:
+            return {'message' : 'User is not an admin.'}, 404
 
         else:
-            from app.models import User
-            check_user = User.query.filter(User.username == username_of_user
-                ,User.role == 'admin').first()
-
-            if not check_user:
-                return {'message' : 'User is not an admin.'}
-
-            else:
-                try:
-                    check_user.role = 'user'
-                    db.session.commit()
-                    logger.info(f'{username_of_user} has been removed from admin.')
-                    return {'message' : 'User removed from admin. Go to /user/ban to ban him from being a user too.'}
-                except SQLAlchemyError as e:
-                    db.session.rollback()
-                    raise e
+            try:
+                check_user.role = 'user'
+                db.session.commit()
+                logger.info(f'{check_user.username} has been removed from admin.')
+                return {
+                    'message': (
+                            "User removed from admin. "
+                            "Go to /user/ban to ban the user from using the API."
+                        )
+                    }, 200
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                raise e
 
 class Admin_Book_Manage(Resource):
     # admin wanting to see all the books in the db regardless of user
@@ -214,7 +191,6 @@ class Admin_Book_Manage(Resource):
             elif sort_query == 'author':
                 filt = [book_manager.author.asc()]
             
-
         elif title:
             filters.append(book_manager.normalized_title == title)      
             if sort_query == 'title' and order == 'desc':
@@ -222,8 +198,6 @@ class Admin_Book_Manage(Resource):
             elif sort_query == 'title':
                 filt = [book_manager.title.asc()]
             
-
-
         if sort_query is None:
             pagination = book_manager.query.filter(*filters).paginate(
             page=page, per_page=per_page, error_out=False)
@@ -254,68 +228,43 @@ class User_Control(Resource):
     # banning a user from the api.
     @jwt_required()
     @admin_required
-    def delete(self):
+    def delete(self, id):
+        from app.models import User
+        check_user = User.query.filter(User.id == id).first()
+
+        if not check_user:
+            return {'message' : 'User not found.'}, 404
+
         try:
-            data = request.get_json()
-            if data is None:
-                raise CustomBadRequest("Missing JSON in request.")
-        except BadRequest:
-            raise CustomBadRequest("Invalid JSON format.")
-
-        username_of_user = data.get("username")
-
-        if not username_of_user:
-            raise CustomBadRequest("Username required.")
-
-        else:
-            from app.models import User
-            check_user = User.query.filter(User.username == username_of_user).first()
-
-            if not check_user:
-                return {'message' : 'User not found.'}
-
-            else:
-                try:
-                    check_user.is_banned = True
-                    db.session.commit()
-                    logger.info(f'User [{username_of_user}] has been banned.')
-                    return {'message' : f'User [{username_of_user}] has been banned.'}
-                except SQLAlchemyError as e:
-                    db.session.rollback()
-                    raise e
+            check_user.is_banned = True
+            db.session.commit()
+            logger.info(f'User [{check_user.username}] has been banned.')
+            return {'message' : f'User [{check_user.username}] has been banned.'}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise e
 
     # Unbanning a user from the api.
     @jwt_required()
     @admin_required
-    def put(self):
+    def put(self, id):
+        from app.models import User
+        check_user = User.query.filter(User.id == id).first()
+
+        if not check_user:
+            return {'message' : 'User not found.'}, 404
+
         try:
-            data = request.get_json()
-            if data is None:
-                raise CustomBadRequest("Missing JSON in request.")
-        except BadRequest:
-            raise CustomBadRequest("Invalid JSON format.")
+            check_user.is_banned = False
+            db.session.commit()
+            logger.info(f'User [{check_user.username}] has been unbanned.')
+            return {'message' : f"Access for user '{check_user.username}' has been restored."}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise e             
 
-        username_of_user = data.get("username")
-
-        if not username_of_user:
-            raise CustomBadRequest("Username required.")
-        else:
-            from app.models import User
-            check_user = User.query.filter(User.username == username_of_user).first()
-
-            if not check_user:
-                return {'message' : 'User not found.'}
-
-            else:
-                try:
-                    check_user.is_banned = False
-                    db.session.commit()
-                    logger.info(f'User [{username_of_user}] has been unbanned.')
-                    return {'message' : f"Access for user '{username_of_user}' has been restored."}
-                except SQLAlchemyError as e:
-                    db.session.rollback()
-                    raise e             
-
+# To reset a users password
+class UserCredChange(Resource):
     @jwt_required()
     @admin_required
     def post(self):
@@ -328,27 +277,27 @@ class User_Control(Resource):
 
         username_of_user = data.get("username")
         email = data.get('email')
+        new_pass = data.get('password')
 
-        if not username_of_user and email:
-            raise CustomBadRequest("Username and Email both required.")
+        if not username_of_user or not email or not new_pass:
+            raise CustomBadRequest("Username, Email, and Password are all required.")
 
         else:
-            check_user = User.query.filter(User.username == username_of_user, email == email)
+            check_user = User.query.filter(
+                User.username == username_of_user
+                ,User.email == email).first()
 
             if not check_user:
                 return {'message' : 'User not found.'}
 
-            else:
-                random_string = ''.join(random.choice(string.ascii_letters) for _ in range(10))
-
-                check_user.password = random_string
-                try:
-                    db.session.commit()
-                    logger.info(f'User [{username_of_user}] password has been changed..')
-                    return {'message' : f"Password for user '{username_of_user}' is : {random_string}"}
-                except SQLAlchemyError as e:
-                    db.session.rollback()
-                    raise e
+            check_user.password = generate_password_hash(new_pass)
+            try:
+                db.session.commit()
+                logger.info(f'User [{username_of_user}] password has been changed..')
+                return {'message' : f'User [{username_of_user}] password has been changed..'}, 200
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                raise e
 
 
 class Jwt_Manage(Resource):

@@ -4,8 +4,29 @@ from flask_restful import Api
 admin_bp = Blueprint('admin', __name__, url_prefix='/a/v1')
 admin_api = Api(admin_bp)
 
-from app.resources.admin import Admin_Crud, Admin_Book_Manage, User_Control, Jwt_Manage
+from app.resources.admin import (Admin_Crud, 
+	Admin_Book_Manage, 
+	User_Control, 
+	Jwt_Manage, 
+	UserCredChange,
+	AdminUD)
+
+# Admin seeing all admin data, Adding completely new user as admin
 admin_api.add_resource(Admin_Crud, '/manage')
+
+# Adding/Removing existing user from admin.
+admin_api.add_resource(AdminUD, '/manage/<int:id>')
+
+# Admin wanting to see all the books in the db regardless of user
 admin_api.add_resource(Admin_Book_Manage, '/books')
-admin_api.add_resource(User_Control, '/user/ban')
+
+# Banning/Unbanning a user from the api.
+admin_api.add_resource(User_Control, '/user/ban/<int:id>')
+
+# Reseting user password
+admin_api.add_resource(UserCredChange, '/user/reset')
+
+# Clearing JWT tokens
 admin_api.add_resource(Jwt_Manage, '/jwt/clear')
+
+

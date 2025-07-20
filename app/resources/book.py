@@ -204,6 +204,7 @@ class Book_RUD(Resource):
         if any(key in data for key in ['title', 'author', 'genre']):
             if 'title' in data:
                 book_tw.title = data['title']
+                book_tw.normalized_title = data['title'].lower().strip()
             
             if 'author' in data:
                 book_tw.author = data['author']
