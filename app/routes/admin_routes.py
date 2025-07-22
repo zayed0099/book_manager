@@ -9,7 +9,8 @@ from app.resources.admin import (Admin_Crud,
 	User_Control, 
 	Jwt_Manage, 
 	UserCredChange,
-	AdminUD)
+	AdminUD,
+	User_Show)
 
 # Admin seeing all admin data, Adding completely new user as admin
 admin_api.add_resource(Admin_Crud, '/manage')
@@ -22,6 +23,9 @@ admin_api.add_resource(Admin_Book_Manage, '/books')
 
 # Banning/Unbanning a user from the api.
 admin_api.add_resource(User_Control, '/user/ban/<int:id>')
+
+# getting all user data
+admin_api.add_resource(User_Show, '/user/view')
 
 # Reseting user password
 admin_api.add_resource(UserCredChange, '/user/reset')

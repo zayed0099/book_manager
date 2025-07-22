@@ -11,3 +11,8 @@ class AdminUserSchema(Schema):
     username = fields.Str(dump_only=True)
     email = fields.Str(dump_only=True)
     role = fields.Str(dump_only=True)
+
+class AdminUserSchema_min(Schema):
+	id = fields.Int(dump_only=True)
+    username = fields.Str(dump_only=True)
+    role = fields.Str(dump_only=True)

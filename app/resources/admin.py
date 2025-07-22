@@ -54,7 +54,7 @@ class Admin_Crud(Resource):
     # Adding new admin. (full new user)
     @jwt_required()
     @admin_required
-    @limiter.limit("3 per day")
+    @limiter.limit("1 per day")
     def post(self):
         try:
             data = request.get_json()
@@ -160,7 +160,7 @@ class Admin_Book_Manage(Resource):
         from app.models import book_manager
 
         page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 5, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
 
         title_get = request.args.get('title', '', type=str)
         author = request.args.get('author', '', type=str)
@@ -216,10 +216,36 @@ class Admin_Book_Manage(Resource):
             from app.extensions import admin_schema_book
             books =  admin_schema_book.dump(pagination.items)
 
-            logger.info('Admin asked to see all book data.')
+            logger.info('All book data sent to admin')
             return {
             'user_id' : user_id,
             'books': books,
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'total_items': pagination.total,
+            'total_pages': pagination.pages
+            }, 200
+
+
+class User_Show(Resource):
+    @jwt_required()
+    @admin_required
+    def get(self):
+        from app.models import User
+        page = request.args.get('page', 1, type=int)
+        per_page = 10
+        pagination = User.query.paginate(page=page, per_page=per_page)
+
+        if not pagination.items:
+            abort(404, description="No user found")
+
+        else:
+            from app.extensions import admin_nomail_schema
+            users =  admin_nomail_schema.dump(pagination.items)
+
+            logger.info('All user data sent to admin')
+            return {
+            'users': users,
             'page': pagination.page,
             'per_page': pagination.per_page,
             'total_items': pagination.total,
