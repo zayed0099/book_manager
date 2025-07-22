@@ -31,8 +31,8 @@ class Admin_Crud(Resource):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 5, type=int)
 
-        pagination = User.query.filter(User.role == 'admin'
-            ,User.is_banned == False).paginate(
+        pagination = User.query.filter(User.is_banned == False
+            ,User.was_admin == True).paginate(
             page=page, per_page=per_page, error_out=False)
 
         if not pagination.items:
@@ -87,7 +87,8 @@ class Admin_Crud(Resource):
                     ,password=new_hashed_pw_admin
                     ,joined=now
                     ,role='admin'
-                    ,email=email_new_admin)
+                    ,email=email_new_admin
+                    ,was_admin=True)
 
                 try:
                     db.session.add(new_admin)
@@ -116,6 +117,7 @@ class AdminUD(Resource):
         else:
             try:
                 check_user.role = 'admin'
+                check_user.was_admin = True
                 db.session.commit()
                 logger.info(f'{check_user.username} : promoted to user -> Admin')
                 return {'message' : 'User added as admin successfully'}, 200

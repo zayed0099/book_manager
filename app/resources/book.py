@@ -272,7 +272,7 @@ class Book_reuse(Resource):
             books =  books_schema.dump(pagination.items)
 
             return {
-            'books': books,
+            'del_books': books,
             'page': pagination.page,
             'per_page': pagination.per_page,
             'total_items': pagination.total,
@@ -372,7 +372,7 @@ class Book_Favourite_get(Resource):
             books =  books_schema.dump(pagination.items)
 
             return {
-            'favourite books': books,
+            'favourite_books': books,
             'page': pagination.page,
             'per_page': pagination.per_page,
             'total_items': pagination.total,
