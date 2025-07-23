@@ -3,10 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 # Local Import
 from app.schema import (BookSchema
-	,UserSchema
-	,AdminBookSchema
-	,AdminUserSchema
-	,AdminUserSchema_min)
+    ,UserSchema
+    ,AdminBookSchema
+    ,AdminUserSchema
+    ,AdminUserSchema_min)
 
 # Schema instances
 book_schema = BookSchema() # for a single book

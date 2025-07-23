@@ -311,6 +311,7 @@ class UserCredChange(Resource):
             raise CustomBadRequest("Username, Email, and Password are all required.")
 
         else:
+            from app.models import User
             check_user = User.query.filter(
                 User.username == username_of_user
                 ,User.email == email).first()

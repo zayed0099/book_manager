@@ -13,6 +13,7 @@ class AdminUserSchema(Schema):
     role = fields.Str(dump_only=True)
 
 class AdminUserSchema_min(Schema):
-	id = fields.Int(dump_only=True)
+    id = fields.Int(dump_only=True)
     username = fields.Str(dump_only=True)
     role = fields.Str(dump_only=True)
+    is_banned = fields.Str(dump_only=True)
