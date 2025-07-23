@@ -11,6 +11,10 @@ from app.routes.admin_routes import admin_bp
 from app.extensions import db, migrate
 from .config import Config, dbconfig, jwt_config
 from app.jwt_extensions import jwt, limiter
+from app.ui_routes.admin_routes import admin_ui_bp
+from app.ui_routes.user_routes import user_ui_bp
+from app.ui_routes.auth_routes import auth_ui_bp
+
 
 def create_app():
     app = Flask(__name__)
@@ -37,4 +41,9 @@ def create_app():
     app.register_blueprint(book_bp)
     app.register_blueprint(admin_bp)
     
+    app.register_blueprint(admin_ui_bp)
+    app.register_blueprint(user_ui_bp)
+    app.register_blueprint(auth_ui_bp)
+    
+
     return app
