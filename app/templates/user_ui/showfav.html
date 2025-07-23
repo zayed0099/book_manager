@@ -46,13 +46,17 @@
 </head>
 <body>
 
-	<div class="top-bar">
-		<button id="dboard">Dashboard</button>
+  <div class="top-bar">
+  <button id="dashboard">Dashboard</button>
 
-	    <button id="details">Details</button>
+  <button id="details">Details</button>
 
-		<button id="recover">Recover</button>
-  	</div> <!-- top bar ends -->
+  <button id="recover">Recover</button>
+
+  <button id="favdel">See All</button>
+
+  <button id="admin">Admin Panel</button> 
+  </div> <!-- top bar ends -->
 
 	<div class="container">
 	  <div class="left-section">
@@ -88,7 +92,21 @@
 	</div>
 
 
+<script>
+	const routes = {
+		// User UI
+		dashboard: "{{ url_for('userui.dashboard') }}",
+		manage_books: "{{ url_for('userui.manage_books') }}",
+		recover_deleted_books: "{{ url_for('userui.recover_deleted_books') }}",
+		show_favourite_and_deleted: "{{ url_for('userui.show_favourite_and_deleted') }}",
 
+		// Admin UI
+		manage_admin: "{{ url_for('adminui.manage_admin') }}",
+		// Auth UI
+		login: "{{ url_for('authui.login_page') }}",
+		signup: "{{ url_for('authui.signup_page') }}"
+	}
+</script>
 <script src="{{ url_for('static', filename='js/user/showfav.js') }}"></script>
 </body>
 </html>

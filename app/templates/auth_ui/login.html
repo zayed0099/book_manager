@@ -3,7 +3,7 @@
 <head>
 	<title>Login to your account.</title>
 </head>
-<body>
+<body>	
 	<center>
 		<h2>Login to your account!</h2>
 
@@ -14,9 +14,17 @@
     	<button id="sendDataBtn">Submit</button><br><br>
 
     	<button id="signupBtn">New to here?</button>
-	
+
 	</center>
 
+<script>
+	const routes = {
+		dashboard: "{{ url_for('userui.dashboard') }}",
+		signup: "{{ url_for('authui.signup_page') }}"
+	}
+</script>
+
+    <!-- External JS file -->
 <script src="{{ url_for('static', filename='js/auth/login.js') }}"></script>
 </body>
 </html>

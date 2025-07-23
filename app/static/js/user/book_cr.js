@@ -3,7 +3,7 @@
 const token = localStorage.getItem('jwtToken');
 if (!token) {
     alert("You must be logged in to use this app.");
-    window.location.href = "login.html";
+    window.location.href = routes.login;
 }
 
 
@@ -120,22 +120,25 @@ document.addEventListener('DOMContentLoaded', () => {
 // Logout Button
 document.getElementById("logout").addEventListener("click", () => {
   localStorage.removeItem('jwtToken');
-  window.location.href = "login.html";
+  window.location.href = routes.login;
 });
 
 document.getElementById("details").addEventListener("click", () => {
-  window.location.href = "book_rudf.html";
+  window.location.href = routes.manage_books;
 });
 
 document.getElementById("recover").addEventListener("click", () => {
-  window.location.href = "recovery.html";
+  window.location.href = routes.recover_deleted_books;
 });
 
 document.getElementById("favdel").addEventListener("click", () => {
-  window.location.href = "showfav.html";
+  window.location.href = routes.show_favourite_and_deleted;
 });
 
 document.getElementById("admin").addEventListener("click", () => {
-  window.location.href = "admin.html";
+  window.location.href = routes.manage_admin;
 });
 
+document.getElementById("dashboard").addEventListener("click", () => {
+  window.location.href = routes.dashboard;
+});

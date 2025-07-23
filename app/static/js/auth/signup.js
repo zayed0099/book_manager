@@ -27,7 +27,7 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 	.then(data => {
 		console.log('Server Response:', data);
 		alert('Data sent successfully');
-		window.location.href = "login.html"; 
+    	window.location.href = signupRoutes.login; 
 	})
 	.catch(error => {
 		console.error('There was a problem with the fetch operation:', error);
@@ -36,6 +36,3 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 
 });
 
-document.getElementById("loginBtn").addEventListener("click", () => {
-  window.location.href = "login.html";
-});

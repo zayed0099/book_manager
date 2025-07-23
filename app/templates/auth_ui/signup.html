@@ -16,9 +16,17 @@
     	<button id="sendDataBtn">Submit</button><br><br>
 
     	<button id="loginBtn">Already have an account?</button>
-	 
+	 	
 	</center>
 
+<!-- All Links -->
+
+<script>
+	const routes = {
+		login: "{{ url_for('authui.login_page') }}"
+	}
+</script>
+<!-- External JS Code -->
 <script src="{{ url_for('static', filename='js/auth/signup.js') }}"></script>
 </body>
 </html>

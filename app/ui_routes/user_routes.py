@@ -1,7 +1,7 @@
 
 from flask import Blueprint, render_template
 
-user_ui_bp = Blueprint('usui', __name__)
+user_ui_bp = Blueprint('userui', __name__)
 
 @user_ui_bp.route('/dashboard')
 def dashboard():

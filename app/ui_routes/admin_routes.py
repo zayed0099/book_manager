@@ -1,7 +1,7 @@
 
 from flask import Blueprint, render_template
 
-admin_ui_bp = Blueprint('adui', __name__)
+admin_ui_bp = Blueprint('adminui', __name__)
 
 @admin_ui_bp.route('/manage/admin')
 def manage_admin():

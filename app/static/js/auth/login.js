@@ -26,9 +26,10 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 
 				// extracting it from response and saving it in local storage
 				const accessToken = data.access_token;
+
 				if (accessToken) {
 				    localStorage.setItem('jwtToken', accessToken);
-				    window.location.href = "book_cr.html";
+				    window.location.href = routes.dashboard;
 				} else {
 				    alert("Login failed: No token received.");}
 
@@ -45,5 +46,5 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 }); // Eventlistener ends
 
 document.getElementById("signupBtn").addEventListener("click", () => {
-  window.location.href = "signup.html";
+  window.location.href = routes.signup;
 });

@@ -1,8 +1,9 @@
+
 // 🔐 Check authentication before anything else
 const token = localStorage.getItem('jwtToken');
 if (!token) {
     alert("You must be logged in to use this app.");
-    window.location.href = "login.html";
+    window.location.href = routes.login;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -96,15 +97,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // all buttons in frontend
-
-document.getElementById("dboard").addEventListener("click", () => {
-  window.location.href = "book_cr.html";
-});
-
 document.getElementById("details").addEventListener("click", () => {
-  window.location.href = "book_rudf.html";
+  window.location.href = routes.manage_books;
 });
 
 document.getElementById("recover").addEventListener("click", () => {
-  window.location.href = "recovery.html";
+  window.location.href = routes.recover_deleted_books;
+});
+
+document.getElementById("favdel").addEventListener("click", () => {
+  window.location.href = routes.show_favourite_and_deleted;
+});
+
+document.getElementById("admin").addEventListener("click", () => {
+  window.location.href = routes.manage_admin;
+});
+
+document.getElementById("dashboard").addEventListener("click", () => {
+  window.location.href = routes.dashboard;
 });

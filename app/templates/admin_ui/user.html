@@ -88,15 +88,15 @@
     }
   </style>
 </head>
-<body>
+<body data-login-Url = "{{ url_for('authui.login_page') }}">
 
   <!-- Sidebar -->
   <div class="sidebar">
     <h2>Admin Panel</h2>
-    <a href="user.html">User</a>
-    <a href="admin.html">Admin</a>
+    <a href="{{ url_for('adminui.manage_user') }}">User</a>
+    <a href="{{ url_for('adminui.manage_admin') }}">Admin</a>
     <h2>User Panel</h2>
-    <a href="book_cr.html">Dashboard</a>
+    <a href="{{ url_for('userui.dashboard') }}">Dashboard</a>
   </div>
 <br>
   <!-- Main Content -->
@@ -190,6 +190,11 @@
 
 </div><!-- main content div -->
 
+<script>
+  const routes = {
+    login: "{{ url_for('authui.login_page') }}"
+  }
+</script>
 <script src="{{ url_for('static', filename='js/admin/user.js') }}"></script>
 </body>
 </html>
