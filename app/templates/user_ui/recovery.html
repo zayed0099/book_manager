@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Recover deleted books.</title>
+	<style>
+		table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        .top-bar {
+          background-color: #f1f1f1; /* Light gray */
+          padding: 15px;
+          text-align: center;
+          font-weight: bold;
+          border-bottom: 1px solid #ccc;
+          display: flex;              
+          align-items: center;        
+          gap: 10px;     
+        }
+	</style>
+</head>
+<body>
+
+	<div class="top-bar">
+        <button id="dsboard">Dashboard</button>
+
+        <button id="details">Details</button>
+
+        <button id="favdel">See All</button>
+
+    </div> <!-- top bar ends -->
+
+	<center>
+	<h2>Recover deleted books.</h2>
+	<table id='bookTable'> 
+				
+		<thead>
+			<th>Title</th>
+			<th>Delete</th>
+		</thead>
+
+		<tbody id='dataTableBody'></tbody>
+	
+	</table>
+	<br><br>
+	
+	</center>
+
+<script src="{{ url_for('static', filename='js/user/recovery.js') }}"></script>
+</body>
+</html>

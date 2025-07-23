@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Page</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background-color: #f1f1f1;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+    }
+
+    .sidebar a {
+      display: block;
+      margin-bottom: 15px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .sidebar a:hover {
+      color: #007bff;
+    }
+
+    /* Main content area */
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      background-color: #fff;
+    }
+
+    .main-content h1 {
+      font-size: 2rem;
+    }
+    table {
+      width: 70%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+  }
+  /*modal part*/
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+          .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            position: relative;
+        }
+          #closeBtn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Admin Panel</h2>
+    <a href="user.html">User</a>
+    <a href="admin.html">Admin</a>
+    <h2>User Panel</h2>
+    <a href="book_cr.html">Dashboard</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h1>Admin Page</h1>
+    <p>Admin page for managing admin related task.</p>
+    <br>
+    
+    <div id='showAdminAll'>
+      <center><h3 style="color: red; text-align: center;">All Admins.<h3>
+        <h5><i>Don't open the update menu unless you want to change roles!</i></h5>
+        <h6><i>User with role:admin, previously served as admin.</i></h6>
+        <br>
+        <table>
+          <thead>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Update</th>
+          </thead>
+          <tbody id='userTable'>
+          </tbody>
+        </table>
+      </center>  
+    </div>
+
+    <br><br>
+
+    <div id="addNewAdmin" style="border: 1px solid black;">
+      <center>
+        <br>
+        <h3 style="color: red; text-align: center;">Add a new Admin</h3>
+        <h6>⚠︎ The user you will create will serve as an admin for the site.</h6><br>
+
+        <input type="email" id="emailInput" placeholder="Enter email"><br><br>
+        
+        <input type="text" id="usernameInput" placeholder="Enter username"><br><br>
+
+        <input type="password" id="passInput" placeholder="Enter password (min 8 digits)"><br><br>
+      
+        <button id="sendDataBtn">Submit</button><br><br>
+    
+      </center>      
+      <br>
+    </div>
+
+
+<div id="modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span id="closeBtn">&times;</span>
+      
+      <p id="modalUsername"></p>
+      <p id="modalEmail"></p>
+      
+      <label for="options">Choose Role</label>
+      <select name="roles" id="roles">
+        <option value="admin">Admin</option>
+        <option value="user">User</option>
+      </select>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <button type="submit" id="submitChanges">Submit</button>
+      </div>  
+  
+  </div>
+</div>
+
+
+</div> <!-- div end for main content -->
+
+<script src="{{ url_for('static', filename='js/admin/admin.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login to your account.</title>
+</head>
+<body>
+	<center>
+		<h2>Login to your account!</h2>
+
+		<input type="text" id="usernameInput" placeholder="Enter username"><br><br>
+
+    	<input type="password" id="passInput" placeholder="Enter password (min 8 digits)"><br><br>
+    	
+    	<button id="sendDataBtn">Submit</button><br><br>
+
+    	<button id="signupBtn">New to here?</button>
+	
+	</center>
+
+<script src="{{ url_for('static', filename='js/auth/login.js') }}"></script>
+</body>
+</html>

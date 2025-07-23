@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Show all Favourites and deleted</title>
+	<style>
+		.container {
+		  display: flex;
+		  width: 100%; 
+		}
+
+		.left-section {
+		  width: 47%; 
+		  
+		}
+
+		.right-section {
+		  width: 47%; 
+		}
+		.central-section{
+		  width: 6%;
+			
+			border-left: 1px solid red; 
+			border-right: 1px solid red; 
+			
+		}
+		table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        .top-bar {
+	      background-color: #f1f1f1; /* Light gray */
+	      padding: 15px;
+	      text-align: center;
+	      font-weight: bold;
+	      border-bottom: 1px solid #ccc;
+	      display: flex;              /* Add this */
+		  align-items: center;        /* Optional: vertically align buttons */
+		  gap: 10px;     
+	    }
+	</style>
+</head>
+<body>
+
+	<div class="top-bar">
+		<button id="dboard">Dashboard</button>
+
+	    <button id="details">Details</button>
+
+		<button id="recover">Recover</button>
+  	</div> <!-- top bar ends -->
+
+	<div class="container">
+	  <div class="left-section">
+	    <center><h2>All favourite books</h2></center>
+
+	    <table id='datatablefav'>
+	    	<thead>
+	    		<th>Title</th>
+	    		<th>Author</th>
+	    		<th>Genre</th>
+	    	</thead>
+	    	<tbody id='showfav'>
+	    		
+	    	</tbody>
+	    </table>
+	  </div>
+	  
+	  <div class="central-section"></div>
+
+	  <div class="right-section">
+	    <center><h2>All Deleted books</h2></center>
+	    <table id='datatabledel'>
+	    	<thead>
+	    		<th>Title</th>
+	    		<th>Author</th>
+	    		<th>Genre</th>
+	    	</thead>
+	    	<tbody id='showdel'>
+	    		
+	    	</tbody>
+	    </table>
+	  </div>
+	</div>
+
+
+
+<script src="{{ url_for('static', filename='js/user/showfav.js') }}"></script>
+</body>
+</html>
