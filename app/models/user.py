@@ -15,4 +15,6 @@ class User(db.Model):
     is_banned = db.Column(db.Boolean, default=False, nullable=False)
     was_admin = db.Column(db.Boolean, default=False, nullable=False)
 
+    # Relationships
     books = db.relationship('book_manager', backref='user', lazy=True)
+    book_review = db.relationship('RatingsReviews', backref='ratingsuser', lazy=True)
