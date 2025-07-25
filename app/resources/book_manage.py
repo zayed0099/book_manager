@@ -13,7 +13,7 @@ class BookRatings(Resource):
 	def get(self, book_id=None):
 		current_user_id = get_jwt_identity()
 		from app.models.book import book_manager
-		from app.extensions import 
+		from app.extensions import single_review_schema, multi_review_schema
 		from app.models.book import Ratings_Reviews
 
 		if book_id:
@@ -22,7 +22,7 @@ class BookRatings(Resource):
 				Ratings_Reviews.book_id == book_id
 				).first()
 
-			if not book_review:
+			if not book_query:
 				abort(404, description="Book not found.")
 
 			else:
