@@ -26,8 +26,7 @@ class BookRatings(Resource):
 		if book_id:
 			results = db.session.query(book_manager, Ratings_Reviews)\
 			.join(Ratings_Reviews, 
-				Ratings_Reviews.user_id == book_manager.user_id,
-				Ratings_Reviews.book_id == book_manager.id)\
+				Ratings_Reviews.user_id == book_manager.user_id)\
 			.filter(
 				book_manager.user_id == current_user_id,
 				Ratings_Reviews.book_id == book_id)\
@@ -128,3 +127,51 @@ class BookRatings(Resource):
             except SQLAlchemyError as e:
                 db.session.rollback()
                 return {'message' : 'An error occured'}, 500
+
+
+class BookRatings_UD(Resource):
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def patch(self, id):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing Json in request.")
+		except BadRequest:
+            raise CustomBadRequest("Invalid JSON format.")
+
+        rating = data.get('rating')
+        review = data.get('review')
+
+        from app.models.book import Ratings_Reviews
+        
+        book_tw = Ratings_Reviews.query.filter_by(
+        	user_id=get_jwt_identity(), 
+        	id=id).first()
+
+        if not book_tw:
+        	abort(404, description="Book not found.")
+
+        if any(key in data for key in ['rating', 'review']):
+	        if rating:
+	        	book_tw['rating'] = rating
+
+	    	if review:
+	    		book_tw['review'] = review
+
+    		try:
+                db.session.commit()
+                return {
+                        "message": "Data updated Successfully",
+                        "review": {
+                            "rating": book_tw.rating,
+                            "review": book_tw.review
+                        }
+                    }, 200
+
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                return {'message' : 'An error occured'}, 404
+
+        else:
+            return {'message' : 'ERROR! The data format is not correct.'}, 400	
