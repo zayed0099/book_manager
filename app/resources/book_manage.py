@@ -43,4 +43,31 @@ class BookRatings(Resource):
 				}, 200
 
 		else:
-			pass
+			from app.functions import (
+				book_filters_and_sorting, 
+				get_book_query_params)
+
+			params = get_book_query_params()
+			filters, order_by = book_filters_and_sorting(params)
+
+			results = db.session.query(book_manager, Ratings_Reviews)\
+			.join(Ratings_Reviews, Ratings_Reviews.user_id == book_manager.user_id)\
+			.filter(*filters)\
+			.paginate(page=params['page'], per_page=params['per_page'], error_out=False)
+			.all()
+
+			if not results:
+				abort(404, description="Book not found.")
+
+			else:
+				book = book_schema.dump(results[0])
+				review = review_schema.dump(results[1], many=True)
+
+				return {
+				'book' : book,
+				'review' : review,
+				'page': results.page,
+            	'per_page': results.per_page,
+            	'total_items': results.total,
+            	'total_pages': results.pages
+				}, 200
