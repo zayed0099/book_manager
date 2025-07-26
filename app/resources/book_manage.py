@@ -50,24 +50,33 @@ class BookRatings(Resource):
 			params = get_book_query_params()
 			filters, order_by = book_filters_and_sorting(params)
 
-			results = db.session.query(book_manager, Ratings_Reviews)\
+			db_query = db.session.query(book_manager, Ratings_Reviews)\
 			.join(Ratings_Reviews, Ratings_Reviews.user_id == book_manager.user_id)\
-			.filter(*filters)\
-			.paginate(page=params['page'], per_page=params['per_page'], error_out=False)
-			.all()
+			.filter(*filters)
 
-			if not results:
+			if order_by:
+				query = db_query.order_by(*order_by)
+
+			pagination = db_query.paginate(
+				page=params['page'], 
+				per_page=params['per_page'], 
+				error_out=False)
+			
+			if not pagination.items:
 				abort(404, description="Book not found.")
 
 			else:
-				book = book_schema.dump(results[0])
-				review = review_schema.dump(results[1], many=True)
+				books_sep = [pair[0] for pair in pagination.items]
+				reviews_sep = [pair[1] for pair in pagination.items]
+
+				books = books_schema.dump(books_sep)
+				reviews = review_schema.dump(reviews_sep, many=True)
 
 				return {
-				'book' : book,
-				'review' : review,
-				'page': results.page,
-            	'per_page': results.per_page,
-            	'total_items': results.total,
-            	'total_pages': results.pages
+				'book' : books,
+				'review' : reviews,
+				'page': pagination.page,
+            	'per_page': pagination.per_page,
+            	'total_items': pagination.total,
+            	'total_pages': pagination.pages
 				}, 200
