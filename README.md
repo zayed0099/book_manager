@@ -80,20 +80,21 @@ A Flask-based REST API for managing personal book collections with user authenti
 - `DELETE /api/v1/books/{id}` - Delete a book (soft delete)
 - `GET /api/v1/recovery` - Get deleted books
 - `GET /api/v1/favourites` - Get favorite books
-- `PUT /api/v1/favourites` - Add book to favorites
-- `DELETE /api/v1/favourites` - Remove book from favorites
+- `PUT /api/v1/favourites/{id}` - Add book to favorites
+- `DELETE /api/v1/favourites/{id}` - Remove book from favorites
 
-### Admin Routes
+### Admin Routes 
+	*These are all admin only routes.*
 - `GET /a/v1/manage` - Get all admins
 - `POST /a/v1/manage` - Create new admin
-- `PUT /a/v1/manage` - Promote user to admin
-- `DELETE /a/v1/manage` - Demote admin to user
-- `GET /a/v1/books` - View all books (admin only)
-- `PUT /a/v1/user/ban` - Unban user
-- `DELETE /a/v1/user/ban` - Ban user
-- `POST /a/v1/user/ban` - Reset user password
+- `PUT /a/v1/manage/{id}` - Promote user to admin
+- `DELETE /a/v1/manage/{id}` - Demote admin to user
+- `GET /a/v1/books` - View all books
+- `PUT /a/v1/user/ban/{id}` - Unban user
+- `DELETE /a/v1/user/ban/{id}` - Ban user
+- `GET /a/v1/user/view` - View all users
+- `POST /a/v1/user/reset` - Reset user password
 - `DELETE /a/v1/jwt/clear` - Clear expired JWT tokens
-
 
 ## Security Features
 
@@ -123,6 +124,12 @@ For support, email zayed.ah06@gmail.com or create an issue in the GitHub reposit
 
 ## Changelog
 
+
+### v1.1.0
+- Added a basic JavaScript and HTML frontend to consume the API
+- Implemented rating and reviews functionality for books
+- Improved core logic and fixed various bugs for better stability
+
 ### v1.0.0
 - Initial release
 - User authentication and authorization
@@ -130,4 +137,5 @@ For support, email zayed.ah06@gmail.com or create an issue in the GitHub reposit
 - Admin panel
 - Rate limiting
 - JWT token management
+
 ```
