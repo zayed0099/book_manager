@@ -16,8 +16,7 @@ user_schema = UserSchema(many=False)
 admin_schema_book = AdminBookSchema(many=True)
 admin_schema = AdminUserSchema(many=True)
 admin_nomail_schema = AdminUserSchema_min(many=True)
-single_review_schema = ReviewBookSchema()
-multi_review_schema = ReviewBookSchema(many=True)
+review_schema = ReviewBookSchema()
 
 # Global instances
 db = SQLAlchemy()

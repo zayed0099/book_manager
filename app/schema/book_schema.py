@@ -25,4 +25,4 @@ def validate_word_count(value):
 class ReviewBookSchema(Schema):
 	id = fields.Int(dump_only=True)
 	review = fields.Str(required=True, validate=validate_word_count)
-	rating = fields.Int(required=True)
+	rating = fields.Int(required=True, validate=validate.Range(min=1, max=10))

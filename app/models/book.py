@@ -30,10 +30,12 @@ class Ratings_Reviews(db.Model):
     __tablename__ = 'RatingsReviews'    
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)
-    book_id = db.Column(db.Integer, db.ForeignKey('book_manager.id'), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text, nullable=False)
+
+    # Foreign Keys
+    user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book_manager.id'), nullable=False)
 
     # Checking users rating if its in (1-10), Adding a combined Index 
     # and Unique constraint so that a user has only one review per book
