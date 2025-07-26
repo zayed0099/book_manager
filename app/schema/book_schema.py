@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, validates, ValidationError
+from marshmallow import Schema, fields, validate, ValidationError
 
 class BookSchema(Schema):
 	id = fields.Int(dump_only=True)

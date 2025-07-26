@@ -1,6 +1,7 @@
 # book.py
 from app.extensions import db
 from sqlalchemy import CheckConstraint
+from datetime import datetime
 
 class book_manager(db.Model):
     __tablename__ = 'book_manager'
@@ -13,7 +14,8 @@ class book_manager(db.Model):
 
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     favourite = db.Column(db.Boolean, default=False, nullable=False)
-    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
     # Foreign Key
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
 
@@ -32,7 +34,8 @@ class Ratings_Reviews(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text, nullable=False)
-
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
     # Foreign Keys
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book_manager.id'), nullable=False)

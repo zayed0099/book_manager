@@ -2,7 +2,7 @@ from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import or_
+from sqlalchemy import or_ , and_
 
 # Local Import
 from app.errors.handlers import CustomBadRequest
@@ -11,6 +11,7 @@ from app.jwt_extensions import limiter
 
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):
+	@jwt_required()
 	def get(self, book_id=None):
 		current_user_id = get_jwt_identity()
 		
@@ -24,7 +25,9 @@ class BookRatings(Resource):
 
 		if book_id:
 			results = db.session.query(book_manager, Ratings_Reviews)\
-			.join(Ratings_Reviews, Ratings_Reviews.user_id == book_manager.user_id)\
+			.join(Ratings_Reviews, 
+				Ratings_Reviews.user_id == book_manager.user_id,
+				Ratings_Reviews.book_id == book_manager.id)\
 			.filter(
 				book_manager.user_id == current_user_id,
 				Ratings_Reviews.book_id == book_id)\
@@ -51,11 +54,16 @@ class BookRatings(Resource):
 			filters, order_by = book_filters_and_sorting(params)
 
 			db_query = db.session.query(book_manager, Ratings_Reviews)\
-			.join(Ratings_Reviews, Ratings_Reviews.user_id == book_manager.user_id)\
+			.join(Ratings_Reviews, 
+				and_(
+					Ratings_Reviews.user_id == book_manager.user_id,
+					Ratings_Reviews.book_id == book_manager.id
+					)
+				)\
 			.filter(*filters)
 
 			if order_by:
-				query = db_query.order_by(*order_by)
+				db_query = db_query.order_by(*order_by)
 
 			pagination = db_query.paginate(
 				page=params['page'], 
@@ -66,17 +74,57 @@ class BookRatings(Resource):
 				abort(404, description="Book not found.")
 
 			else:
-				books_sep = [pair[0] for pair in pagination.items]
-				reviews_sep = [pair[1] for pair in pagination.items]
+				combined_data = []
 
-				books = books_schema.dump(books_sep)
-				reviews = review_schema.dump(reviews_sep, many=True)
+				for book, review in pagination.items:
+					combined_data.append({
+						"book" : book_schema.dump(book),
+						"review" : review_schema.dump(review)
+						})
 
 				return {
-				'book' : books,
-				'review' : reviews,
+				'combined_data' : combined_data,
 				'page': pagination.page,
             	'per_page': pagination.per_page,
             	'total_items': pagination.total,
             	'total_pages': pagination.pages
 				}, 200
+
+	@jwt_required()
+    @limiter.limit("50 per day")
+	def post(self):
+		try:
+            data = request.get_json()
+            if data is None:
+                raise CustomBadRequest("Missing JSON in request.")
+        except BadRequest:
+            raise CustomBadRequest("Invalid JSON format.")
+
+        from app.extensions import review_schema
+        errors = review_schema.validate(data)
+
+        if errors:
+        	raise CustomBadRequest("Validation failed")
+
+    	else:
+    		rating = data.get('rating')
+    		review = data.get('review')
+    		book_id = data.get('book_id')
+
+    		from app.models.book import Ratings_Reviews
+    		new_review = Ratings_Reviews(
+    			rating = rating,
+    			review = review,
+    			user_id = get_jwt_identity(),
+    			book_id = book_id
+    			)
+
+    		from app.extensions import review_schema
+    		
+    		try:
+                db.session.add(new_review)
+                db.session.commit()
+                return review_schema.dump(new_review), 201
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                return {'message' : 'An error occured'}, 500
