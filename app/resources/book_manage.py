@@ -25,8 +25,12 @@ class BookRatings(Resource):
 
 		if book_id:
 			results = db.session.query(book_manager, Ratings_Reviews)\
-			.join(Ratings_Reviews, 
-				Ratings_Reviews.user_id == book_manager.user_id)\
+			.join(Ratings_Reviews,
+				and( 
+					Ratings_Reviews.user_id == book_manager.user_id,
+					Ratings_Reviews.book_id == book_manager.id
+					)
+				)\
 			.filter(
 				book_manager.user_id == current_user_id,
 				Ratings_Reviews.book_id == book_id)\
@@ -84,49 +88,49 @@ class BookRatings(Resource):
 				return {
 				'combined_data' : combined_data,
 				'page': pagination.page,
-            	'per_page': pagination.per_page,
-            	'total_items': pagination.total,
-            	'total_pages': pagination.pages
+				'per_page': pagination.per_page,
+				'total_items': pagination.total,
+				'total_pages': pagination.pages
 				}, 200
 
 	@jwt_required()
-    @limiter.limit("50 per day")
+	@limiter.limit("50 per day")
 	def post(self):
 		try:
-            data = request.get_json()
-            if data is None:
-                raise CustomBadRequest("Missing JSON in request.")
-        except BadRequest:
-            raise CustomBadRequest("Invalid JSON format.")
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing JSON in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
 
-        from app.extensions import review_schema
-        errors = review_schema.validate(data)
+		from app.extensions import review_schema
+		errors = review_schema.validate(data)
 
-        if errors:
-        	raise CustomBadRequest("Validation failed")
+		if errors:
+			raise CustomBadRequest("Validation failed")
 
-    	else:
-    		rating = data.get('rating')
-    		review = data.get('review')
-    		book_id = data.get('book_id')
+		else:
+			rating = data.get('rating')
+			review = data.get('review')
+			book_id = data.get('book_id')
 
-    		from app.models.book import Ratings_Reviews
-    		new_review = Ratings_Reviews(
-    			rating = rating,
-    			review = review,
-    			user_id = get_jwt_identity(),
-    			book_id = book_id
-    			)
+			from app.models.book import Ratings_Reviews, book_manager
+			new_review = Ratings_Reviews(
+				rating = rating,
+				review = review,
+				user_id = get_jwt_identity(),
+				book_id = book_id
+				)
 
-    		from app.extensions import review_schema
-    		
-    		try:
-                db.session.add(new_review)
-                db.session.commit()
-                return review_schema.dump(new_review), 201
-            except SQLAlchemyError as e:
-                db.session.rollback()
-                return {'message' : 'An error occured'}, 500
+			from app.extensions import review_schema
+			
+			try:
+				db.session.add(new_review)
+				db.session.commit()
+				return review_schema.dump(new_review), 201
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured'}, 500
 
 
 class BookRatings_UD(Resource):
@@ -138,40 +142,64 @@ class BookRatings_UD(Resource):
 			if data is None:
 				raise CustomBadRequest("Missing Json in request.")
 		except BadRequest:
-            raise CustomBadRequest("Invalid JSON format.")
+			raise CustomBadRequest("Invalid JSON format.")
 
-        rating = data.get('rating')
-        review = data.get('review')
+		rating = data.get('rating')
+		review = data.get('review')
 
-        from app.models.book import Ratings_Reviews
-        
-        book_tw = Ratings_Reviews.query.filter_by(
-        	user_id=get_jwt_identity(), 
-        	id=id).first()
+		from app.models.book import Ratings_Reviews
+		
+		review_tw = Ratings_Reviews.query.filter_by(
+			user_id=get_jwt_identity(), 
+			id=id).first()
 
-        if not book_tw:
-        	abort(404, description="Book not found.")
+		if not review_tw:
+			abort(404, description="Review not found.")
 
-        if any(key in data for key in ['rating', 'review']):
-	        if rating:
-	        	book_tw['rating'] = rating
+		if any(key in data for key in ['rating', 'review']):
+			if rating:
+				review_tw['rating'] = rating
 
-	    	if review:
-	    		book_tw['review'] = review
+			if review:
+				review_tw['review'] = review
 
-    		try:
-                db.session.commit()
-                return {
-                        "message": "Data updated Successfully",
-                        "review": {
-                            "rating": book_tw.rating,
-                            "review": book_tw.review
-                        }
-                    }, 200
+			try:
+				db.session.commit()
+				return {
+						"message": "Data updated Successfully",
+						"review": {
+							"rating": review_tw.rating,
+							"review": review_tw.review
+						}
+					}, 200
 
-            except SQLAlchemyError as e:
-                db.session.rollback()
-                return {'message' : 'An error occured'}, 404
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured'}, 404
 
-        else:
-            return {'message' : 'ERROR! The data format is not correct.'}, 400	
+		else:
+			return {'message' : 'ERROR! The data format is not correct.'}, 400
+
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def delete(self, id):
+		current_user_id = get_jwt_identity()
+
+		from app.models.book import Ratings_Reviews
+		from app.extensions import review_schema
+		review_tw = Ratings_Reviews.query.filter_by(
+			user_id=get_jwt_identity(), 
+			id=id).first()
+
+		if not review_tw:
+			abort(404, description='No review found.')
+
+		else:
+			try:
+				db.session.delete(review_tw)
+				return {'message' : 'Review successfully deleted.' ,
+					'deleted_book' : review_schema.dump(review_tw)}
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured'}, 404
+
