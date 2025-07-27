@@ -26,7 +26,7 @@ class BookRatings(Resource):
 		if book_id:
 			results = db.session.query(book_manager, Ratings_Reviews)\
 			.join(Ratings_Reviews,
-				and( 
+				and_( 
 					Ratings_Reviews.user_id == book_manager.user_id,
 					Ratings_Reviews.book_id == book_manager.id
 					)

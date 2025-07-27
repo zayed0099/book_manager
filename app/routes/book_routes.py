@@ -14,7 +14,8 @@ from app.resources.book import (
 )
 
 from app.resources.book_manage import (
-	BookRatings
+	BookRatings,
+	BookRatings_UD
 )
 
 book_api.add_resource(Book_CR, '/books', endpoint='view')  # For Create & Read (all)
@@ -30,3 +31,6 @@ book_api.add_resource(Book_Favourite_ud, '/favourites/<int:id>', endpoint='favou
 # To get id specific or all reviews
 book_api.add_resource(BookRatings, '/reviews', endpoint='review')
 book_api.add_resource(BookRatings, '/reviews/<int:book_id>', endpoint='review_one')
+
+# To edit and delete review/rating => (PATCH, DELETE)
+book_api.add_resource(BookRatings_UD, '/reviews/edit/<int:id>', endpoint='review_edit_del')
