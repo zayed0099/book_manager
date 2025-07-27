@@ -2,7 +2,7 @@ from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import or_ , and_
+from sqlalchemy import and_
 
 # Local Import
 from app.errors.handlers import CustomBadRequest

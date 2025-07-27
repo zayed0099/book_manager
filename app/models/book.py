@@ -20,7 +20,7 @@ class book_manager(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
 
     # Relationship
-    reviews_ratings = db.relationship('RatingsReviews', backref='ratingsbook', lazy=True)
+    reviews_ratings = db.relationship('Ratings_Reviews', backref='ratingsbook', lazy=True)
 
     # Unique constraint to keep books unique
     __table_args__ = (
