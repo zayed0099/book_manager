@@ -36,19 +36,19 @@ def token():
         }
         
 # To Send review+ratings
-# def test_book_review_post(client, token):
-#     access_token = token["access_token"]
+def test_book_review_post(client, token):
+    access_token = token["access_token"]
     
-#     response = client.post('/api/v1/reviews',json={
-#         "review" : "had high expectation but its just another garbage" ,
-#         "rating" : 4,
-#         "book_id" : 13},
-#     headers={
-#         "Authorization": f"Bearer {access_token}"
-#     })
-#     json_data = response.get_json()
-#     print(json_data)
-#     assert response.status_code in [200, 201]
+    response = client.post('/api/v1/reviews',json={
+        "review" : "had high expectation but its just another garbage" ,
+        "rating" : 4,
+        "book_id" : 13},
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+    json_data = response.get_json()
+    print(json_data)
+    assert response.status_code in [200, 201]
 
 # To delete book review
 def test_book_review_delete(client, token):
@@ -65,3 +65,35 @@ def test_book_review_delete(client, token):
     assert response.status_code == 200
     assert "successfully" in str(json_data).lower()
     assert "deleted" in str(json_data).lower()
+
+# To get all books
+def test_book_review_get_all(client, token):
+    access_token = token["access_token"]
+    
+    response = client.get('/api/v1/reviews',
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+
+    json_data = response.get_json()
+    print(json_data)
+
+    assert response.status_code == 200
+    assert "successfully" in str(json_data).lower()
+    assert "retrieved" in str(json_data).lower()
+
+# To get one book
+def test_book_review_get_one(client, token):
+    access_token = token["access_token"]
+    
+    response = client.get('/api/v1/reviews/3',
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+
+    json_data = response.get_json()
+    print(json_data)
+
+    assert response.status_code == 200
+    assert "successfully" in str(json_data).lower()
+    assert "retrieved" in str(json_data).lower()

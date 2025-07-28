@@ -12,7 +12,7 @@ from app.jwt_extensions import limiter
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):
 	@jwt_required()
-	def get(self, book_id=None):
+	def get(self, id=None):
 		current_user_id = get_jwt_identity()
 		
 		from app.models.book import (book_manager,
@@ -23,7 +23,7 @@ class BookRatings(Resource):
 			book_schema,
 			books_schema)
 
-		if book_id:
+		if id:
 			results = db.session.query(book_manager, Ratings_Reviews)\
 			.join(Ratings_Reviews,
 				and_( 
@@ -33,7 +33,7 @@ class BookRatings(Resource):
 				)\
 			.filter(
 				book_manager.user_id == current_user_id,
-				Ratings_Reviews.book_id == book_id)\
+				Ratings_Reviews.id == id)\
 			.first()
 
 			if not results:
@@ -44,6 +44,7 @@ class BookRatings(Resource):
 				review = review_schema.dump(results[1])
 
 				return {
+				'message' : 'The requested book and review is successfully retrieved.' ,
 				'book' : book,
 				'review' : review
 				}, 200
@@ -86,6 +87,7 @@ class BookRatings(Resource):
 						})
 
 				return {
+				'message' : 'Successfully retrieved all books for GET',
 				'combined_data' : combined_data,
 				'page': pagination.page,
 				'per_page': pagination.per_page,
