@@ -11,10 +11,12 @@ class book_manager(db.Model):
     author = db.Column(db.String(200), nullable=False)
     normalized_title = db.Column(db.String(200), nullable=False, index=True)
     genre = db.Column(db.String(30), nullable=True)
+    status = db.Column(db.String(100), server_default="wishlist", nullable=False)
 
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     favourite = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
     # Foreign Key
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
@@ -25,6 +27,9 @@ class book_manager(db.Model):
     # Unique constraint to keep books unique
     __table_args__ = (
     db.UniqueConstraint('user_id', 'normalized_title', name='uq_user_title_normalized'),
+    CheckConstraint(
+        "status IN ('wishlist' , 'in_progress' , 'completed' , 'abandoned')", 
+        name='status_validate'),
     )
 
 

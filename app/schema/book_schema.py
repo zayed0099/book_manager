@@ -1,10 +1,19 @@
 from marshmallow import Schema, fields, validate, ValidationError
 
+# function for checking book status
+def validate_status(value):
+	accepted = ['wishlist' , 'in_progress' , 'completed' , 'abandoned']
+	check = value.strip().lower()
+
+	if check not in accepted:
+		raise ValidationError(f"Invalid status! Must be one of: {', '.join(accepted)}.")
+
 class BookSchema(Schema):
 	id = fields.Int(dump_only=True)
 	title = fields.Str(required=True, validate=validate.Length(min=1))
 	author = fields.Str(required=True, validate=validate.Length(min=1))
 	genre = fields.Str(required=False)
+	status = fields.Str(required=True, validate=validate_status)
 
 class AdminBookSchema(Schema):
 	id = fields.Int(dump_only=True)
@@ -14,6 +23,7 @@ class AdminBookSchema(Schema):
 	is_deleted = fields.Bool(dump_only=True)
 	favourite = fields.Bool(dump_only=True)
 	user_id = fields.Int(dump_only=True)
+	status = fields.Str(required=True, validate=validate_status)
 
 # Functions to validate word length and rating
 def validate_word_count(value):
@@ -29,6 +39,7 @@ def validate_rating(value):
 	elif value < 1:
 		raise ValidationError("rating must be between (1-10)")
 
+# Schema for review
 class ReviewBookSchema(Schema):
 	id = fields.Int(dump_only=True)
 	review = fields.Str(required=True, validate=validate_word_count)
