@@ -13,7 +13,10 @@ class BookSchema(Schema):
 	title = fields.Str(required=True, validate=validate.Length(min=1))
 	author = fields.Str(required=True, validate=validate.Length(min=1))
 	genre = fields.Str(required=False)
-	status = fields.Str(required=True, validate=validate_status)
+	status = fields.Str(required=False, validate=validate_status, missing=None) 
+	
+	'''missing=None , so even if the user doesnt sends a status, it wont
+	throw an error and use the db default, status=wishlist'''
 
 class AdminBookSchema(Schema):
 	id = fields.Int(dump_only=True)

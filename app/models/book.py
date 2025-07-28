@@ -17,7 +17,6 @@ class book_manager(db.Model):
     favourite = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-
     # Foreign Key
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
 
@@ -25,6 +24,7 @@ class book_manager(db.Model):
     reviews_ratings = db.relationship('Ratings_Reviews', backref='ratingsbook', lazy=True)
 
     # Unique constraint to keep books unique
+    # Constraint to limit the status and make it same as marsh schema
     __table_args__ = (
     db.UniqueConstraint('user_id', 'normalized_title', name='uq_user_title_normalized'),
     CheckConstraint(
