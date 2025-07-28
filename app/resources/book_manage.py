@@ -197,6 +197,7 @@ class BookRatings_UD(Resource):
 		else:
 			try:
 				db.session.delete(review_tw)
+				db.session.commit()
 				return {'message' : 'Review successfully deleted.' ,
 					'deleted_book' : review_schema.dump(review_tw)}
 			except SQLAlchemyError as e:

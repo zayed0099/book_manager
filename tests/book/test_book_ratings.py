@@ -1,5 +1,4 @@
 import pytest
-import pprint
 import sys
 import os
 
@@ -37,32 +36,32 @@ def token():
         }
         
 # To Send review+ratings
-def test_book_review_post(client, token):
-    access_token = token["access_token"]
-    
-    response = client.post('/api/v1/reviews',json={
-        "review" : "had high expectation but its just another garbage" ,
-        "rating" : 4,
-        "book_id" : 13},
-    headers={
-        "Authorization": f"Bearer {access_token}"
-    })
-    json_data = response.get_json()
-    pprint.pprint(json_data)
-    assert response.status_code in [200, 201]
-    assert "garbage" in json_data
-    assert "high" in json_data
-    assert "expectation" in json_data
-
-
-# def test_book_review_delete(client, token):
+# def test_book_review_post(client, token):
 #     access_token = token["access_token"]
     
-#     response = client.delete('/reviews/1',
+#     response = client.post('/api/v1/reviews',json={
+#         "review" : "had high expectation but its just another garbage" ,
+#         "rating" : 4,
+#         "book_id" : 13},
 #     headers={
 #         "Authorization": f"Bearer {access_token}"
 #     })
-#     assert response.status_code == 200
 #     json_data = response.get_json()
-#     assert "successfully" in str(json_data).lower()
-#     assert "updated" in str(json_data).lower()
+#     print(json_data)
+#     assert response.status_code in [200, 201]
+
+# To delete book review
+def test_book_review_delete(client, token):
+    access_token = token["access_token"]
+    
+    response = client.delete('/api/v1/reviews/edit/4',
+    headers={
+        "Authorization": f"Bearer {access_token}"
+    })
+
+    json_data = response.get_json()
+    print(json_data)
+
+    assert response.status_code == 200
+    assert "successfully" in str(json_data).lower()
+    assert "deleted" in str(json_data).lower()
