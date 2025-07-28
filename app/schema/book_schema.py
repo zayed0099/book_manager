@@ -17,11 +17,11 @@ class AdminBookSchema(Schema):
 
 # Functions to validate word length and rating
 def validate_word_count(value):
-    word_count = len(value.strip().split())
-    if word_count > 100:
-        raise ValidationError("Review must not exceed 100 words.")
-    if word_count < 5:
-        raise ValidationError("Review must be at least 5 words.")
+	word_count = len(value.strip().split())
+	if word_count > 100:
+		raise ValidationError("Review must not exceed 100 words.")
+	if word_count < 5:
+		raise ValidationError("Review must be at least 5 words.")
 
 def validate_rating(value):
 	if value > 10:
@@ -33,4 +33,4 @@ class ReviewBookSchema(Schema):
 	id = fields.Int(dump_only=True)
 	review = fields.Str(required=True, validate=validate_word_count)
 	rating = fields.Int(required=True, validate=validate_rating)
-	book_id = fields.Int(dump_only=True)
+	book_id = fields.Int(required=True)

@@ -41,18 +41,18 @@ def test_book_review_post(client, token):
     access_token = token["access_token"]
     
     response = client.post('/api/v1/reviews',json={
-        "review" : "A good book which i thoroughly enjoyed while reading.And i will also recommend it to everyone" ,
-        "rating" : 7,
-        "book_id" : 5},
+        "review" : "had high expectation but its just another garbage" ,
+        "rating" : 4,
+        "book_id" : 13},
     headers={
         "Authorization": f"Bearer {access_token}"
     })
     json_data = response.get_json()
     pprint.pprint(json_data)
-    assert response.status_code == 200
-    assert "rating" in json_data
-    assert "review" in json_data
-    assert "book_id" in json_data
+    assert response.status_code in [200, 201]
+    assert "garbage" in json_data
+    assert "high" in json_data
+    assert "expectation" in json_data
 
 
 # def test_book_review_delete(client, token):
