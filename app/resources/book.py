@@ -149,6 +149,7 @@ class Book_RUD(Resource):
 		else:
 			return (book_schema.dump(book_to_work)), 200
 
+	# PATCH is more used now instead of this....
 	@jwt_required()
 	@limiter.limit("50 per day")
 	def put(self, id):
@@ -202,45 +203,41 @@ class Book_RUD(Resource):
 		if not book_tw:
 			abort(404, description="Book not found.")
 
-		if any(key in data for key in ['title', 'author', 'genre', 'status']):
-			if 'title' in data:
-				book_tw.title = data['title']
-				book_tw.normalized_title = data['title'].lower().strip()
-			
-			if 'author' in data:
-				book_tw.author = data['author']
+		if 'title' in data and data['title'] is not None:
+			book_tw.title = data['title']
+			book_tw.normalized_title = data['title'].lower().strip()
+		
+		if 'author' in data and data['author'] is not None:
+			book_tw.author = data['author']
 
-			if 'genre' in data:
-				book_tw.genre = data['genre']
+		if 'genre' in data and data['genre'] is not None:
+			book_tw.genre = data['genre']
 
-			allowed = ['wishlist' , 'in_progress' , 'completed' , 'abandoned']
+		allowed = ['wishlist' , 'in_progress' , 'completed' , 'abandoned']
 
-			if 'status' in data:
-				if data['status'] in allowed:
-					book_tw.status = data['status']
-				else:
-					return {'message': f"Invalid status. Allowed values: {', '.join(allowed)}"}
-					
-			try:
-				book_tw.updated_at = datetime.utcnow()
-				db.session.commit()
-				return {
-						"message": "Data updated Successfully",
-						"book": {
-							"title": book_tw.title,
-							"author": book_tw.author,
-							"genre": book_tw.genre ,
-							"status" : book_tw.status,
-							"updated_at" : book_tw.updated_at
-						}
-					}, 200
+		if 'status' in data and data['status'] is not None:
+			if data['status'] in allowed:
+				book_tw.status = data['status']
+			else:
+    			return {'message': f"Invalid status. Allowed values: {', '.join(allowed)}"}, 400
 
-			except SQLAlchemyError as e:
-				db.session.rollback()
-				return {'message' : 'An error occured'}, 404
+		try:
+			book_tw.updated_at = datetime.utcnow()
+			db.session.commit()
+			return {
+					"message": "Data updated Successfully",
+					"book": {
+						"title": book_tw.title,
+						"author": book_tw.author,
+						"genre": book_tw.genre ,
+						"status" : book_tw.status,
+						"updated_at" : book_tw.updated_at
+					}
+				}, 200
 
-		else:
-			return {'message' : 'ERROR! The data format is not correct.'}, 400
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			return {'message' : 'An error occured'}, 404
 
 	@jwt_required()
 	@limiter.limit("50 per day")

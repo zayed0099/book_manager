@@ -14,7 +14,7 @@ class BookSchema(Schema):
 	author = fields.Str(required=True, validate=validate.Length(min=1))
 	genre = fields.Str(required=False)
 	status = fields.Str(required=False, validate=validate_status, missing=None) 
-	
+	updated_at = fields.Str(required=False)
 	'''missing=None , so even if the user doesnt sends a status, it wont
 	throw an error and use the db default, status=wishlist'''
 
@@ -26,7 +26,7 @@ class AdminBookSchema(Schema):
 	is_deleted = fields.Bool(dump_only=True)
 	favourite = fields.Bool(dump_only=True)
 	user_id = fields.Int(dump_only=True)
-	status = fields.Str(required=True, validate=validate_status)
+	status = fields.Str(dump_only=True)
 
 # Functions to validate word length and rating
 def validate_word_count(value):

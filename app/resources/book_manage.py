@@ -159,31 +159,27 @@ class BookRatings_UD(Resource):
 		if not review_tw:
 			abort(404, description="Review not found.")
 
-		if any(key in data for key in ['rating', 'review']):
-			if rating is not None:
-				review_tw.rating = rating
+		if 'rating' in data and data['rating'] is not None:
+			review_tw.rating = rating
 
-			if review is not None:
-				review_tw.review = review
+		if 'review' in data and data['review'] is not None:
+			review_tw.review = review
 
-			try:
-				review_tw.updated_at = datetime.utcnow()
-				db.session.commit()
-				return {
-						"message": "Data updated Successfully",
-						"review": {
-							"rating": review_tw.rating,
-							"review": review_tw.review,
-							"updated_at" : review_tw.updated_at
-						}
-					}, 200
+		try:
+			review_tw.updated_at = datetime.utcnow()
+			db.session.commit()
+			return {
+					"message": "Data updated Successfully",
+					"review": {
+						"rating": review_tw.rating,
+						"review": review_tw.review,
+						"updated_at" : review_tw.updated_at
+					}
+				}, 200
 
-			except SQLAlchemyError as e:
-				db.session.rollback()
-				return {'message' : 'An error occured'}, 500
-
-		else:
-			return {'message' : 'ERROR! The data format is not correct.'}, 400
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			return {'message' : 'An error occured'}, 500
 
 	@jwt_required()
 	@limiter.limit("50 per day")
