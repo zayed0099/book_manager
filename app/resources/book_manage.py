@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_
+from datetime import datetime
 
 # Local Import
 from app.errors.handlers import CustomBadRequest
@@ -159,25 +160,27 @@ class BookRatings_UD(Resource):
 			abort(404, description="Review not found.")
 
 		if any(key in data for key in ['rating', 'review']):
-			if rating:
-				review_tw['rating'] = rating
+			if rating is not None:
+				review_tw.rating = rating
 
-			if review:
-				review_tw['review'] = review
+			if review is not None:
+				review_tw.review = review
 
 			try:
+				review_tw.updated_at = datetime.utcnow()
 				db.session.commit()
 				return {
 						"message": "Data updated Successfully",
 						"review": {
 							"rating": review_tw.rating,
-							"review": review_tw.review
+							"review": review_tw.review,
+							"updated_at" : review_tw.updated_at
 						}
 					}, 200
 
 			except SQLAlchemyError as e:
 				db.session.rollback()
-				return {'message' : 'An error occured'}, 404
+				return {'message' : 'An error occured'}, 500
 
 		else:
 			return {'message' : 'ERROR! The data format is not correct.'}, 400

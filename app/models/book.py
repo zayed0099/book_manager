@@ -16,6 +16,7 @@ class book_manager(db.Model):
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     favourite = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Foreign Key
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
@@ -40,6 +41,7 @@ class Ratings_Reviews(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     review = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Foreign Keys
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)

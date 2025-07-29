@@ -2,6 +2,7 @@ from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
 
 # Local Import
 from app.errors.handlers import CustomBadRequest
@@ -221,6 +222,7 @@ class Book_RUD(Resource):
 					return {'message': f"Invalid status. Allowed values: {', '.join(allowed)}"}
 					
 			try:
+				book_tw.updated_at = datetime.utcnow()
 				db.session.commit()
 				return {
 						"message": "Data updated Successfully",
@@ -228,7 +230,8 @@ class Book_RUD(Resource):
 							"title": book_tw.title,
 							"author": book_tw.author,
 							"genre": book_tw.genre ,
-							"status" : book_tw.status
+							"status" : book_tw.status,
+							"updated_at" : book_tw.updated_at
 						}
 					}, 200
 
