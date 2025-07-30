@@ -10,7 +10,8 @@ from app.resources.admin import (Admin_Crud,
 	Jwt_Manage, 
 	UserCredChange,
 	AdminUD,
-	User_Show)
+	User_Show,
+	BookManage)
 
 # Admin seeing all admin data, Adding completely new user as admin
 admin_api.add_resource(Admin_Crud, '/manage')
@@ -32,5 +33,8 @@ admin_api.add_resource(UserCredChange, '/user/reset')
 
 # Clearing JWT tokens
 admin_api.add_resource(Jwt_Manage, '/jwt/clear')
+
+# Clearing all soft deleted books from book database
+admin_api.add_resource(BookManage, '/book/clear')
 
 

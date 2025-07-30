@@ -15,6 +15,7 @@ class book_manager(db.Model):
 
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     favourite = db.Column(db.Boolean, default=False, nullable=False)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -32,7 +33,6 @@ class book_manager(db.Model):
         "status IN ('wishlist' , 'in_progress' , 'completed' , 'abandoned')", 
         name='status_validate'),
     )
-
 
 class Ratings_Reviews(db.Model):
     __tablename__ = 'RatingsReviews'    

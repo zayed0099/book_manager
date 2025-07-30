@@ -251,6 +251,7 @@ class Book_RUD(Resource):
 
 		try:    
 			book_tw.is_deleted = True
+			book_tw.updated_at = datetime.utcnow()
 			db.session.commit()
 			return {"message" : "Deleted Successfully"}, 200
 		except SQLAlchemyError as e:
