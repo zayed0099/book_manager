@@ -203,41 +203,55 @@ class BookRatings_UD(Resource):
 					'deleted_book' : review_schema.dump(review_tw)}
 			except SQLAlchemyError as e:
 				db.session.rollback()
-				return {'message' : 'An error occured'}, 404
+				return {'message' : 'An error occured'}, 500
 
 # tags post
 class Tags(Resource):
-	try:
-		data = request.get_json()
-		if data is None:
-			raise CustomBadRequest("Missing Json in request.")
-	except BadRequest:
-		raise CustomBadRequest("Invalid JSON format.")
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def post(self):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing Json in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
 
-	current_user_id = get_jwt_identity()
-	from app.models.book import review_tags
-	from app.extensions import tagschema
+		from app.models.book import review_tags
+		from app.extensions import tagschema
 
-	errors = tagschema.validate(data)
-	if errors:
-		raise CustomBadRequest("Validation failed")
+		errors = tagschema.validate(data)
+		
+		if errors:
+			raise CustomBadRequest("Validation failed")
 
-	tags_raw = []
-	tags = []
-	tag1_raw = data.get('tag1')
-	tag1 = tag1_raw.lower().strip()
+		tags_raw = []
+		tags = []
+		tag1_raw = data.get('tag1')
+		tag1 = tag1_raw.lower().strip()
 
-	tag2_raw = data.get('tag2')
-	tag2 = tag2_raw.lower().strip()
+		tag2_raw = data.get('tag2')
+		tag2 = tag2_raw.lower().strip()
 
-	review_id = data.get('review_id')
+		review_id = data.get('review_id')
+		
+		tags_raw.append(tag1_raw)
+		tags_raw.append(tag2_raw)
+		tags.append(tag1)
+		tags.append(tag2)
 
-	tags.append(tag1)
-	tags.append(tag2)
-	tags_raw.append(tag1_raw)
-	tags_raw.append(tag1_raw)
+		try:
+			for raw_tag, norm_tag in zip(tags_raw, tags):
+				new_entry = review_tags(
+					tag = raw_tag,
+					normaliazed_tag = norm_tag,
+					user_id = get_jwt_identity(),
+					review_id = review_id
+					)
+				db.session.add(new_entry)
 
-	for tag in tags:
-		new_entry = review_tags(
-
-			)
+			db.session.commit()
+			return {'message' : 'Tags added successfully for the review.'}, 201
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			return {'message' : 'An error occured'}, 500
