@@ -48,3 +48,10 @@ class ReviewBookSchema(Schema):
 	review = fields.Str(required=True, validate=validate_word_count)
 	rating = fields.Int(required=True, validate=validate_rating)
 	book_id = fields.Int(required=True)
+
+# Schema for tags
+class TagSchema(Schema):
+	id = fields.Int(dump_only=True)
+	tag1 = fields.Str(required=True, validate=validate.Length(min=3))
+	tag2 = fields.Str(required=True, validate=validate.Length(min=3))
+	review_id = fields.Int(required=True)

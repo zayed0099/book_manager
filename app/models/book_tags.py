@@ -16,3 +16,7 @@ class review_tags(db.Model):
 	# Foreign Keys
 	user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
 	review_id = db.Column(db.Integer, db.ForeignKey('RatingsReviews.id'), index=True, nullable=False)
+
+	__table_args__ = (
+		db.UniqueConstraint('normaliazed_tag' , 'review_id' , name='uq_tag_review'),
+		)

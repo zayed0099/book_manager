@@ -205,3 +205,39 @@ class BookRatings_UD(Resource):
 				db.session.rollback()
 				return {'message' : 'An error occured'}, 404
 
+# tags post
+class Tags(Resource):
+	try:
+		data = request.get_json()
+		if data is None:
+			raise CustomBadRequest("Missing Json in request.")
+	except BadRequest:
+		raise CustomBadRequest("Invalid JSON format.")
+
+	current_user_id = get_jwt_identity()
+	from app.models.book import review_tags
+	from app.extensions import tagschema
+
+	errors = tagschema.validate(data)
+	if errors:
+		raise CustomBadRequest("Validation failed")
+
+	tags_raw = []
+	tags = []
+	tag1_raw = data.get('tag1')
+	tag1 = tag1_raw.lower().strip()
+
+	tag2_raw = data.get('tag2')
+	tag2 = tag2_raw.lower().strip()
+
+	review_id = data.get('review_id')
+
+	tags.append(tag1)
+	tags.append(tag2)
+	tags_raw.append(tag1_raw)
+	tags_raw.append(tag1_raw)
+
+	for tag in tags:
+		new_entry = review_tags(
+
+			)

@@ -219,7 +219,7 @@ class Book_RUD(Resource):
 			if data['status'] in allowed:
 				book_tw.status = data['status']
 			else:
-    			return {'message': f"Invalid status. Allowed values: {', '.join(allowed)}"}, 400
+				return {'message': f"Invalid status. Allowed values: {', '.join(allowed)}"}, 400
 
 		try:
 			book_tw.updated_at = datetime.utcnow()

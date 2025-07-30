@@ -31,7 +31,11 @@ def create_app():
     jwt.init_app(app)
     migrate.init_app(app, db)
 
-    from app.models import User, book_manager, jwt_blacklist, Ratings_Reviews
+    from app.models import (User, 
+        book_manager, 
+        jwt_blacklist, 
+        Ratings_Reviews,
+        review_tags)
 
     with app.app_context(): # creating all the database tables
         db.create_all()

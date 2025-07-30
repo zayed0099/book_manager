@@ -1,4 +1,4 @@
-from .book_schema import BookSchema, AdminBookSchema, ReviewBookSchema
+from .book_schema import BookSchema, AdminBookSchema, ReviewBookSchema, TagSchema
 from .user_schema import UserSchema, AdminUserSchema, AdminUserSchema_min
 
 __all__ = ["BookSchema", 
@@ -6,4 +6,5 @@ __all__ = ["BookSchema",
 "AdminBookSchema", 
 "AdminUserSchema", 
 "AdminUserSchema_min", 
-"ReviewBookSchema"]
+"ReviewBookSchema",
+"TagSchema"]
