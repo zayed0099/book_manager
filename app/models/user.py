@@ -18,3 +18,4 @@ class User(db.Model):
     # Relationships
     books = db.relationship('book_manager', backref='user', lazy=True)
     book_review = db.relationship('Ratings_Reviews', backref='ratingsuser', lazy=True)
+    tags = db.relationship('review_tags', backref='tagsuser', lazy=True)

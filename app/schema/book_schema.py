@@ -14,7 +14,7 @@ class BookSchema(Schema):
 	author = fields.Str(required=True, validate=validate.Length(min=1))
 	genre = fields.Str(required=False)
 	status = fields.Str(required=False, validate=validate_status, missing=None) 
-	updated_at = fields.Str(required=False)
+	updated_at = fields.Str(required=False, missing=None)
 	'''missing=None , so even if the user doesnt sends a status, it wont
 	throw an error and use the db default, status=wishlist'''
 

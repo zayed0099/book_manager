@@ -47,6 +47,9 @@ class Ratings_Reviews(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('book_manager.id'), nullable=False)
 
+    # Relationships
+    review_tags = db.relationship('review_tags', backref='tagsbook', lazy=True)
+
     # Checking users rating if its in (1-10), Adding a combined Index 
     # and Unique constraint so that a user has only one review per book
     __table_args__ = (
