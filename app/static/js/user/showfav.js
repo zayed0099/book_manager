@@ -9,8 +9,8 @@ if (!token) {
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody1 = document.getElementById('showfav');
     const tableBody2 = document.getElementById('showdel');
-    const recoverapiUrl = 'http://127.0.0.1:5000/api/v1/recovery';
-    const favapiUrl = 'http://127.0.0.1:5000/api/v1/favourites'; 
+    const recoverapiUrl = '/api/v1/recovery';
+    const favapiUrl = '/api/v1/favourites'; 
 
     // Get all favourite books
     fetch(favapiUrl, {

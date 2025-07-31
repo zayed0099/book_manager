@@ -10,7 +10,7 @@ let selectedbook = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('dataTableBody');
-    const apiUrl = 'http://127.0.0.1:5000/api/v1/books'; // Example API endpoint
+    const apiUrl = '/api/v1/books'; // Example API endpoint
 
     fetch(apiUrl, {
 		method: 'GET',
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
           				const buttonCell = document.createElement('td');
           				const delBtn = document.createElement('button');
           				delBtn.textContent = 'Delete';
-                  const url_del = `http://127.0.0.1:5000/api/v1/books/${item.id}`;
+                  const url_del = `/api/v1/books/${item.id}`;
 
           				// Add event listener for button click
           				delBtn.addEventListener('click', () => {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   const buttonCell2 = document.createElement('td');
                   const addFavBtn = document.createElement('button');
                   addFavBtn.textContent = 'Add Fav';
-                  const url_add_fav = `http://127.0.0.1:5000/api/v1/favourites/${item.id}`;
+                  const url_add_fav = `/api/v1/favourites/${item.id}`;
 
                   // Add event listener for button click
                   addFavBtn.addEventListener('click', () => {
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   const buttonCell3 = document.createElement('td');
                   const delFavBtn = document.createElement('button');
                   delFavBtn.textContent = 'Del Fav';
-                  const url_del_fav = `http://127.0.0.1:5000/api/v1/favourites/${item.id}`;
+                  const url_del_fav = `/api/v1/favourites/${item.id}`;
 
                   // Add event listener for button click
                   delFavBtn.addEventListener('click', () => {

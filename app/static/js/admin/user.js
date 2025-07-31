@@ -11,7 +11,7 @@ let selecteduser = null;
 
 const tableBody1 = document.getElementById('allUserBooks'); 
 
-fetch('http://127.0.0.1:5000/a/v1/books', {
+fetch('/a/v1/books', {
 method: 'GET',
 headers: {
   'Authorization': `Bearer ${token}`
@@ -59,7 +59,7 @@ headers: {
 
 const tableBody2 = document.getElementById('allUserData'); 
 
-fetch('http://127.0.0.1:5000/a/v1/user/view', {
+fetch('/a/v1/user/view', {
 method: 'GET',
 headers: {
   'Authorization': `Bearer ${token}`
@@ -149,7 +149,7 @@ submitBtn.addEventListener('click', () => {
     return;}
 
   if (selectedStatus === 'ban') {
-      const url_update_status = `http://127.0.0.1:5000/a/v1/user/ban/${selecteduser.id}`;
+      const url_update_status = `/a/v1/user/ban/${selecteduser.id}`;
       fetch(url_update_status, {
         method: 'DELETE', // or 'PATCH' if updating
         headers: {
@@ -168,7 +168,7 @@ submitBtn.addEventListener('click', () => {
   } // if ends
   
   else if (selectedStatus === 'unban') {
-    const url_update_status = `http://127.0.0.1:5000/a/v1/user/ban/${selecteduser.id}`;
+    const url_update_status = `/a/v1/user/ban/${selecteduser.id}`;
       fetch(url_update_status, {
         method: 'PUT', // or 'PATCH' if updating
         headers: {
@@ -204,7 +204,7 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
       email : email 
     };
     
-    fetch('http://127.0.0.1:5000/a/v1/user/reset', {
+    fetch('/a/v1/user/reset', {
       method: 'POST',
       headers: {
               'Content-Type': 'application/json' ,

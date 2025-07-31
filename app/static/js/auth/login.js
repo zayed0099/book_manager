@@ -8,7 +8,7 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 		password : password
 	};
 	
-	fetch('http://127.0.0.1:5000/auth/v1/login', {
+	fetch('/auth/v1/login', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

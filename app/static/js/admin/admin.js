@@ -12,7 +12,7 @@ let selectedadmin = null;
         // Code for table with admin
 const tableBody2 = document.getElementById('userTable');
 // Show all Admin Data
-fetch('http://127.0.0.1:5000/a/v1/manage', {
+fetch('/a/v1/manage', {
 method: 'GET',
 headers: {
   'Authorization': `Bearer ${token}`
@@ -97,7 +97,7 @@ submitBtn.addEventListener('click', () => {
     return;}
 
   if (selectedRole === 'user') {
-      const url_update_admin = `http://127.0.0.1:5000/a/v1/manage/${selectedadmin.id}`;
+      const url_update_admin = `/a/v1/manage/${selectedadmin.id}`;
       fetch(url_update_admin, {
         method: 'DELETE', // or 'PATCH' if updating
         headers: {
@@ -116,7 +116,7 @@ submitBtn.addEventListener('click', () => {
   } // if ends
   
   else if (selectedRole === 'admin') {
-    const url_update_admin = `http://127.0.0.1:5000/a/v1/manage/${selectedadmin.id}`;
+    const url_update_admin = `/a/v1/manage/${selectedadmin.id}`;
       fetch(url_update_admin, {
         method: 'PUT', // or 'PATCH' if updating
         headers: {
@@ -151,7 +151,7 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
       email : email 
     };
     
-    fetch('http://127.0.0.1:5000/a/v1/manage', {
+    fetch('/a/v1/manage', {
       method: 'POST',
       headers: {
               'Content-Type': 'application/json' ,

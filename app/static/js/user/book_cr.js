@@ -21,7 +21,7 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 	
 	const token = localStorage.getItem('jwtToken');
 
-	fetch('http://127.0.0.1:5000/api/v1/books', {
+	fetch('/api/v1/books', {
 		method: 'POST',
 		headers: {
 			'Authorization': `Bearer ${token}`,
@@ -57,7 +57,7 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
 	const token = localStorage.getItem('jwtToken');
     const tableBody = document.getElementById('dataTableBody');
-    const apiUrl = 'http://127.0.0.1:5000/api/v1/books'; // Example API endpoint
+    const apiUrl = '/api/v1/books'; // Example API endpoint
 
     fetch(apiUrl, {
 		method: 'GET',

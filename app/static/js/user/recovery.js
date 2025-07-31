@@ -8,7 +8,7 @@ if (!token) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('dataTableBody');
-    const apiUrl = 'http://127.0.0.1:5000/api/v1/recovery'; // Example API endpoint
+    const apiUrl = '/api/v1/recovery'; // Example API endpoint
 
     fetch(apiUrl, {
 		method: 'GET',
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   				const buttonCell = document.createElement('td');
   				const recBtn = document.createElement('button');
   				recBtn.textContent = 'Recover';
-          const url_recover = `http://127.0.0.1:5000/api/v1/recovery/${item.id}`;
+          const url_recover = `/api/v1/recovery/${item.id}`;
 
   				// Add event listener for button click
   				recBtn.addEventListener('click', () => {
