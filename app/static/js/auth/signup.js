@@ -11,7 +11,7 @@ document.getElementById('sendDataBtn').addEventListener('click', () => {
 		email : email 
 	};
 	
-	fetch('http://127.0.0.1:5000/auth/v1/register', {
+	fetch('/auth/v1/register', {
 		method: 'POST',
 		headers: {
             'Content-Type': 'application/json'
