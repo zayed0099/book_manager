@@ -30,7 +30,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
-
+    
     from app.models import (User, 
         book_manager, 
         jwt_blacklist, 

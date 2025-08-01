@@ -8,7 +8,10 @@ from flask_jwt_extended import jwt_required
 # Local Import
 from app.extensions import db
 from app.errors.handlers import CustomBadRequest
-from app.jwt_extensions import jwt, admin_required, limiter
+from app.jwt_extensions import (jwt, 
+	admin_required, 
+	limiter,
+	system_admin_required)
 from app.logging.ext_admin import logger
 '''
 admin can see how manu users in there. 
@@ -53,7 +56,7 @@ class Admin_Crud(Resource):
 	
 	# Adding new admin. (full new user)
 	@jwt_required()
-	@admin_required
+	@system_admin_required
 	@limiter.limit("1 per day")
 	def post(self):
 		try:
@@ -102,7 +105,7 @@ class Admin_Crud(Resource):
 class AdminUD(Resource):
 	# Upgrading User -> admin
 	@jwt_required()
-	@admin_required
+	@system_admin_required
 	@limiter.limit("3 per day")
 	def put(self, id):
 		from app.models import User
@@ -127,7 +130,7 @@ class AdminUD(Resource):
 
 	# removing someone from admin
 	@jwt_required()
-	@admin_required
+	@system_admin_required
 	@limiter.limit("3 per day")
 	def delete(self, id):
 		from app.models import User
@@ -294,7 +297,7 @@ class User_Control(Resource):
 # To reset a users password
 class UserCredChange(Resource):
 	@jwt_required()
-	@admin_required
+	@system_admin_required
 	def post(self):
 		try:
 			data = request.get_json()

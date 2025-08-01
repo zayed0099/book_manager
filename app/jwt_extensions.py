@@ -36,11 +36,24 @@ def admin_required(func):
     def wrapper(*args, **kwargs):
         token = get_jwt()
         role = token.get('role', None)
+        accepted = ['admin' , 'system_admin']
 
-        if role == 'admin':
+        if role in accepted:
             return func(*args, **kwargs)
         else:
             return {'message': 'Access denied'}, 403
 
     return wrapper
     
+def system_admin_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        token = get_jwt()
+        role = token.get('role', None)
+
+        if role == 'system_admin':
+            return func(*args, **kwargs)
+        else:
+            return {'message': 'Access denied'}, 403
+
+    return wrapper

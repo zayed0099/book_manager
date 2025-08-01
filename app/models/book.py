@@ -44,8 +44,8 @@ class Ratings_Reviews(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Foreign Keys
-    user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), nullable=False)
-    book_id = db.Column(db.Integer, db.ForeignKey('book_manager.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'),index=True, nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book_manager.id'), index=True, nullable=False)
 
     # Relationships
     review_tags = db.relationship('review_tags', backref='tagsbook', lazy=True)
@@ -54,6 +54,5 @@ class Ratings_Reviews(db.Model):
     # and Unique constraint so that a user has only one review per book
     __table_args__ = (
     CheckConstraint('rating >=1 and rating <= 10', name='rating_control_1_to_10'),
-    db.Index('user_book_index', 'user_id', 'book_id'),
     db.UniqueConstraint('user_id' , 'book_id', name='uq_user_book'),
     )

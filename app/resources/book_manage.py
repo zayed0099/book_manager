@@ -255,3 +255,13 @@ class Tags(Resource):
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			return {'message' : 'An error occured'}, 500
+
+	# @jwt_required()
+	# @limiter.limit("50 per day")
+	# def get(self, review_id=None):
+	# 	from app.models.book import review_tags
+	# 	from app.extensions import tagschema
+
+	# 	if review_id:
+			
+		
