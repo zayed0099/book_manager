@@ -1,4 +1,7 @@
-from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity, get_jwt
+from flask_jwt_extended import (JWTManager, 
+    verify_jwt_in_request, 
+    get_jwt_identity, 
+    get_jwt)
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from functools import wraps
@@ -35,10 +38,15 @@ def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         token = get_jwt()
+        current_user_id = get_jwt_identity()
         role = token.get('role', None)
-        accepted = ['admin' , 'system_admin']
 
-        if role in accepted:
+        accepted = ['admin' , 'system_admin']
+        check = db.session.get(User, current_user_id)
+        if not check:
+            return {'message' : 'User not found.'}, 403
+
+        if role in accepted and check.is_banned is False:
             return func(*args, **kwargs)
         else:
             return {'message': 'Access denied'}, 403

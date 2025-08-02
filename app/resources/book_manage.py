@@ -264,4 +264,9 @@ class Tags(Resource):
 
 	# 	if review_id:
 			
-		
+
+class CustomBookList(Resource):
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def post(self):
+			

@@ -15,7 +15,6 @@ from app.ui_routes.admin_routes import admin_ui_bp
 from app.ui_routes.user_routes import user_ui_bp
 from app.ui_routes.auth_routes import auth_ui_bp
 
-
 def create_app():
     app = Flask(__name__)
     api = Api(app)
@@ -35,7 +34,9 @@ def create_app():
         book_manager, 
         jwt_blacklist, 
         Ratings_Reviews,
-        review_tags)
+        review_tags,
+        ListOwner, 
+        ListBook)
 
     with app.app_context(): # creating all the database tables
         db.create_all()
