@@ -9,8 +9,8 @@ from flask_jwt_extended import jwt_required
 from app.extensions import db
 from app.errors.handlers import CustomBadRequest
 from app.jwt_extensions import (jwt, 
-	admin_required, 
 	limiter,
+	admin_required, 
 	system_admin_required)
 from app.logging.ext_admin import logger
 '''

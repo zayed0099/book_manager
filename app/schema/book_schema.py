@@ -55,3 +55,6 @@ class TagSchema(Schema):
 	tag1 = fields.Str(required=True, validate=validate.Length(min=3))
 	tag2 = fields.Str(required=True, validate=validate.Length(min=3))
 	review_id = fields.Int(required=True)
+
+
+# Schema for Custom list

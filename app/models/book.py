@@ -24,6 +24,7 @@ class book_manager(db.Model):
 
     # Relationship
     reviews_ratings = db.relationship('Ratings_Reviews', backref='ratingsbook', lazy=True)
+    booklist = db.relationship('ListOwner', backref='userlist', lazy=True)
 
     # Unique constraint to keep books unique
     # Constraint to limit the status and make it same as marsh schema
