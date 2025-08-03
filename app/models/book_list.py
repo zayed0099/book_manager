@@ -12,6 +12,9 @@ class ListOwner(db.Model):
 	list_name = db.Column(db.String(200), nullable=False)
 	list_name_norm = db.Column(db.String(200), index=True, nullable=False)
 
+	created_at = db.Column(db.DateTime, default=datetime.utcnow)
+	updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 	# Relationships
 	list_elements = db.relationship('ListBook', backref='user', lazy=True)
 

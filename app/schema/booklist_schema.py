@@ -3,7 +3,6 @@ from marshmallow import Schema, fields, validate, ValidationError
 
 class ListDataSchema(Schema):
 	id = fields.Int(dump_only=True)
-	user_id = fields.Int(required=True)
 	list_name = fields.Str(required=True, validate=validate.Length(min=1))
 
 def validate_status(value):
@@ -20,5 +19,3 @@ class BookListSchema(Schema):
 	author = fields.Str(required=True, validate=validate.Length(min=1))
 	genre = fields.Str(required=False)
 	status = fields.Str(required=False, validate=validate_status, missing=None) 
-	updated_at = fields.Str(required=False, missing=None)
-	created_at = fields.Str(required=False, missing=None)

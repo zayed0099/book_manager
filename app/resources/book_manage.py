@@ -1,3 +1,4 @@
+# book manage.py
 from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
@@ -263,10 +264,55 @@ class Tags(Resource):
 	# 	from app.extensions import tagschema
 
 	# 	if review_id:
-			
+
+class BookListName(Resource):
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def post(self):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing Json in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
+
+		from app.extensions import listdataschema
+
+		errors = listdataschema.validate(data)
+		
+		if errors:
+			raise CustomBadRequest("Validation failed")
+
+		listname_raw = data.get('list_name')
+		listname = listname_raw.lower().strip()
+
+		from app.models import ListOwner	
+		
+		try:
+			new_list = ListOwner(
+				list_name = listname_raw ,
+				list_name_norm = list_name ,
+				user_id = get_jwt_identity()
+				)
+
+			db.session.commit(new_list)
+			return {'message' : 'List successfully created.'}, 200
+
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			return {'message' : 'An error occured'}, 500
 
 class CustomBookList(Resource):
 	@jwt_required()
 	@limiter.limit("50 per day")
 	def post(self):
-			
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing Json in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
+
+
+		from app.models import (ListOwner, 
+		ListBook)			

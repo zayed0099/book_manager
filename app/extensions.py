@@ -8,7 +8,9 @@ from app.schema import (BookSchema
     ,AdminUserSchema
     ,AdminUserSchema_min
     ,ReviewBookSchema
-    ,TagSchema)
+    ,TagSchema
+    ,ListDataSchema, 
+    BookListSchema)
 
 # Schema instances
 book_schema = BookSchema() # for a single book
@@ -19,6 +21,8 @@ admin_schema = AdminUserSchema(many=True)
 admin_nomail_schema = AdminUserSchema_min(many=True)
 review_schema = ReviewBookSchema()
 tagschema = TagSchema()
+listdataschema = ListDataSchema()
+booklistschema = BookListSchema()
 
 # Global instances
 db = SQLAlchemy()
