@@ -8,7 +8,9 @@ class ListOwner(db.Model):
 	__tablename__ = 'ListOwner'
 
 	id = db.Column(db.Integer, primary_key=True)	
-	user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
+	user_id = db.Column(db.Integer, 
+		db.ForeignKey('user_db.id', ondelete='CASCADE'), 
+		index=True, nullable=False)
 	list_name = db.Column(db.String(200), nullable=False)
 	list_name_norm = db.Column(db.String(200), index=True, nullable=False)
 
@@ -16,14 +18,18 @@ class ListOwner(db.Model):
 	updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 	# Relationships
-	list_elements = db.relationship('ListBook', backref='user', lazy=True)
+	list_elements = db.relationship('ListBook', 
+		passive_deletes=True,
+		backref='user', lazy=True)
 
 # class to store books in list with a fk(list id)
 class ListBook(db.Model):
 	__tablename__ = 'ListBook'
 
 	id = db.Column(db.Integer, primary_key=True)
-	list_id = db.Column(db.Integer, db.ForeignKey('ListOwner.id'), index=True, nullable=False)
+	list_id = db.Column(db.Integer, 
+		db.ForeignKey('ListOwner.id', ondelete='CASCADE'), 
+		index=True, nullable=False)
 	title = db.Column(db.String(200), nullable=False)
 	author = db.Column(db.String(200), nullable=False)
 	normalized_title = db.Column(db.String(200), nullable=False, index=True)

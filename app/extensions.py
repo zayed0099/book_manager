@@ -1,6 +1,9 @@
 # extensions.py
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 from flask_migrate import Migrate
+
 # Local Import
 from app.schema import (BookSchema
     ,UserSchema
@@ -28,5 +31,11 @@ booklistschema = BookListSchema()
 db = SQLAlchemy()
 migrate = Migrate()
 
+# Enable foreign keys for SQLite
+@event.listens_for(Engine, "connect")
+def enable_sqlite_foreign_keys(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
     

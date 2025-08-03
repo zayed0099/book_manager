@@ -20,10 +20,15 @@ class book_manager(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Foreign Key
-    user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'), index=True, nullable=False)
+    user_id = db.Column(db.Integer, 
+        db.ForeignKey('user_db.id', ondelete='CASCADE'), 
+        index=True, nullable=False)
 
     # Relationship
-    reviews_ratings = db.relationship('Ratings_Reviews', backref='ratingsbook', lazy=True)
+    reviews_ratings = db.relationship('Ratings_Reviews', 
+        backref='ratingsbook',
+        passive_deletes=True, 
+        lazy=True)
 
     # Unique constraint to keep books unique
     # Constraint to limit the status and make it same as marsh schema
@@ -44,11 +49,18 @@ class Ratings_Reviews(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Foreign Keys
-    user_id = db.Column(db.Integer, db.ForeignKey('user_db.id'),index=True, nullable=False)
-    book_id = db.Column(db.Integer, db.ForeignKey('book_manager.id'), index=True, nullable=False)
+    user_id = db.Column(db.Integer, 
+        db.ForeignKey('user_db.id', ondelete='CASCADE'),
+        index=True, nullable=False)
+    book_id = db.Column(db.Integer, 
+        db.ForeignKey('book_manager.id', ondelete='CASCADE'), 
+        index=True, nullable=False)
 
     # Relationships
-    review_tags = db.relationship('review_tags', backref='tagsbook', lazy=True)
+    review_tags = db.relationship('review_tags', 
+        backref='tagsbook', 
+        passive_deletes=True,
+        lazy=True)
 
     # Checking users rating if its in (1-10), Adding a combined Index 
     # and Unique constraint so that a user has only one review per book

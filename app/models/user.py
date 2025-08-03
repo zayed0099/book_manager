@@ -17,10 +17,21 @@ class User(db.Model):
     was_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     # Relationships
-    books = db.relationship('book_manager', backref='user', lazy=True)
-    book_review = db.relationship('Ratings_Reviews', backref='ratingsuser', lazy=True)
-    tags = db.relationship('review_tags', backref='tagsuser', lazy=True)
-    booklist = db.relationship('ListOwner', backref='userlist', lazy=True)
+    books = db.relationship('book_manager', 
+        backref='user', 
+        passive_deletes=True, lazy=True)
+    
+    book_review = db.relationship('Ratings_Reviews', 
+        backref='ratingsuser', 
+        passive_deletes=True ,lazy=True)
+    
+    tags = db.relationship('review_tags', 
+        backref='tagsuser', 
+        passive_deletes=True ,lazy=True)
+    
+    booklist = db.relationship('ListOwner', 
+        backref='userlist', 
+        passive_deletes=True ,lazy=True)
 
     __table_args__ = (
     CheckConstraint(

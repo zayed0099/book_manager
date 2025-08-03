@@ -302,17 +302,18 @@ class BookListName(Resource):
 			db.session.rollback()
 			return {'message' : 'An error occured'}, 500
 
-class CustomBookList(Resource):
-	@jwt_required()
-	@limiter.limit("50 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing Json in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
+
+# class CustomBookList(Resource):
+# 	@jwt_required()
+# 	@limiter.limit("50 per day")
+# 	def post(self):
+# 		try:
+# 			data = request.get_json()
+# 			if data is None:
+# 				raise CustomBadRequest("Missing Json in request.")
+# 		except BadRequest:
+# 			raise CustomBadRequest("Invalid JSON format.")
 
 
-		from app.models import (ListOwner, 
-		ListBook)			
+# 		from app.models import (ListOwner, 
+# 		ListBook)			
