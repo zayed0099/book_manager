@@ -102,7 +102,7 @@ class Login(Resource):
 
 # JWT protected class to only get access token using the refresh token
 class Ref_Token(Resource):
-    @limiter.limit("10 per day")
+    @limiter.limit("24 per day")
     @jwt_required(refresh=True)
     def post(self):
         identity = get_jwt_identity()
@@ -167,3 +167,10 @@ class CheckUser(Resource):
     @limiter.limit("5 per day")
     def get(self):
         return {"message": "Valid", "user_id": get_jwt_identity()}, 200
+
+
+class Deleteuser(Resource):
+	@jwt_required()
+	@limiter.limit("1 per day")
+	def delete(self):
+		pass

@@ -264,10 +264,12 @@ class Tags(Resource):
 	# 	from app.extensions import tagschema
 
 	# 	if review_id:
+	# i am still not sure how to fully implement tagging+reviews, maybe i will have to 
+	# wait till creating the frontend to grasp the concept fully
 
 class BookListName(Resource):
 	@jwt_required()
-	@limiter.limit("50 per day")
+	@limiter.limit("10 per day")
 	def post(self):
 		try:
 			data = request.get_json()
@@ -302,18 +304,83 @@ class BookListName(Resource):
 			db.session.rollback()
 			return {'message' : 'An error occured'}, 500
 
+	@jwt_required()
+	@limiter.limit("5 per day")
+	def put(self):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing Json in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
 
-# class CustomBookList(Resource):
-# 	@jwt_required()
-# 	@limiter.limit("50 per day")
-# 	def post(self):
-# 		try:
-# 			data = request.get_json()
-# 			if data is None:
-# 				raise CustomBadRequest("Missing Json in request.")
-# 		except BadRequest:
-# 			raise CustomBadRequest("Invalid JSON format.")
+		from app.extensions import booklistschema
 
+		errors = booklistschema.validate(data)
 
-# 		from app.models import (ListOwner, 
-# 		ListBook)			
+		if errors:
+			raise CustomBadRequest("Validation failed")
+
+		list_name = data.get('list_name')
+		list_name_norm = list_name.lower().strip()
+
+		from app.models import ListOwner
+		query = ListOwner.query.filter_by(list_name_norm=list_name_norm).first()
+
+		if not query:
+			return {'message' : : 'No book list found with rhat name'}, 404
+
+		else:
+			query.list_name = list_name
+			query.list_name_norm = list_name_norm
+
+			try:
+				db.session.commit(new_book)
+				return {'message' : 'List name successfully updated'}, 200
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured'}, 500
+
+class CustomBookList(Resource):
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def post(self):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing Json in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
+
+		from app.extensions import booklistschema
+
+		errors = booklistschema.validate(data)
+
+		if errors:
+			raise CustomBadRequest("Validation failed")		
+
+		list_id = data.get('list_id')
+		title = data.get('title')
+		norm_title = title.lower().strip()
+		author = data.get('author')
+		genre = data.get('genre', None)
+		status = data.get('status')
+
+		from app.models import ListBook
+		
+		try:
+			new_book = ListBook(
+				list_id = list_id,
+				title = title,
+				normalized_title = norm_title,
+				author = author,
+				genre = genre,
+				status = status
+				)
+
+			db.session.commit(new_book)
+			return {'message' : f'Book successfully added to list. List_id {list_id}'}, 200
+
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			return {'message' : 'An error occured'}, 500		
