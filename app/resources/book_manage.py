@@ -328,18 +328,46 @@ class BookListName(Resource):
 		query = ListOwner.query.filter_by(list_name_norm=list_name_norm).first()
 
 		if not query:
-			return {'message' : : 'No book list found with that name'}, 404
+			return {'message' : 'No book list found with that name'}, 404
 
 		else:
 			query.list_name = list_name
 			query.list_name_norm = list_name_norm
 
 			try:
-				db.session.commit(new_book)
+				db.session.commit()
 				return {'message' : 'List name successfully updated'}, 200
 			except SQLAlchemyError as e:
 				db.session.rollback()
+				raise e
 				return {'message' : 'An error occured'}, 500
+
+	@jwt_required()
+	@limiter.limit("5 per day")
+	def delete(self, id):
+		from app.models import ListOwner, ListBook 
+
+		list_tw = ListOwner.query.filter_by(id=id,
+			user_id = get_jwt_identity()
+			).first()
+
+		if not list_tw:
+			abort(404, description="Book List not found.")
+
+		else:
+			list_books = ListBook.query.filter_by(list_id=list_tw.id).all()
+
+			try:
+				list_tw.is_deleted = True
+				for book in list_books:
+					book.is_list_deleted = True
+
+				db.session.commit()
+				return {'message' : 'List successfully deleted.'}, 200
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured'}, 500
+				
 
 class CustomBookList(Resource):
 	@jwt_required()
@@ -440,4 +468,17 @@ class CustomBookList(Resource):
 		@jwt_required()
 		@limiter.limit("50 per day")
 		def delete(self, id):
-			
+			current_user_id = get_jwt_identity()
+		
+			from app.models import ListBook
+			book_tw = ListBook.query.filter_by(id=id).first()
+			if not book_tw:
+				abort(404, description="Book not found.")
+
+			try:    
+				db.session.delete(book_tw)
+				db.session.commit()
+				return {"message" : "Deleted Successfully"}, 200
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				raise e

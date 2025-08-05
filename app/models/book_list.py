@@ -16,6 +16,7 @@ class ListOwner(db.Model):
 
 	created_at = db.Column(db.DateTime, default=datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+	is_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
 	# Relationships
 	list_elements = db.relationship('ListBook', 
@@ -30,6 +31,7 @@ class ListBook(db.Model):
 	list_id = db.Column(db.Integer, 
 		db.ForeignKey('ListOwner.id', ondelete='CASCADE'), 
 		index=True, nullable=False)
+	
 	title = db.Column(db.String(200), nullable=False)
 	author = db.Column(db.String(200), nullable=False)
 	normalized_title = db.Column(db.String(200), nullable=False, index=True)
@@ -37,6 +39,7 @@ class ListBook(db.Model):
 	status = db.Column(db.String(100), server_default="wishlist", nullable=False)
 	created_at = db.Column(db.DateTime, default=datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+	is_list_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
 	__table_args__ = (
 	db.UniqueConstraint('list_id', 'normalized_title', name='uq_user_title_normalized'),

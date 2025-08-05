@@ -9,7 +9,12 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db, book_schema, books_schema
 from app.jwt_extensions import limiter
-
+'''
+What this file contains :-
+= Books CRUD
+= Favourites CRUD
+= Recover deleted books
+'''
 class Book_CR(Resource):
 	@jwt_required()
 	def get(self):

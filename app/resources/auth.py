@@ -16,7 +16,13 @@ from flask_jwt_extended import (
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import jwt, limiter, admin_required
-
+'''
+What this file contains :-
+= New user acc creation
+= Old user login
+= resfresh Token and delete user
+= checking if a user is logged in or not
+'''
 class AddUser(Resource):
     @limiter.limit("3 per day")
     def post(self):

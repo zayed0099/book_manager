@@ -21,9 +21,11 @@ from app.resources.book_manage import (
 	CustomBookList
 )
 
+# To add new Books + update/delete
 book_api.add_resource(Book_CR, '/books', endpoint='view')  # For Create & Read (all)
 book_api.add_resource(Book_RUD, '/books/<int:id>', endpoint='edit_delete')  # For Read (one), Update, Delete
 
+# first one to see all deleted books, second to recover them
 book_api.add_resource(Book_reuse, '/recovery', endpoint='recover')
 book_api.add_resource(BookRecover, '/recovery/<int:id>', endpoint='recdeleted')
 
