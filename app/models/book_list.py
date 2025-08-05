@@ -20,7 +20,7 @@ class ListOwner(db.Model):
 	# Relationships
 	list_elements = db.relationship('ListBook', 
 		passive_deletes=True,
-		backref='user', lazy=True)
+		backref='list_name', lazy=True)
 
 # class to store books in list with a fk(list id)
 class ListBook(db.Model):

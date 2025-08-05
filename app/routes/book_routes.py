@@ -15,7 +15,10 @@ from app.resources.book import (
 
 from app.resources.book_manage import (
 	BookRatings,
-	BookRatings_UD
+	BookRatings_UD,
+	Tags,
+	BookListName,
+	CustomBookList
 )
 
 book_api.add_resource(Book_CR, '/books', endpoint='view')  # For Create & Read (all)
@@ -34,3 +37,11 @@ book_api.add_resource(BookRatings, '/reviews/<int:id>', endpoint='review_one')
 
 # To edit and delete review/rating => (PATCH, DELETE)
 book_api.add_resource(BookRatings_UD, '/reviews/edit/<int:id>', endpoint='review_edit_del')
+
+# Tagging 
+book_api.add_resource(Tags, '/tags', endpoint='tagging_for_search')
+
+# Custom Book List
+book_api.add_resource(BookListName, '/booklist', endpoint='blist_naming')
+book_api.add_resource(CustomBookList, '/booklist/add', endpoint='blist_adding')
+book_api.add_resource(CustomBookList, '/booklist/add/<int:id>', endpoint='blist_PATCH_DEL')

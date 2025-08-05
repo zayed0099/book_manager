@@ -328,7 +328,7 @@ class BookListName(Resource):
 		query = ListOwner.query.filter_by(list_name_norm=list_name_norm).first()
 
 		if not query:
-			return {'message' : : 'No book list found with rhat name'}, 404
+			return {'message' : : 'No book list found with that name'}, 404
 
 		else:
 			query.list_name = list_name
@@ -384,3 +384,60 @@ class CustomBookList(Resource):
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			return {'message' : 'An error occured'}, 500		
+
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def patch(self, id):
+		try:
+			data = request.get_json()
+			if data is None:
+				raise CustomBadRequest("Missing JSON in request.")
+		except BadRequest:
+			raise CustomBadRequest("Invalid JSON format.")
+
+		from app.models import ListBook
+		book_tw = ListBook.query.filter_by(id=id).first()
+
+		if not book_tw:
+			abort(404, description="Book not found.")
+
+		if 'title' in data and data['title'] is not None:
+			book_tw.title = data['title']
+			book_tw.normalized_title = data['title'].lower().strip()
+
+		if 'author' in data and data['author'] is not None:
+			book_tw.author = data['author']
+
+		if 'genre' in data['genre'] is not None:
+			book_tw.genre = data['genre']
+
+		allowed = ['wishlist' , 'in_progress' , 'completed' , 'abandoned']
+
+		if 'status' in data and data['status'] is not None:
+			if data['status'] in allowed:
+				book_tw.status = data['status']
+			else:
+				return {'message': f"Invalid status. Allowed values: {', '.join(allowed)}"}, 400
+
+		try:
+			book_tw.updated_at = datetime.utcnow()
+			db.session.commit()
+			return {
+					"message": "Data updated Successfully",
+					"book": {
+						"title": book_tw.title,
+						"author": book_tw.author,
+						"genre": book_tw.genre ,
+						"status" : book_tw.status,
+						"updated_at" : book_tw.updated_at
+					}
+				}, 200
+
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			return {'message' : 'An error occured'}, 404
+
+		@jwt_required()
+		@limiter.limit("50 per day")
+		def delete(self, id):
+			
