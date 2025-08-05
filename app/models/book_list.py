@@ -16,6 +16,7 @@ class ListOwner(db.Model):
 
 	created_at = db.Column(db.DateTime, default=datetime.utcnow)
 	updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+	
 	is_deleted = db.Column(db.Boolean, default=False, nullable=False)
 
 	# Relationships

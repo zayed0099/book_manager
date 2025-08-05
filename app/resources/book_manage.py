@@ -325,10 +325,14 @@ class BookListName(Resource):
 		list_name_norm = list_name.lower().strip()
 
 		from app.models import ListOwner
-		query = ListOwner.query.filter_by(list_name_norm=list_name_norm).first()
+		query = ListOwner.query.filter_by(list_name_norm=list_name_norm,
+			is_deleted=False).first()
 
 		if not query:
 			return {'message' : 'No book list found with that name'}, 404
+
+		if query.is_deleted:
+			return {'message' : 'Recover the list first to change name'}, 409
 
 		else:
 			query.list_name = list_name
@@ -359,6 +363,8 @@ class BookListName(Resource):
 
 			try:
 				list_tw.is_deleted = True
+				list_tw.updated_at = datetime.utcnow()
+
 				for book in list_books:
 					book.is_list_deleted = True
 
@@ -368,7 +374,6 @@ class BookListName(Resource):
 				db.session.rollback()
 				return {'message' : 'An error occured'}, 500
 				
-
 class CustomBookList(Resource):
 	@jwt_required()
 	@limiter.limit("50 per day")
@@ -396,22 +401,29 @@ class CustomBookList(Resource):
 
 		from app.models import ListBook
 		
-		try:
-			new_book = ListBook(
-				list_id = list_id,
-				title = title,
-				normalized_title = norm_title,
-				author = author,
-				genre = genre,
-				status = status
-				)
+		query = ListOwner.query.filter_by(is_deleted=False,
+			list_id=list_id).first()
 
-			db.session.commit(new_book)
-			return {'message' : f'Book successfully added to list. List_id {list_id}'}, 200
+		if query.is_deleted:
+			return {'message' : "The list is deleted. New books can't be added"}, 409
 
-		except SQLAlchemyError as e:
-			db.session.rollback()
-			return {'message' : 'An error occured'}, 500		
+		else:
+			try:
+				new_book = ListBook(
+					list_id = list_id,
+					title = title,
+					normalized_title = norm_title,
+					author = author,
+					genre = genre,
+					status = status
+					)
+
+				db.session.commit(new_book)
+				return {'message' : f'Book successfully added to list. List_id {list_id}'}, 200
+
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured'}, 500		
 
 	@jwt_required()
 	@limiter.limit("50 per day")
@@ -429,6 +441,9 @@ class CustomBookList(Resource):
 		if not book_tw:
 			abort(404, description="Book not found.")
 
+		if book_tw.is_list_deleted:
+			return {'message' : 'The list is deleted. No change can be made now.'}, 409
+			
 		if 'title' in data and data['title'] is not None:
 			book_tw.title = data['title']
 			book_tw.normalized_title = data['title'].lower().strip()
@@ -465,20 +480,23 @@ class CustomBookList(Resource):
 			db.session.rollback()
 			return {'message' : 'An error occured'}, 404
 
-		@jwt_required()
-		@limiter.limit("50 per day")
-		def delete(self, id):
-			current_user_id = get_jwt_identity()
-		
-			from app.models import ListBook
-			book_tw = ListBook.query.filter_by(id=id).first()
-			if not book_tw:
-				abort(404, description="Book not found.")
+	@jwt_required()
+	@limiter.limit("50 per day")
+	def delete(self, id):
+		current_user_id = get_jwt_identity()
+	
+		from app.models import ListBook
+		book_tw = ListBook.query.filter_by(id=id).first()
+		if not book_tw:
+			abort(404, description="Book not found.")
 
-			try:    
-				db.session.delete(book_tw)
-				db.session.commit()
-				return {"message" : "Deleted Successfully"}, 200
-			except SQLAlchemyError as e:
-				db.session.rollback()
-				raise e
+		if book_tw.is_list_deleted:
+			return {'message' : 'The list is deleted. No change can be made now.'}, 409
+
+		try:    
+			db.session.delete(book_tw)
+			db.session.commit()
+			return {"message" : "Deleted Successfully"}, 200
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			raise e
