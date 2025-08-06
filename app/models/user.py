@@ -33,8 +33,27 @@ class User(db.Model):
         backref='userlist', 
         passive_deletes=True ,lazy=True)
 
+    deluser = db.relationship('DeleteUser', 
+        backref='removeuser', 
+        passive_deletes=True ,lazy=True)
+
     __table_args__ = (
     CheckConstraint(
         "role IN ('user' , 'admin' , 'system_admin')", 
         name='role_validate'),
     )
+
+class DeleteUser(db.Model):
+    __tablename__ = 'DeleteUser'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, 
+        db.ForeignKey('user_db.id', ondelete='CASCADE'), 
+        index=True, nullable=False)
+
+    Delete_Req_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_pending = db.Column(db.Boolean, default=True, nullable=False)
+    notes = db.Column(db.Text, nullable=True) # if user wants to say why he wants to delete acc...
+
+
+

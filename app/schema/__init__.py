@@ -1,5 +1,14 @@
-from .book_schema import BookSchema, AdminBookSchema, ReviewBookSchema, TagSchema
-from .user_schema import UserSchema, AdminUserSchema, AdminUserSchema_min
+from .book_schema import (BookSchema, 
+	AdminBookSchema, 
+	ReviewBookSchema, 
+	TagSchema)
+
+from .user_schema import (UserSchema, 
+	AdminUserSchema, 
+	AdminUserSchema_min,
+	DelRequestPOST,
+	DelRequestGET)
+
 from .booklist_schema import ListDataSchema, BookListSchema
 
 __all__ = ["BookSchema", 
@@ -10,4 +19,6 @@ __all__ = ["BookSchema",
 "ReviewBookSchema",
 "TagSchema",
 "ListDataSchema",
-"BookListSchema"]
+"BookListSchema",
+"DelRequestPOST",
+"DelRequestGET"]

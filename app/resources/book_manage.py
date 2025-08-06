@@ -358,6 +358,9 @@ class BookListName(Resource):
 		if not list_tw:
 			abort(404, description="Book List not found.")
 
+		if list_tw.is_deleted:
+			return {'message' : 'The list is already deleted....'}, 409
+
 		else:
 			list_books = ListBook.query.filter_by(list_id=list_tw.id).all()
 
@@ -399,10 +402,9 @@ class CustomBookList(Resource):
 		genre = data.get('genre', None)
 		status = data.get('status')
 
-		from app.models import ListBook
+		from app.models import ListBook, ListOwner
 		
-		query = ListOwner.query.filter_by(is_deleted=False,
-			list_id=list_id).first()
+		query = ListOwner.query.filter_by(list_id=list_id).first()
 
 		if query.is_deleted:
 			return {'message' : "The list is deleted. New books can't be added"}, 409
@@ -487,6 +489,7 @@ class CustomBookList(Resource):
 	
 		from app.models import ListBook
 		book_tw = ListBook.query.filter_by(id=id).first()
+		
 		if not book_tw:
 			abort(404, description="Book not found.")
 
@@ -500,3 +503,8 @@ class CustomBookList(Resource):
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise e
+
+	# @jwt_required()
+	# def get(self, id=None):
+	# 	if id is not None:
+	# 		pass

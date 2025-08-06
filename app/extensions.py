@@ -13,7 +13,9 @@ from app.schema import (BookSchema
     ,ReviewBookSchema
     ,TagSchema
     ,ListDataSchema, 
-    BookListSchema)
+    BookListSchema,
+    DelRequestPOST,
+    DelRequestGET)
 
 # Schema instances
 book_schema = BookSchema() # for a single book
@@ -26,6 +28,8 @@ review_schema = ReviewBookSchema()
 tagschema = TagSchema()
 listdataschema = ListDataSchema()
 booklistschema = BookListSchema()
+deluserP = DelRequestPOST(many=False)
+deluserg = DelRequestGET(many=False)
 
 # Global instances
 db = SQLAlchemy()
