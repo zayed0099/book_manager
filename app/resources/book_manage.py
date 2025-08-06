@@ -285,19 +285,27 @@ class BookListName(Resource):
 		if errors:
 			raise CustomBadRequest("Validation failed")
 
+		user_id = get_jwt_identity()
 		listname_raw = data.get('list_name')
 		listname = listname_raw.lower().strip()
 
 		from app.models import ListOwner	
 		
+		check = db.session.query(func.count(ListOwner.id)).filter(
+			ListOwner.user_id == user_id).scalar()
+
+		if check >= 3:
+			return {'message' : 'Limit exceeded. A user can only have 3 book list'}, 400
+
 		try:
 			new_list = ListOwner(
 				list_name = listname_raw ,
 				list_name_norm = list_name ,
-				user_id = get_jwt_identity()
+				user_id = user_id
 				)
 
-			db.session.commit(new_list)
+			db.session.add(new_list)
+			db.session.commit()
 			return {'message' : 'List successfully created.'}, 200
 
 		except SQLAlchemyError as e:
