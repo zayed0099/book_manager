@@ -1,4 +1,4 @@
-from .user import User
+from .user import User, DeleteUser
 from .book import book_manager, Ratings_Reviews
 from .blacklist import jwt_blacklist
 from .book_tags import review_tags
@@ -12,5 +12,6 @@ __all__ = [
 	"Ratings_Reviews",
 	"review_tags",
 	"ListOwner" ,
-	"ListBook"
+	"ListBook",
+	"DeleteUser"
 ]
