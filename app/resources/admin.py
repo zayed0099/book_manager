@@ -391,4 +391,35 @@ class BookManage(Resource):
 			return {"message" : "Deleted books older than 30days have been permanently deleted"}, 200
 		else:
 			return {"message" : "No books permanently deleted as it's still not 30 days."}, 403
+
+# A class to delete users who's delete req is older than or equal to 30 days.
+class UserAccDelete(Resource):
+	@jwt_required()
+	@admin_required
+	def delete(self):
+		from app.models import DeleteUser
+
+		deleteable_users = DeleteUser.query.all()
+		now = datetime.utcnow()
+		deleted_any = False
+		user_info = []
+
+		for user in deleteable_users:
+			if now >= (user.Delete_Req_at + timedelta(days=30)):
+				user_info.append(user.removeuser.username) # accessing Data from User db with backref = removeuser
+				db.session.delete(user) 			# to delete user from delete user db
+				db.session.delete(user.removeuser)  # to delete user from main user db
+				deleted_any = True
+
+		try:
+			db.session.commit()
+			logger.info(f"Following users have been removed from the db permanently: {', '.join(user_info)}.")
+		except SQLAlchemyError as e:
+			db.session.rollback()
+			raise e
+
+		if deleted_any:
+			return {"message" : "Users with delete request older than 30days have been permanently deleted"}, 200
+		else:
+			return {"message" : "No user permanently deleted as it's still not 30 days."}, 403
 	

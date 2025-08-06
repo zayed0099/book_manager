@@ -50,7 +50,7 @@ class DeleteUser(db.Model):
     user_id = db.Column(db.Integer, 
         db.ForeignKey('user_db.id', ondelete='CASCADE'), 
         index=True, nullable=False)
-
+    
     Delete_Req_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_pending = db.Column(db.Boolean, default=True, nullable=False)
     notes = db.Column(db.Text, nullable=True) # if user wants to say why he wants to delete acc...

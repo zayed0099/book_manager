@@ -28,8 +28,8 @@ review_schema = ReviewBookSchema()
 tagschema = TagSchema()
 listdataschema = ListDataSchema()
 booklistschema = BookListSchema()
-deluser_p = DelRequestPOST(many=False)
-deluser_g = DelRequestGET(many=False)
+deluserPschema = DelRequestPOST(many=False)
+deluserGschema = DelRequestGET(many=False)
 
 # Global instances
 db = SQLAlchemy()

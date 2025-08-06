@@ -11,7 +11,8 @@ from app.resources.admin import (Admin_Crud,
 	UserCredChange,
 	AdminUD,
 	User_Show,
-	BookManage)
+	BookManage,
+	UserAccDelete)
 
 # Admin seeing all admin data, Adding completely new user as admin
 admin_api.add_resource(Admin_Crud, '/manage')
@@ -25,7 +26,7 @@ admin_api.add_resource(Admin_Book_Manage, '/books')
 # Banning/Unbanning a user from the api.
 admin_api.add_resource(User_Control, '/user/ban/<int:id>')
 
-# getting all user data
+# Getting all user data
 admin_api.add_resource(User_Show, '/user/view')
 
 # Reseting user password
@@ -36,5 +37,9 @@ admin_api.add_resource(Jwt_Manage, '/jwt/clear')
 
 # Clearing all soft deleted books from book database
 admin_api.add_resource(BookManage, '/book/clear')
+
+# Clearing all user with delete acc req, 
+# older than 30 days from User database
+admin_api.add_resource(UserAccDelete, '/user/clear')
 
 

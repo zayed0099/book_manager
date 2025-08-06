@@ -186,10 +186,10 @@ class DeleteUser(Resource):
 		except BadRequest:
 			raise CustomBadRequest("Invalid JSON format.")
 
-		from app.extensions import deluser_p
+		from app.extensions import deluserPschema
 		from app.models import DeleteUser
 
-		errors = deluser_p.validate(data)
+		errors = deluserPschema.validate(data)
 
 		if errors:
 			raise CustomBadRequest("Validation failed")
@@ -198,20 +198,21 @@ class DeleteUser(Resource):
 
 		note = data.get('note', None)
 
-		if user_tw.is_pending:
+		if user_tw and user_tw.is_pending:
 			return {'message' : 'User already has a pending delete request.'}, 400
 
-		new_request = DeleteUser(
-			user_id = get_jwt_identity(),
-			notes = note)
+		else:
+			new_request = DeleteUser(
+				user_id = get_jwt_identity(),
+				notes = note)
 
-		try:
-			db.session.add(new_request)
-			db.session.commit()
-			return {'message' : 'User deleteion req has been submitted.'}, 200
-		except SQLAlchemyError as e:
-			db.session.rollback()
-			return {'message' : 'An error occured'}, 500
+			try:
+				db.session.add(new_request)
+				db.session.commit()
+				return {'message' : 'User deleteion req has been submitted.'}, 200
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured'}, 500
 
 	@jwt_required()
 	@limiter.limit("1 per month")
@@ -221,11 +222,11 @@ class DeleteUser(Resource):
 
 		if not user_tw:
 			abort(404, description="User does not have a pending deleteion request.")
-
+			
 		try:
 			db.session.delete(user_tw)
 			db.session.commit()
-			return {'message' : 'User deleteion req has been submitted.'}, 200
+			return {'message': 'User deletion request has been revoked.'}, 200
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			return {'message' : 'An error occured'}, 500
