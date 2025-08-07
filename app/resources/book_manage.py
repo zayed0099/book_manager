@@ -291,6 +291,7 @@ class BookListName(Resource):
 
 		from app.models import ListOwner	
 		
+		# checking how many list does the user have
 		check = db.session.query(func.count(ListOwner.id)).filter(
 			ListOwner.user_id == user_id).scalar()
 
@@ -300,13 +301,13 @@ class BookListName(Resource):
 		try:
 			new_list = ListOwner(
 				list_name = listname_raw ,
-				list_name_norm = list_name ,
+				list_name_norm = listname ,
 				user_id = user_id
 				)
 
 			db.session.add(new_list)
 			db.session.commit()
-			return {'message' : 'List successfully created.'}, 200
+			return {'message' : 'List successfully created.'}, 201
 
 		except SQLAlchemyError as e:
 			db.session.rollback()
