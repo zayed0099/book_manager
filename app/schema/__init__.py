@@ -1,7 +1,8 @@
 from .book_schema import (BookSchema, 
 	AdminBookSchema, 
 	ReviewBookSchema, 
-	TagSchema)
+	TagSchema,
+	JSONExportSchema)
 
 from .user_schema import (UserSchema, 
 	AdminUserSchema, 
@@ -21,4 +22,5 @@ __all__ = ["BookSchema",
 "ListDataSchema",
 "BookListSchema",
 "DelRequestPOST",
-"DelRequestGET"]
+"DelRequestGET",
+"JSONExportSchema"]

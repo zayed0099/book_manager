@@ -15,7 +15,8 @@ from app.schema import (BookSchema
     ,ListDataSchema, 
     BookListSchema,
     DelRequestPOST,
-    DelRequestGET)
+    DelRequestGET,
+    JSONExportSchema)
 
 # Schema instances
 book_schema = BookSchema() # for a single book
@@ -30,6 +31,7 @@ listdataschema = ListDataSchema()
 booklistschema = BookListSchema()
 deluserPschema = DelRequestPOST(many=False)
 deluserGschema = DelRequestGET(many=False)
+exportschema = JSONExportSchema(many=True)
 
 # Global instances
 db = SQLAlchemy()

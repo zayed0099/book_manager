@@ -8,6 +8,20 @@ def validate_status(value):
 	if check not in accepted:
 		raise ValidationError(f"Invalid status! Must be one of: {', '.join(accepted)}.")
 
+# Functions to validate word length and rating
+def validate_word_count(value):
+	word_count = len(value.strip().split())
+	if word_count > 100:
+		raise ValidationError("Review must not exceed 100 words.")
+	if word_count < 5:
+		raise ValidationError("Review must be at least 5 words.")
+
+def validate_rating(value):
+	if value > 10:
+		raise ValidationError("rating must be between (1-10)")
+	elif value < 1:
+		raise ValidationError("rating must be between (1-10)")
+
 class BookSchema(Schema):
 	id = fields.Int(dump_only=True)
 	title = fields.Str(required=True, validate=validate.Length(min=1))
@@ -28,20 +42,6 @@ class AdminBookSchema(Schema):
 	user_id = fields.Int(dump_only=True)
 	status = fields.Str(dump_only=True)
 
-# Functions to validate word length and rating
-def validate_word_count(value):
-	word_count = len(value.strip().split())
-	if word_count > 100:
-		raise ValidationError("Review must not exceed 100 words.")
-	if word_count < 5:
-		raise ValidationError("Review must be at least 5 words.")
-
-def validate_rating(value):
-	if value > 10:
-		raise ValidationError("rating must be between (1-10)")
-	elif value < 1:
-		raise ValidationError("rating must be between (1-10)")
-
 # Schema for review
 class ReviewBookSchema(Schema):
 	id = fields.Int(dump_only=True)
@@ -57,4 +57,9 @@ class TagSchema(Schema):
 	review_id = fields.Int(required=True)
 
 
-# Schema for Custom list
+# Schema for JSON Export
+class JSONExportSchema(Schema):
+	title = fields.Str(dump_only=True)
+	author = fields.Str(dump_only=True)
+	genre = fields.Str(dump_only=True)
+	status = fields.Str(dump_only=True) 
