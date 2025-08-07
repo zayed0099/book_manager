@@ -1,5 +1,6 @@
 # book manage.py
 import os
+import json
 from flask import jsonify
 from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -7,6 +8,7 @@ from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_
 from datetime import datetime
+from pathlib import Path
 
 # Local Import
 from app.errors.handlers import CustomBadRequest
@@ -83,6 +85,15 @@ class JSONExport(Resource):
 		books = book_manager.query.filter_by(user_id=user_id).limit(50).all()
 		output = exportschema.dump(books)
 
-		return jsonify(output)
+		dir_path = Path("app/exports/json")
+		dir_path.mkdir(parents=True, exist_ok=True)
 
+		check_file = dir_path/f"{user_id}_books.json"
 
+		if check_file.exists():
+			return {'message' : 'The user already has a json file generated.'}, 400
+
+		with open(f"app/exports/json/{user_id}_books.json", "w") as file:
+			json.dump(output, file, indent=4)
+
+		return {'message' : 'JSON file has been successfully created.'}, 200
