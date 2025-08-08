@@ -56,6 +56,9 @@ class TagSchema(Schema):
 	tag2 = fields.Str(required=True, validate=validate.Length(min=3))
 	review_id = fields.Int(required=True)
 
+class TagSchemaGET(Schema):
+	tag = fields.Str(dump_only=True)
+	normaliazed_tag = fields.Str(dump_only=True)
 
 # Schema for JSON Export
 class JSONExportSchema(Schema):

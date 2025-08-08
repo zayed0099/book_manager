@@ -16,9 +16,12 @@ from app.resources.book import (
 from app.resources.book_manage import (
 	BookRatings,
 	BookRatings_UD,
-	Tags,
-	BookListName,
-	CustomBookList
+	Tags
+)
+
+from app.resources.book_list import (
+    BookListName,
+    CustomBookList
 )
 
 # To add new Books + update/delete
