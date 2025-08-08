@@ -55,9 +55,11 @@ class AddUser(Resource):
 			else:
 				new_hashed_pw_signin = generate_password_hash(pass_txt_signin)
 
-				new_user = User(username=username_signin,
+				new_user = User(
+					username=username_signin,
 					password=new_hashed_pw_signin,
-					email=email_signin ,joined=now)
+					email=email_signin ,
+					joined=now)
 
 				try:
 					db.session.add(new_user)
@@ -66,6 +68,7 @@ class AddUser(Resource):
 				except SQLAlchemyError as e:
 					db.session.rollback()
 					raise e
+					return {'messaqge' : 'An error occured. Try again Later'}, 500
 
 # User login class
 class Login(Resource):
@@ -98,10 +101,12 @@ class Login(Resource):
 			
 			else:
 				if check_user and check_password_hash(check_user.password , pass_txt_login):
+					
 					access_token = create_access_token(identity=check_user.id
 						,additional_claims={"role": check_user.role})
 					refresh_token = create_refresh_token(identity=check_user.id
 						,additional_claims={"role": check_user.role})
+					
 					return {"access_token": access_token, "refresh_token": refresh_token}, 200        
 				else:
 					return {"message": "Bad username or password. Login unsuccessful"}, 401

@@ -18,11 +18,18 @@ class ListOwner(db.Model):
 	updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 	
 	is_deleted = db.Column(db.Boolean, default=False, nullable=False)
-
+	audience = db.Column(db.String(100), server_default="everyone", nullable=False)
+	
 	# Relationships
 	list_elements = db.relationship('ListBook', 
 		passive_deletes=True,
 		backref='list_name', lazy=True)
+	
+	__table_args__ = (
+		CheckConstraint(
+        "audience IN ('everyone' , 'private')", 
+        name='audience_validate'),
+		)	
 
 # class to store books in list with a fk(list id)
 class ListBook(db.Model):

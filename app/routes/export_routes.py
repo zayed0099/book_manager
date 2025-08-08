@@ -8,7 +8,7 @@ from app.resources.export_data import (PDFExport,
 	JSONExport)
 
 # Generating PDF
-export_api.add_resource(PDFExport, '/pdf', endpoint='export_pdf')
+# export_api.add_resource(PDFExport, '/pdf', endpoint='export_pdf')
 
 # generating JSON data
 export_api.add_resource(JSONExport, '/json', endpoint='export_json')

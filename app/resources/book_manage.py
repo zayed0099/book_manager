@@ -11,6 +11,9 @@ from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import limiter
 
+# I am a little confused about the review/rating and making them public. 
+# May need to revisit while creating the frontend
+
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):
 	@jwt_required()
