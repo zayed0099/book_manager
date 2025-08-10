@@ -3,7 +3,7 @@ from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from datetime import datetime
 
 # Local Import
@@ -39,7 +39,7 @@ class BookListName(Resource):
 		check = db.session.query(func.count(ListOwner.id)).filter(
 			ListOwner.user_id == user_id).scalar()
 
-		if check >= 3:
+		if check >= 5:
 			return {'message' : 'Limit exceeded. A user can only have 3 book list'}, 400
 
 		try:
@@ -88,10 +88,10 @@ class BookListName(Resource):
 			return {'message' : 'Recover the list first to change name'}, 409
 
 		else:
-			query.list_name = list_name
-			query.list_name_norm = list_name_norm
-
 			try:
+				query.list_name = list_name
+				query.list_name_norm = list_name_norm
+				
 				db.session.commit()
 				return {'message' : 'List name successfully updated'}, 200
 			except SQLAlchemyError as e:

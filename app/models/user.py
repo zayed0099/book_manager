@@ -55,5 +55,7 @@ class DeleteUser(db.Model):
     is_pending = db.Column(db.Boolean, default=True, nullable=False)
     notes = db.Column(db.Text, nullable=True) # if user wants to say why he wants to delete acc...
 
-
+     __table_args__ = (
+    db.UniqueConstraint('user_id', name='uq_user_id'),
+    )
 

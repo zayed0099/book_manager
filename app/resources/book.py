@@ -139,6 +139,7 @@ class Book_CR(Resource):
 				except SQLAlchemyError as e:
 					db.session.rollback()
 					raise e
+					return {'message' : 'An error occured'}, 500
 
 # JWT protected class to update, delete and get book by id.
 class Book_RUD(Resource):
@@ -191,7 +192,8 @@ class Book_RUD(Resource):
 			except SQLAlchemyError as e:
 				db.session.rollback()
 				raise e
-	
+				return {'message' : 'An error occured'}, 500
+
 	@jwt_required()
 	@limiter.limit("50 per day")
 	def patch(self, id):
@@ -243,7 +245,8 @@ class Book_RUD(Resource):
 
 		except SQLAlchemyError as e:
 			db.session.rollback()
-			return {'message' : 'An error occured'}, 404
+			raise e
+			return {'message' : 'An error occured'}, 500
 
 	@jwt_required()
 	@limiter.limit("50 per day")
@@ -263,6 +266,7 @@ class Book_RUD(Resource):
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise e
+			return {'message' : 'An error occured'}, 500
 
 class Book_reuse(Resource):
 	@jwt_required()
@@ -317,7 +321,7 @@ class BookRecover(Resource):
 					return {'message' : 'Book recovered.'}, 200
 				except SQLAlchemyError as e:
 					db.session.rollback()
-					return {'message' : 'An error occured.'}, 404
+					return {'message' : 'An error occured.'}, 500
 			else:
 				return {'message' : 'Book is already recovered. No need to send another recovery request.'}, 200
 
@@ -422,8 +426,8 @@ class Book_Favourite_ud(Resource):
 					return {'message' : 'Book added as favourite'}, 200
 				except SQLAlchemyError as e:
 					db.session.rollback()
-					return {'message' : 'An error occured.'}
 					raise e
+					return {'message' : 'An error occured.'}, 500
 
 	@jwt_required()
 	def delete(self, id):
@@ -449,5 +453,5 @@ class Book_Favourite_ud(Resource):
 					return {'message' : 'Book removed from favourites.'}, 200
 				except SQLAlchemyError as e:
 					db.session.rollback()
-					return {'message' : 'An error occured.'}, 500
 					raise e
+					return {'message' : 'An error occured.'}, 500

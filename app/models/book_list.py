@@ -27,8 +27,8 @@ class ListOwner(db.Model):
 	
 	__table_args__ = (
 		CheckConstraint(
-        "audience IN ('everyone' , 'private')", 
-        name='audience_validate'),
+		"audience IN ('everyone' , 'private')", 
+		name='audience_validate'),
 		)	
 
 # class to store books in list with a fk(list id)

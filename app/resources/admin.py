@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import jwt_required
+from sqlalchemy import case, func
 
 # Local Import
 from app.extensions import db
@@ -424,3 +425,35 @@ class UserAccDelete(Resource):
 		else:
 			return {"message" : "No user permanently deleted as it's still not 30 days."}, 403
 	
+class UserStat(Resource):
+	@jwt_required()
+	@system_admin_required
+	def get(self):
+		def get(self):
+		from app.models import book_manager
+
+		user_id = request.args.get('user_id', None, type=Int)
+
+		if user_id is not None:
+			filters = [book_manager.user_id == user_id]
+		else:
+			filters = []
+
+		result = db.session.query(
+			func.count(book_manager.id),
+			func.sum(case([(book_manager.favourite == True, 1)], else_=0)),
+			func.sum(case([(book_manager.is_deleted == True, 1)], else_=0))
+			).filter(*filters).one()
+
+		if result[0] == 0:
+			return {'message' : 'No data for that specific user'}, 200
+
+		total_books = result[0]
+		total_favourites = result[1]
+		total_deleted = result[2]
+		
+		return {
+			'total_book' : total_books,
+			'total_fav' : total_favourites,
+			'total_del' : total_deleted,
+		}, 200

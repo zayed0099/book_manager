@@ -12,7 +12,8 @@ from app.resources.admin import (Admin_Crud,
 	AdminUD,
 	User_Show,
 	BookManage,
-	UserAccDelete)
+	UserAccDelete,
+	UserStat)
 
 # Admin seeing all admin data, Adding completely new user as admin
 admin_api.add_resource(Admin_Crud, '/manage')
@@ -42,4 +43,5 @@ admin_api.add_resource(BookManage, '/book/clear')
 # older than 30 days from User database
 admin_api.add_resource(UserAccDelete, '/user/clear')
 
-
+# Get all or user specific data (total books, fav, del number)
+admin_api.add_resource(UserStat, '/stat')
