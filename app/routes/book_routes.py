@@ -24,9 +24,6 @@ from app.resources.book_list import (
     CustomBookList
 )
 
-from app.resources.dashboard import (
-    StatBooks
-)
 
 # To add new Books + update/delete
 book_api.add_resource(Book_CR, '/books', endpoint='view')  # For Create & Read (all)
@@ -55,5 +52,3 @@ book_api.add_resource(BookListName, '/booklist', endpoint='blist_naming')
 book_api.add_resource(CustomBookList, '/booklist/add', endpoint='blist_adding')
 book_api.add_resource(CustomBookList, '/booklist/add/<int:id>', endpoint='blist_PATCH_DEL')
 
-# To get stat of total book, fav book, deleted book
-book_api.add_resource(StatBooks, '/stat', endpoint='stat')

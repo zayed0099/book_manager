@@ -107,12 +107,15 @@ class Book_CR(Resource):
 
 			normalized_title = title.lower().strip()
 
+			if genre is not None:
+				genre_normal = genre.lower().strip()
+
 			from app.models.book import book_manager
 
 			del_check = book_manager.query.filter_by(
 				user_id=get_jwt_identity()
-				, is_deleted=True
-				, normalized_title=normalized_title).first() 
+				,is_deleted=True
+				,normalized_title=normalized_title).first() 
 			
 			if not del_check:
 				new_book = book_manager(
@@ -121,7 +124,8 @@ class Book_CR(Resource):
 					normalized_title = normalized_title,
 					user_id = get_jwt_identity(),
 					is_deleted = False,
-					genre = genre
+					genre = genre,
+					genre_normal = genre_normal
 				)
 
 				try:
@@ -220,6 +224,7 @@ class Book_RUD(Resource):
 
 		if 'genre' in data and data['genre'] is not None:
 			book_tw.genre = data['genre']
+			book_tw.genre_normal = data['genre'].lower().strip()
 
 		allowed = ['wishlist' , 'in_progress' , 'completed' , 'abandoned']
 

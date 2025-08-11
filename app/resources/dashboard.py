@@ -42,3 +42,23 @@ class StatBooks(Resource):
 			'total_fav' : total_favourites,
 			'total_del' : total_deleted,
 		}, 200
+
+class RecoBook(Resource):
+	from app.models import book_manager
+	user_id = get_jwt_identity()
+
+	results = (
+		db.session.query(
+			book_manager.genre_normal,
+			func.count().label("genre_count")
+		)
+		.group_by(book_manager.genre_normal)
+		.order_by(desc("genre_count"))
+		.all()
+	)
+
+	top_two = results[:2]
+
+	if len(results) > 2:
+		third_one = results[2][0]
+		
