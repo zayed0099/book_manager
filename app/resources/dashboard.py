@@ -5,6 +5,8 @@ from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import case, func
 from datetime import datetime
+import requests
+import random
 
 # Local Import
 from app.errors.handlers import CustomBadRequest
@@ -52,13 +54,55 @@ class RecoBook(Resource):
 			book_manager.genre_normal,
 			func.count().label("genre_count")
 		)
+		.filter(book_manager.user_id == user_id)
 		.group_by(book_manager.genre_normal)
-		.order_by(desc("genre_count"))
+		.order_by(desc("genre_count"), book_manager.genre_normal)
+		.limit(5)
 		.all()
 	)
 
-	top_two = results[:2]
+	genres = [genre for genre, count in results]
 
-	if len(results) > 2:
-		third_one = results[2][0]
+	choices = []
+
+	while len(choices) <= 1:
+		# random choice a genre > add that to choices > remove that from genres to avoid duplicates
+		choice = random.choice(genres)
+		choices.append(choice)
+		genres.remove(choice)
+
+		if len(choices) == 2:
+			break
+
+	GBAPIurl = f"https://www.googleapis.com/books/v1/volumes?q=subject:{choices[0]}+subject:{choices[1]}&maxResults=20"
+
+	if len(choices) == 0:
+		return {'message' : 'An error occured.'}, 500
+
+	response = request.get(GBAPIurl)
+
+	if response.status_code == 200:
+		data = response.json()
+
+		books = []
+
+		for item in data['items']:
+			books.append(item)
+
+		book_count = []
+
+		while len(book_count) <= 4:
+			selected = random.choice(books)
+			book_count.append(selected)
+			books.remove(selected)
+			if len(book_count) == 5:
+				break
+
+		for book in book_count:
+			
+
+	else:
+		return {'message' : 'An error occured'}, 500
+
+
 		

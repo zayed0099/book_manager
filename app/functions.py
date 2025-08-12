@@ -15,10 +15,7 @@ def get_book_query_params():
     }
 
 def book_filters_and_sorting(params):
-    filters = [
-        book_manager.user_id == params["current_user_id"],
-        book_manager.is_deleted == False
-    ]
+    filters = [book_manager.is_deleted == False]
     order_by = []
 
     if params["genre"]:

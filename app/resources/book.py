@@ -109,7 +109,9 @@ class Book_CR(Resource):
 
 			if genre is not None:
 				genre_normal = genre.lower().strip()
-
+			else:
+				genre_normal = None
+				
 			from app.models.book import book_manager
 
 			del_check = book_manager.query.filter_by(

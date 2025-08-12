@@ -38,6 +38,7 @@ class book_manager(db.Model):
     CheckConstraint(
         "status IN ('wishlist' , 'in_progress' , 'completed' , 'abandoned')", 
         name='status_validate'),
+    Index('idx_genrenorm_user_id', 'user_id', 'genre_normal'),
     )
 
 class Ratings_Reviews(db.Model):

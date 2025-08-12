@@ -36,9 +36,7 @@ class BookRatings(Resource):
 					Ratings_Reviews.book_id == book_manager.id
 					)
 				)\
-			.filter(
-				book_manager.user_id == current_user_id,
-				Ratings_Reviews.id == id)\
+			.filter(Ratings_Reviews.id == id)\
 			.first()
 
 			if not results:
