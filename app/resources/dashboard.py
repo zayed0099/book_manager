@@ -1,4 +1,5 @@
 # dashboard.py
+from flask import jsonify
 from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
@@ -46,63 +47,73 @@ class StatBooks(Resource):
 		}, 200
 
 class RecoBook(Resource):
-	from app.models import book_manager
-	user_id = get_jwt_identity()
+	@jwt_required()
+	@limiter.limit("100 per day")
+	def get(self):
+		from app.models import book_manager
+		user_id = get_jwt_identity()
 
-	results = (
-		db.session.query(
-			book_manager.genre_normal,
-			func.count().label("genre_count")
+		results = (
+			db.session.query(
+				book_manager.genre_normal,
+				func.count().label("genre_count")
+			)
+			.filter(book_manager.user_id == user_id)
+			.group_by(book_manager.genre_normal)
+			.order_by(desc("genre_count"), book_manager.genre_normal)
+			.limit(5)
+			.all()
 		)
-		.filter(book_manager.user_id == user_id)
-		.group_by(book_manager.genre_normal)
-		.order_by(desc("genre_count"), book_manager.genre_normal)
-		.limit(5)
-		.all()
-	)
 
-	genres = [genre for genre, count in results]
+		genres = [genre for genre, count in results]
 
-	choices = []
+		if len(genres) < 2:
+			return {'message' : 'Not enough genre for Book recommendation.'}, 403
 
-	while len(choices) <= 1:
-		# random choice a genre > add that to choices > remove that from genres to avoid duplicates
-		choice = random.choice(genres)
-		choices.append(choice)
-		genres.remove(choice)
+		choices = []
+		choices = random.sample(genres, 2) # to get 2 diff genre from the list genres
 
-		if len(choices) == 2:
-			break
-
-	GBAPIurl = f"https://www.googleapis.com/books/v1/volumes?q=subject:{choices[0]}+subject:{choices[1]}&maxResults=20"
-
-	if len(choices) == 0:
-		return {'message' : 'An error occured.'}, 500
-
-	response = request.get(GBAPIurl)
-
-	if response.status_code == 200:
-		data = response.json()
+		if len(choices) < 2:
+			return {'message' : 'Not enough genre for Book recommendation.'}, 403
 
 		books = []
+		
+		for data in choices:
+			# Google Books API
+			url = f"https://www.googleapis.com/books/v1/volumes?q=subject:{data}&maxResults=20"
+			response = request.get(GBAPIurl)
 
-		for item in data['items']:
-			books.append(item)
+			if response.status_code == 200:
+				data = response.json()
 
-		book_count = []
+				for item in data['items']:
+					books.append(item)
+			else:
+				return {'message' : 'An error occured'}, 500
 
-		while len(book_count) <= 4:
-			selected = random.choice(books)
-			book_count.append(selected)
-			books.remove(selected)
-			if len(book_count) == 5:
-				break
+		if len(books) < 5:
+			return {'message' : 'An error occured.'}, 500
 
-		for book in book_count:
-			
+		random_books = random.sample(books, 5)
 
-	else:
-		return {'message' : 'An error occured'}, 500
+		data_to_send = []
+
+		for book in random_books:
+			data = {
+			"title" : book["volumeInfo"]['title'],
+			"author" : book["volumeInfo"]['authors'],
+			"categories" : book["volumeInfo"]["categories"],
+			"imageLinks" : book["volumeInfo"]["imageLinks"]
+			}
+			data_to_send.append(data)
+
+		if len(data_to_send) < 5:
+			return {'message' : 'An error occured.'}, 500
+
+		return {'message' : f'These 5 books are recommended for user_id: {user_id}',
+				'books' : jsonify(data_to_send),
+				'most_read_genre' : genres
+		}, 200
 
 
 		
