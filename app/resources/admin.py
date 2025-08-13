@@ -429,7 +429,6 @@ class UserStat(Resource):
 	@jwt_required()
 	@system_admin_required
 	def get(self):
-		def get(self):
 		from app.models import book_manager
 
 		user_id = request.args.get('user_id', None, type=Int)

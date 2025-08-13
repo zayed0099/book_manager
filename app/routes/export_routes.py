@@ -4,7 +4,7 @@ from flask_restful import Api
 export_bp = Blueprint('export', __name__, url_prefix='/api/v1/export')
 export_api = Api(export_bp)
 
-from app.resources.export_data import (PDFExport, 
+from app.resources.export_data import ( 
 	JSONExport)
 
 # Generating PDF

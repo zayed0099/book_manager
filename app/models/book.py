@@ -11,7 +11,7 @@ class book_manager(db.Model):
     author = db.Column(db.String(200), nullable=False)
     normalized_title = db.Column(db.String(200), nullable=False, index=True)
     genre = db.Column(db.String(30), nullable=True)
-    genre_normal = db.Column(db.String(200), nullable=False)
+    genre_normal = db.Column(db.String(200), nullable=True)
     status = db.Column(db.String(100), server_default="wishlist", nullable=False)
 
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
@@ -38,7 +38,7 @@ class book_manager(db.Model):
     CheckConstraint(
         "status IN ('wishlist' , 'in_progress' , 'completed' , 'abandoned')", 
         name='status_validate'),
-    Index('idx_genrenorm_user_id', 'user_id', 'genre_normal'),
+    db.Index('idx_genrenorm_user_id', 'user_id', 'genre_normal'),
     )
 
 class Ratings_Reviews(db.Model):
