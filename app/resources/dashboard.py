@@ -85,14 +85,14 @@ class RecoBook(Resource):
 		if response.status_code == 200:
 			data = response.json()
 
-			for item in data['items']:
-				book = response.get("volumeInfo", {})
+			for item in data.get('items', []):
+				book = item.get("volumeInfo", {})
 				
 				single_book_data = {
 				"title" : book.get("title", None),
-				"authors" : book("authors", None),
-				"description" : book("description", None),
-				"imageLinks" : book("imageLinks", None)
+				"authors" : book.get("authors", None),
+				"description" : book.get("description", None),
+				"imageLinks" : book.get("imageLinks", None)
 				}
 				books.append(single_book_data)
 		else:
@@ -106,6 +106,3 @@ class RecoBook(Resource):
 				'books' : books,
 				'most_read_genre' : genres
 		}, 200
-
-
-		
