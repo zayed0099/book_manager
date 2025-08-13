@@ -52,20 +52,19 @@ class RecoBook(Resource):
 		from app.models import book_manager
 		user_id = get_jwt_identity()
 
-		# results = (
-		# 	db.session.query(
-		# 		book_manager.genre_normal,
-		# 		func.count().label("genre_count")
-		# 	)
-		# 	.filter(book_manager.user_id == user_id)
-		# 	.group_by(book_manager.genre_normal)
-		# 	.order_by(desc("genre_count"), book_manager.genre_normal)
-		# 	.limit(5)
-		# 	.all()
-		# )
+		results = (
+			db.session.query(
+				book_manager.genre_normal,
+				func.count().label("genre_count")
+			)
+			.filter(book_manager.user_id == user_id)
+			.group_by(book_manager.genre_normal)
+			.order_by(desc("genre_count"), book_manager.genre_normal)
+			.limit(5)
+			.all()
+		)
 
-		# genres = [genre for genre, count in results]
-		genres = ['fiction' , 'Nonfiction', 'Fantasy', 'Mystery', 'drama']
+		genres = [genre for genre, count in results]
 
 		if len(genres) < 2:
 			return {'message' : 'Not enough genre for Book recommendation.'}, 403
@@ -106,3 +105,9 @@ class RecoBook(Resource):
 				'books' : books,
 				'most_read_genre' : genres
 		}, 200
+
+class RatingOwn(Resource):
+	@jwt_required()
+	@limiter.limit("100 per day")
+	def get(self, id):
+		pass
