@@ -35,7 +35,8 @@ def create_app():
         review_tags,
         ListOwner, 
         ListBook,
-        DeleteUser)
+        DeleteUser,
+        UnivBookDB)
 
     with app.app_context(): # creating all the database tables
         db.create_all()
