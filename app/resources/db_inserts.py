@@ -84,6 +84,7 @@ class AddBook(Resource):
 
 		pub_date = data.get("pub_date", None)
 		page_count = data.get("page_count", None)
+		language = data.get("language", "en")
 
 		from app.models import UniversalBookDB
 
@@ -108,6 +109,7 @@ class AddBook(Resource):
 			imagelink = imagelink,
 			pub_date = pub_date,
 			page_count = page_count,
+			language = language
 			)
 
 		try:
