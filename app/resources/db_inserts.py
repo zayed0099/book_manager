@@ -86,9 +86,9 @@ class AddBook(Resource):
 		page_count = data.get("page_count", None)
 		language = data.get("language", "en")
 
-		from app.models import UniversalBookDB
+		from app.models import UnivBookDB
 
-		new_book = UniversalBookDB(
+		new_book = UnivBookDB(
 			title = title,
 			normalized_title = normalized_title,
 			subtitle = subtitle,
@@ -119,5 +119,5 @@ class AddBook(Resource):
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise e
-			return {'message' : 'An error occured', e}, 500
+			return {'message' : 'An error occured'}, 500
 

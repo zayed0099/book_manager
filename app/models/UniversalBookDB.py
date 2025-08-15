@@ -53,7 +53,7 @@ class UnivBookDB(db.Model):
 	updated_at = db.Column(db.DateTime, 
 		default=datetime.utcnow, onupdate=datetime.utcnow)
 
-	language = db.Column(db.String(10), default="en",nullable=True)
+	language = db.Column(db.String(10), default=None,nullable=True)
 	status = db.Column(db.String(100), default="public", nullable=False)
 
 	__table_args__ = (
