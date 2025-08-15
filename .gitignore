@@ -1,7 +1,7 @@
 # pytest extra file
 style.css
 report.html
-
+fetched_data/
 myapp.txt
 myapp.log
 

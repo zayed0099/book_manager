@@ -7,7 +7,7 @@ fetch_range = int(input('How many times do you want to iterate over? :'))
 def fetch_data(fetch_range):
 	index = 0
 	current_directory = Path(__file__).parent.resolve()
-	json_path = current_directory / 'json' / 'book_sci_fiction.json'
+	json_path = current_directory / 'fetched_data' / 'book_sci_fiction.json'
 	
 	for index in range(1, fetch_range + 1):
 		url = f"https://www.googleapis.com/books/v1/volumes?q=mystery&maxResults=40&startIndex={index}"
