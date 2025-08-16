@@ -51,10 +51,11 @@ def admin_required(func):
 def system_admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        token = get_jwt()
-        role = token.get('role', None)
+        user_id = get_jwt_identity()
+        check = db.session.query(User).filter_by(id=user_id,
+            role='system_admin').scalar()
 
-        if role == 'system_admin':
+        if check:
             return func(*args, **kwargs)
         else:
             return {'message': 'Access denied'}, 403

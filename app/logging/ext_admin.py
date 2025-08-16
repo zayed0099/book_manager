@@ -1,7 +1,7 @@
 import logging
 # from app.resources.admin import Admin_Crud, Admin_Book_Manage, User_Control, Jwt_Manage
 
-logging.basicConfig(filename='myapp.log', level=logging.INFO)
+logging.basicConfig(filename='logs/myapp.log', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main():

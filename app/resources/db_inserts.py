@@ -1,10 +1,10 @@
-# admin.py
+# db_inserts.py
 from flask_restful import Resource, request, abort
 from datetime import datetime, timezone, timedelta
 from werkzeug.exceptions import BadRequest
-from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import jwt_required
-from sqlalchemy import case, func
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 
 # Local Import
 from app.extensions import db
@@ -34,9 +34,9 @@ class AddBook(Resource):
 		author1 = data.get("author1")
 		
 		if isinstance(author1, str):
-			author2_normal = author1.strip().lower()
+			author1_normal = author1.strip().lower()
 		else:
-			author2_normal = None
+			author1_normal = None
 
 		author2 = data.get("author2", None)
 		
@@ -65,6 +65,12 @@ class AddBook(Resource):
 
 		description = data.get("description", None)
 
+		if description is not None:
+			words = description.split()
+			check = len(words)
+			if check > 250:
+				return {'message' : 'The description is too long.'}, 400
+
 		isbn1 = data.get("isbn1", None)
 		isbn2 = data.get("isbn2", None)
 
@@ -72,15 +78,13 @@ class AddBook(Resource):
 		if imagelink is None:
 			return {'message' : "Data w/o [imagelink] can't be accepted."}, 400
 
-		publisher = data.get("publisher")
-		
-		if publisher is None:
-			return {'message' : "Data w/o [publisher] can't be accepted."}, 400
+		publisher = data.get("publisher", None)
 
-		if isinstance(publisher, str):
-			publisher_normal = publisher.strip().lower()
+		if publisher is None:
+			publisher = "unknown"
+			publisher_normal = "unknown"
 		else:
-			publisher_normal = None 
+			publisher_normal = publisher.strip().lower()
 
 		pub_date = data.get("pub_date", None)
 		page_count = data.get("page_count", None)
@@ -109,15 +113,23 @@ class AddBook(Resource):
 			imagelink = imagelink,
 			pub_date = pub_date,
 			page_count = page_count,
-			language = language
+			language = language,
+			publisher = publisher,
+			publisher_normal = publisher_normal
 			)
 
 		try:
-			db.session.add(new_book)
-			db.session.commit()
-			return {'message' : 'Book successfully added'}, 201
+			query = db.session.execute(select(UnivBookDB).filter(
+				UnivBookDB.normalized_title == normalized_title)
+			).scalar_one_or_none()
+
+			if query is None:
+					db.session.add(new_book)
+					db.session.commit()
+					return {'message' : 'Book successfully added'}, 201
+			else:
+				return {'message' : 'Book already exists.'}, 409
+
 		except SQLAlchemyError as e:
 			db.session.rollback()
-			raise e
-			return {'message' : 'An error occured'}, 500
-
+			return {'message' : str(e)}, 500

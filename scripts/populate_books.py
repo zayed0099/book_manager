@@ -7,7 +7,7 @@ json_path = current_directory / 'fetched_data' / 'book_progr.json'
 
 headers = {
 	"Content-Type": "application/json",
-	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTI2ODQ2OSwianRpIjoiZTgyZWM2MWItYjZjMi00MGM5LWFjZmMtOTYxNmRmNWJjNzlmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1MjY4NDY5LCJjc3JmIjoiMDQ0NzY4YzQtODAzNS00ZWI4LThiZTgtMjRkNDkyNmM1YzQxIiwiZXhwIjoxNzU1MjcyMDY5LCJyb2xlIjoiYWRtaW4ifQ.UNo8c0q0rgSNrEUosJVxBViD6to1cXaf02oPWO6ztK8"
+	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTM0ODY1OCwianRpIjoiMzg2NzYyMDEtZTgyOS00MzdiLTliYWEtYTY0MzZjMjU2MDFkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1MzQ4NjU4LCJjc3JmIjoiMTk2NWM2ZTItNzM2Ny00OWRiLTljOTgtZGIxNTAyY2I0ZWUwIiwiZXhwIjoxNzU1MzUyMjU4LCJyb2xlIjoiYWRtaW4ifQ.RlFzSomXu5dHspESAQ39Gxr5lVKVsVu-ZyWY4IlDJOs"
 }
 url = "http://127.0.0.1:5000/a/v1/db/add"
 
@@ -18,6 +18,7 @@ else:
 	print("The operation can't be done now.")
 
 res_count = []
+res_text = []
 data_count = len(data_load)
 
 for data in data_load:
@@ -36,8 +37,8 @@ for data in data_load:
 
 	imagelink = data.get("imageLinks", {}).get("thumbnail", None)
 
-	publisher = data["publisher"]
-	pub_date = data["publishedDate"]
+	publisher = data.get("publisher")
+	pub_date = data.get("publishedDate")
 
 	categories = data.get("categories", None)
 	if categories is not None:
@@ -67,6 +68,7 @@ for data in data_load:
 		"isbn1" : isbn1 if isbns is not None else None,
 		"isbn2" : isbn2 if isbns is not None else None,
 		"imagelink" : imagelink,
+		"publisher" : publisher,
 		"pub_date" : pub_date,
 		"page_count" : page_count,
 		"language" : language
@@ -74,15 +76,24 @@ for data in data_load:
 
 	response = requests.post(url, json=payload, headers=headers)
 	res_count.append(response.status_code)
+	res_text.append(response.text)
 
 succ_req = []
 for data in res_count:
 	if data in [200, 201]:
 		succ_req.append(data)
 
+req_data_path = current_directory / "fetched_data" / "req_info.json"
+with open(req_data_path, "w") as json_file:
+	json.dump(res_text, json_file, indent=4) 
 
 print(f'''
-	Total Book : {data_count}
-	Total Request Sent : {len(res_count)}
-	Total Successful Request : {len(succ_req)}
+===================================================================	
+	Total Book : {data_count}								      
+	Total Request Sent : {len(res_count)}                         
+	Total Successful Request : {len(succ_req)}                    
+	Total Failed Request : {len(res_count) - len(succ_req)}
+	Request response saved in : 
+	{req_data_path}   
+===================================================================
 	''')

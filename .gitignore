@@ -1,4 +1,5 @@
 # pytest extra file
+logs/
 style.css
 report.html
 fetched_data/
