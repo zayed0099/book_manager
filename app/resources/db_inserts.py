@@ -98,10 +98,8 @@ class AddBook(Resource):
 		language = data.get("language", "en")
 
 		try:
-			author_ids = []
 			author1_check = UnivAuthorDB.query.filter_by(
 				author_normal=author1_normal).first()
-			author_ids.append(author1_check.id) if author1_check is not None
 
 			if author1_check is None:
 				author1_new = UnivAuthorDB(
@@ -112,7 +110,6 @@ class AddBook(Resource):
 			if author2 is not None:
 				author2_check = UnivAuthorDB.query.filter_by(
 				author_normal=author2_normal).first()
-				author_ids.append(author2_check.id) if author2_check is not None
 
 				if author2_check is None:
 					author2_new = UnivAuthorDB(
@@ -123,7 +120,6 @@ class AddBook(Resource):
 			if author3 is not None:
 				author3_check = UnivAuthorDB.query.filter_by(
 				author_normal=author3_normal).first()
-				author_ids.append(author3_check.id) if author3_check is not None
 
 				if author3_check is None:
 					author3_new = UnivAuthorDB(
@@ -134,7 +130,6 @@ class AddBook(Resource):
 			if author4 is not None:
 				author4_check = UnivAuthorDB.query.filter_by(
 				author_normal=author4_normal).first()
-				author_ids.append(author4_check.id) if author4_check is not None
 
 				if author4_check is None:
 					author4_new = UnivAuthorDB(
@@ -145,7 +140,6 @@ class AddBook(Resource):
 			if author5 is not None:
 				author5_check = UnivAuthorDB.query.filter_by(
 				author_normal=author5_normal).first()
-				author_ids.append(author5_check.id) if author5_check is not None
 
 				if author5_check is None:
 					author5_new = UnivAuthorDB(
@@ -154,9 +148,28 @@ class AddBook(Resource):
 					db.session.add(author5_new)
 
 			db.session.commit()
+			
+			author1_id = author1_new.id if author1_check is None else author1_check.id
+			author2_id = None
+			author3_id = None
+			author4_id = None
+			author5_id = None
+
+			if author2 is not None:
+				author2_id = author2_new.id if author2_check is None else author2_check.id
+
+			if author3 is not None:
+				author3_id = author3_new.id if author3_check is None else author3_check.id
+			
+			if author4 is not None:
+				author4_id = author4_new.id if author4_check is None else author4_check.id
+			
+			if author5 is not None:
+				author5_id = author5_new.id if author5_check is None else author5_check.id
+
+
 		except SQLAlchemyError as e:
 			db.session.rollback()
-
 
 		new_book = UnivBookDB(
 			title = title,
