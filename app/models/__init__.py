@@ -3,7 +3,7 @@ from .book import book_manager, Ratings_Reviews
 from .blacklist import jwt_blacklist
 from .book_tags import review_tags
 from .book_list import ListOwner, ListBook
-from .universaldata import UnivBookDB, UnivAuthorDB
+from .universaldata import UnivBookDB, UnivAuthorDB, BookAuthorLink
 
 __all__ = [
 	"User",
@@ -15,5 +15,6 @@ __all__ = [
 	"ListBook",
 	"DeleteUser",
 	"UnivBookDB",
-	"UnivAuthorDB"
+	"UnivAuthorDB",
+	"BookAuthorLink"
 ]

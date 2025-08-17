@@ -41,17 +41,14 @@ class UnivBookDB(db.Model):
 		default=datetime.utcnow, onupdate=datetime.utcnow)
 
 	language = db.Column(db.String(10), nullable=True)
-	status = db.Column(db.String(100), default="public", nullable=False)
 
 	# Foreign KEY from author table
-	author_id = db.Column(db.Integer, 
-		db.ForeignKey('UnivAuthorDB.id', ondelete='CASCADE'), 
-		index=True, nullable=False)
+	univbook_book = db.relationship('BookAuthorLink', 
+		backref='univbook',
+		passive_deletes=True, 
+		lazy=True)
 
 	__table_args__ = (
 	db.UniqueConstraint('isbn1', name='uq_isbn1'),
 	db.UniqueConstraint('isbn2', name='uq_isbn2'),
-	CheckConstraint(
-		"status IN ('public' , 'archive')", 
-		name='status_validate'),
 	)

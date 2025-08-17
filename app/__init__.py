@@ -14,50 +14,53 @@ from app.ui_routes.auth_routes import auth_ui_bp
 
 
 def create_app():
-    app = Flask(__name__)
-    api = Api(app)
+	app = Flask(__name__)
+	api = Api(app)
 
-    app.config.from_object(Config)
-    app.config.from_object(dbconfig)
-    app.config.from_object(jwt_config)
-    
-    CORS(app)
+	app.config.from_object(Config)
+	app.config.from_object(dbconfig)
+	app.config.from_object(jwt_config)
+	
+	CORS(app)
 
-    limiter.init_app(app)
-    db.init_app(app)
-    jwt.init_app(app)
-    migrate.init_app(app, db)
-    
-    from app.models import (User, 
-        book_manager, 
-        jwt_blacklist, 
-        Ratings_Reviews,
-        review_tags,
-        ListOwner, 
-        ListBook,
-        DeleteUser,
-        UnivBookDB)
+	limiter.init_app(app)
+	db.init_app(app)
+	jwt.init_app(app)
+	migrate.init_app(app, db)
+	
+	from app.models import (
+		User, 
+		book_manager, 
+		jwt_blacklist, 
+		Ratings_Reviews,
+		review_tags,
+		ListOwner, 
+		ListBook,
+		DeleteUser,
+		UnivBookDB,
+		UnivAuthorDB, 
+		BookAuthorLink)
 
-    with app.app_context(): # creating all the database tables
-        db.create_all()
+	with app.app_context(): # creating all the database tables
+		db.create_all()
 
-    from app.routes import (
-        auth_bp,
-        book_bp,
-        admin_bp,
-        export_bp,
-        dashboard_bp)
+	from app.routes import (
+		auth_bp,
+		book_bp,
+		admin_bp,
+		export_bp,
+		dashboard_bp)
 
-    register_error_handlers(app)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(book_bp)
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(export_bp)
-    app.register_blueprint(dashboard_bp)
-    
-    app.register_blueprint(admin_ui_bp)
-    app.register_blueprint(user_ui_bp)
-    app.register_blueprint(auth_ui_bp)
-    
+	register_error_handlers(app)
+	app.register_blueprint(auth_bp)
+	app.register_blueprint(book_bp)
+	app.register_blueprint(admin_bp)
+	app.register_blueprint(export_bp)
+	app.register_blueprint(dashboard_bp)
+	
+	app.register_blueprint(admin_ui_bp)
+	app.register_blueprint(user_ui_bp)
+	app.register_blueprint(auth_ui_bp)
+	
 
-    return app
+	return app
