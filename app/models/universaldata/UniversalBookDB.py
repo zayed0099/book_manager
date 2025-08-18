@@ -44,10 +44,15 @@ class UnivBookDB(db.Model):
 
 	# Foreign KEY from author table
 	univbook_book = db.relationship('BookAuthorLink', 
-		backref='univbook',
+		backref='univbookauth_book',
 		passive_deletes=True, 
 		lazy=True)
 
+	univbook_publisher = db.relationship('BookPublLink', 
+		backref='univpub_book',
+		passive_deletes=True, 
+		lazy=True)
+	
 	__table_args__ = (
 	db.UniqueConstraint('isbn1', name='uq_isbn1'),
 	db.UniqueConstraint('isbn2', name='uq_isbn2'),

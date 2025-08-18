@@ -3,7 +3,7 @@ from flask_restful import Resource, request, abort
 from datetime import datetime, timezone, timedelta
 from werkzeug.exceptions import BadRequest
 from flask_jwt_extended import jwt_required
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.exc import SQLAlchemyError
 
 # Local Import
@@ -13,6 +13,9 @@ from app.jwt_extensions import (jwt,
 	limiter,
 	admin_required,
 	system_admin_required)
+from app.models import (UnivBookDB, 
+			UnivAuthorDB, 
+			BookAuthorLink) 
 
 # This resource is registered in routes/admin.py
 class AddBook(Resource):
@@ -26,15 +29,12 @@ class AddBook(Resource):
 		except BadRequest:
 			raise CustomBadRequest("Invalid JSON format.")
 
-		from app.models import (UnivBookDB, 
-			UnivAuthorDB, 
-			BookAuthorLink) 
-
-		title = data.get("title")
+		title = data.get("title", None)
+		if title is None:
+			return {'message' : "Book w/o title can't be accepted"}, 400
 		normalized_title = title.strip().lower()
 
 		subtitle = data.get("subtitle", None)
-
 
 		# Author Section
 		author1 = data.get("author1", None)
@@ -59,7 +59,6 @@ class AddBook(Resource):
 		author5 = data.get("author5", None)
 		if author5 is not None:
 			author5_normal = author5.strip().lower()
-
 
 		# Category Section
 		category1 = data.get("category1", None)
@@ -125,7 +124,7 @@ class AddBook(Resource):
 					author3_new = UnivAuthorDB(
 						author = author3,
 						author_normal = author3_normal)
-					db.session.add(author2_new)
+					db.session.add(author3_new)
 
 			if author4 is not None:
 				author4_check = UnivAuthorDB.query.filter_by(
@@ -147,9 +146,61 @@ class AddBook(Resource):
 						author_normal = author5_normal)
 					db.session.add(author5_new)
 
-			db.session.commit()
-			
+			new_book = UnivBookDB(
+				title = title,
+				normalized_title = normalized_title,
+				subtitle = subtitle,
+				category1 = category1,
+				category1_normal = category1_normal,
+				category2 = category2,
+				category2_normal = category2_normal,
+				description = description,
+				isbn1 = isbn1,
+				isbn2 = isbn2,
+				imagelink = imagelink,
+				pub_date = pub_date,
+				page_count = page_count,
+				language = language,
+				publisher = publisher,
+				publisher_normal = publisher_normal
+				)
+
+			if isbn1 or isbn2:
+				isbn_filters = []
+
+				if isbn1 is not None:
+					isbn_filters.append(UnivBookDB.isbn1 == isbn1)
+				if isbn2  is not None:
+					isbn_filters.append(UnivBookDB.isbn2 == isbn2)
+
+				if len(filters) > 0:
+					query = db.session.query(UnivBookDB).filter(or_(*filters)).first()				
+
+			else:
+				filters = []
+				filters.append(UnivBookDB.normalized_title == normalized_title)
+				filters.append(UnivAuthorDB.author_normal == author1_normal)
+
+				query =( 
+					db.session.query(UnivBookDB)
+					.join(BookAuthorLink, BookAuthorLink.book_id == UnivBookDB.id)
+					.join(UnivAuthorDB, BookAuthorLink.author_id == UnivAuthorDB.id)
+					.filter(*filters)
+					.first()
+				)
+
+			if query is None:
+				db.session.add(new_book)
+				db.session.flush()
+			else:
+				return {'message' : 'Book already exists.'}, 409
+
+			book_id = new_book.id
+
+			author_ids = []
 			author1_id = author1_new.id if author1_check is None else author1_check.id
+			author_ids.append(author1_id)
+
 			author2_id = None
 			author3_id = None
 			author4_id = None
@@ -157,59 +208,29 @@ class AddBook(Resource):
 
 			if author2 is not None:
 				author2_id = author2_new.id if author2_check is None else author2_check.id
+				author_ids.append(author2_id)
 
 			if author3 is not None:
 				author3_id = author3_new.id if author3_check is None else author3_check.id
-			
+				author_ids.append(author3_id)
+
 			if author4 is not None:
 				author4_id = author4_new.id if author4_check is None else author4_check.id
-			
+				author_ids.append(author4_id)
+
 			if author5 is not None:
 				author5_id = author5_new.id if author5_check is None else author5_check.id
-
-
-		except SQLAlchemyError as e:
-			db.session.rollback()
-
-		new_book = UnivBookDB(
-			title = title,
-			normalized_title = normalized_title,
-			subtitle = subtitle,
-			category1 = category1,
-			category1_normal = category1_normal,
-			category2 = category2,
-			category2_normal = category2_normal,
-			description = description,
-			isbn1 = isbn1,
-			isbn2 = isbn2,
-			imagelink = imagelink,
-			pub_date = pub_date,
-			page_count = page_count,
-			language = language,
-			publisher = publisher,
-			publisher_normal = publisher_normal
-			)
-
-		try:
-			query = UnivBookDB.query.filter_by(
-				normalized_title=normalized_title).first()
-
-			if query is None:
-				db.session.add(new_book)
-				db.session.commit()
-			else:
-				return {'message' : 'Book already exists.'}, 409
-
-			book_id = new_book.id
+				author_ids.append(author5_id)
 
 			for author_id in author_ids:
 				book_author_link_entry = BookAuthorLink(
 					book_id = book_id,
 					author_id = author_id
 					)
+				db.session.add(book_author_link_entry)
+			
 			db.session.commit()
 			return {'message' : 'Book successfully added'}, 201
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			return {'message' : str(e)}, 500
-

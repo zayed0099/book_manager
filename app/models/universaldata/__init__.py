@@ -1,9 +1,11 @@
 from .UniversalBookDB import UnivBookDB
 from .UniversalAuthorDB import UnivAuthorDB
-from .CombinedDB import BookAuthorLink
+from .UniversalPublisherDB import UnivPubDB
+from .AllDBLink import BookAuthorLink, BookPublLink
 
 __all__ = [
 	"UnivBookDB",
 	"UnivAuthorDB",
-	"BookAuthorLink"
+	"BookAuthorLink",
+	"UnivPubDB"
 ]

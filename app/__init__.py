@@ -39,7 +39,8 @@ def create_app():
 		DeleteUser,
 		UnivBookDB,
 		UnivAuthorDB, 
-		BookAuthorLink)
+		BookAuthorLink,
+		UnivPubDB)
 
 	with app.app_context(): # creating all the database tables
 		db.create_all()
