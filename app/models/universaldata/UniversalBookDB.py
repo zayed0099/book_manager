@@ -29,10 +29,6 @@ class UnivBookDB(db.Model):
 
 	imagelink = db.Column(db.String(250), nullable=False)
 
-	publisher = db.Column(db.String(200), default="unknown", nullable=False)
-	publisher_normal = db.Column(db.String(200), 
-		nullable=True, default="unknown", index=True)
-
 	pub_date = db.Column(db.String(25), nullable=True)
 	page_count = db.Column(db.Integer, nullable=True)
 
@@ -43,12 +39,12 @@ class UnivBookDB(db.Model):
 	language = db.Column(db.String(10), nullable=True)
 
 	# Foreign KEY from author table
-	univbook_book = db.relationship('BookAuthorLink', 
-		backref='univbookauth_book',
+	univbook_bookauthlink = db.relationship('BookAuthorLink', 
+		backref='univauth_book',
 		passive_deletes=True, 
 		lazy=True)
 
-	univbook_publisher = db.relationship('BookPublLink', 
+	univbook_bookpublink = db.relationship('BookPublLink', 
 		backref='univpub_book',
 		passive_deletes=True, 
 		lazy=True)

@@ -20,8 +20,8 @@ class UnivAuthorDB(Resource):
 		default=datetime.utcnow, onupdate=datetime.utcnow)
 
 	# Relationship with Universal Book DB
-	univbook_author = db.relationship('BookAuthorLink', 
-		backref='univauthor',
+	univauth_bookauthlink = db.relationship('BookAuthorLink', 
+		backref='univauth',
 		passive_deletes=True, 
 		lazy=True)
 

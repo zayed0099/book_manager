@@ -9,9 +9,9 @@ class UnivPubDB(Resource):
 
 	id = db.Column(db.Integer, primary_key=True)
 
-	publisher = db.Column(db.String(200), nullable=False)
+	publisher = db.Column(db.String(200), default="unknown", nullable=False)
 	publisher_normal = db.Column(db.String(200), 
-		nullable=False, index=True)
+		nullable=False, default="unknown", index=True)
 
 	status = db.Column(db.String(100), default="active", nullable=False)
 
@@ -20,7 +20,7 @@ class UnivPubDB(Resource):
 		default=datetime.utcnow, onupdate=datetime.utcnow)
 
 	# Relationship with Universal Book DB
-	univ_publisher = db.relationship('BookPublLink', 
+	univpub_pub_book_link = db.relationship('BookPublLink', 
 		backref='univpub',
 		passive_deletes=True, 
 		lazy=True)
