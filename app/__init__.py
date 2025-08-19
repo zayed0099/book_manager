@@ -40,7 +40,8 @@ def create_app():
 		UnivBookDB,
 		UnivAuthorDB, 
 		BookAuthorLink,
-		UnivPubDB)
+		UnivPubDB,
+		BookPublLink)
 
 	with app.app_context(): # creating all the database tables
 		db.create_all()

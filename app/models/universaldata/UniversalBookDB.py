@@ -10,7 +10,10 @@ class UnivBookDB(db.Model):
 
 	title = db.Column(db.String(200), nullable=False)
 	normalized_title = db.Column(db.String(200), 
-		unique=True, nullable=False, index=True)
+		unique=True, 
+		nullable=False, 
+		index=True)
+
 	subtitle = db.Column(db.String(200), default=None ,nullable=True)
 
 	category1 = db.Column(db.String(30), 

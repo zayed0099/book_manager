@@ -7,10 +7,10 @@ fetch_range = int(input('How many times do you want to iterate over? :'))
 def fetch_data(fetch_range):
 	index = 0
 	current_directory = Path(__file__).parent.resolve()
-	json_path = current_directory / 'fetched_data' / 'book_sci_fiction.json'
+	json_path = current_directory / 'fetched_data' / 'book_literature.json'
 	
 	for index in range(1, fetch_range + 1):
-		url = f"https://www.googleapis.com/books/v1/volumes?q=mystery&maxResults=40&startIndex={index}"
+		url = f"https://www.googleapis.com/books/v1/volumes?q=bangla literature&maxResults=40&startIndex={index}"
 		response = requests.get(url)
 
 		if response.status_code == 200:
@@ -58,6 +58,9 @@ fetch_data(fetch_range)
 # to check the length of the extracted data
 def check_lenght():
 	if json_path.exists() and json_path.stat().st_size > 0:
+		json_path = current_directory / 'fetched_data' / 'book_sci_fiction.json'
 		with open(json_path, "r") as f:
 			data_old = json.load(f)
 		print(len(data_old))
+
+# check_lenght()

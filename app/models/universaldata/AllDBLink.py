@@ -3,7 +3,7 @@ from app.extensions import db
 from sqlalchemy import CheckConstraint
 from datetime import datetime
 
-class BookAuthorLink(Resource):
+class BookAuthorLink(db.Model):
 	__tablename__ = "BookAuthorLink"
 
 	id = db.Column(db.Integer, primary_key=True)
@@ -25,7 +25,7 @@ class BookAuthorLink(Resource):
 		name='status_validate'),
 	)
 
-class BookPublLink(Resource):
+class BookPublLink(db.Model):
 	__tablename__ = "BookPublLink"
 
 	id = db.Column(db.Integer, primary_key=True)

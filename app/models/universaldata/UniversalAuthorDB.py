@@ -4,14 +4,16 @@ from sqlalchemy import CheckConstraint
 from datetime import datetime
 
 
-class UnivAuthorDB(Resource):
+class UnivAuthorDB(db.Model):
 	__tablename__ = "UnivAuthorDB"
 
 	id = db.Column(db.Integer, primary_key=True)
 
 	author = db.Column(db.String(200), nullable=False)
 	author_normal = db.Column(db.String(200), 
-		nullable=False, index=True)
+		unique=True, 
+		nullable=False, 
+		index=True)
 
 	status = db.Column(db.String(100), default="active", nullable=False)
 

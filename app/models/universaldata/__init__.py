@@ -7,5 +7,6 @@ __all__ = [
 	"UnivBookDB",
 	"UnivAuthorDB",
 	"BookAuthorLink",
-	"UnivPubDB"
+	"UnivPubDB",
+	"BookPublLink"
 ]

@@ -4,14 +4,19 @@ from sqlalchemy import CheckConstraint
 from datetime import datetime
 
 
-class UnivPubDB(Resource):
+class UnivPubDB(db.Model):
 	__tablename__ = "UnivPubDB"
 
 	id = db.Column(db.Integer, primary_key=True)
 
 	publisher = db.Column(db.String(200), default="unknown", nullable=False)
-	publisher_normal = db.Column(db.String(200), 
-		nullable=False, default="unknown", index=True)
+	
+	publisher_normal = db.Column(
+		db.String(200), 
+		nullable=False, 
+		default="unknown", 
+		index=True,
+		unique=True)
 
 	status = db.Column(db.String(100), default="active", nullable=False)
 

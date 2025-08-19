@@ -55,8 +55,13 @@ class AddBook(Resource):
 			if check > 250:
 				return {'message' : 'The description is too long.'}, 400
 
-		isbn1 = data.get("isbn1", None)
-		isbn2 = data.get("isbn2", None)
+		isbn1_raw = data.get("isbn1", None)
+		isbn2_raw = data.get("isbn2", None)
+
+		if isbn1_raw is not None:
+		    isbn1 = isbn1_raw.upper().replace("ISBN:", "").replace("ISBN", "").replace("-", "").replace(" ", "")
+		if isbn2_raw is not None:
+		    isbn2 = isbn1_raw.upper().replace("ISBN:", "").replace("ISBN", "").replace("-", "").replace(" ", "")
 
 		imagelink = data.get("imagelink")
 		if imagelink is None:
@@ -145,46 +150,55 @@ class AddBook(Resource):
 				normalized_title = normalized_title,
 				subtitle = subtitle,
 				category1 = category1,
-				category1_normal = category1_normal,
+				category1_normal = category1_normal if category1 is not None else None,
 				category2 = category2,
-				category2_normal = category2_normal,
+				category2_normal = category2_normal if category2 is not None else None,
 				description = description,
-				isbn1 = isbn1,
-				isbn2 = isbn2,
+				isbn1 = isbn1 if isbn1_raw is not None else None,
+				isbn2 = isbn2 if isbn2_raw is not None else None,
 				imagelink = imagelink,
 				pub_date = pub_date,
 				page_count = page_count,
 				language = language
 				)
+			
+			filters = [
+			UnivAuthorDB.author_normal == author1_normal
+			]
+			
+			if author2 is not None:
+				filters.append(UnivAuthorDB.author_normal == author2_normal)
 
-			if isbn1 or isbn2:
-				isbn_filters = []
+			if author3 is not None:
+				filters.append(UnivAuthorDB.author_normal == author3_normal)
+			
+			if author4 is not None:
+				filters.append(UnivAuthorDB.author_normal == author4_normal)
 
-				if isbn1 is not None:
-					isbn_filters.append(UnivBookDB.isbn1 == isbn1)
-				if isbn2  is not None:
-					isbn_filters.append(UnivBookDB.isbn2 == isbn2)
+			if author5 is not None:
+				filters.append(UnivAuthorDB.author_normal == author5_normal)
 
-				query = db.session.query(UnivBookDB).filter(or_(*filters)).first()				
-
-			else:
-				filters = []
-				filters.append(UnivBookDB.normalized_title == normalized_title)
-				filters.append(UnivAuthorDB.author_normal == author1_normal)
-
-				query =( 
-					db.session.query(UnivBookDB)
-					.join(BookAuthorLink, BookAuthorLink.book_id == UnivBookDB.id)
-					.join(UnivAuthorDB, BookAuthorLink.author_id == UnivAuthorDB.id)
-					.filter(*filters)
-					.first()
+			query =( 
+				db.session.query(UnivBookDB)
+				.join(BookAuthorLink, BookAuthorLink.book_id == UnivBookDB.id)
+				.join(UnivAuthorDB, BookAuthorLink.author_id == UnivAuthorDB.id)
+				.filter(
+					UnivBookDB.normalized_title == normalized_title,
+					or_(*filters)
 				)
+				.first()
+			)
 
 			if query is None:
 				db.session.add(new_book)
 				db.session.flush()
 			else:
-				return {'message' : 'Book already exists.'}, 409
+				debug_dict = {
+				'title' : normalized_title,
+				'matched title' : query.normalized_title
+				}
+				return {'message' : 'Book already exists.',
+				'debug' : debug_dict}, 409
 
 			book_id = new_book.id
 
@@ -223,16 +237,26 @@ class AddBook(Resource):
 			publisher = data.get("publisher", None)
 
 			if publisher is None:
-				none_pub_entry = UnivPubDB(
-					publisher="unknown",
-					publisher_normal="unknown")
-				db.session.add(none_pub_entry)
-				db.session.flush()
+				query = UnivPubDB.query.filter_by(
+					publisher_normal='unknown').first()
+				
+				if query is None:
+					none_pub_entry = UnivPubDB(
+						publisher="unknown",
+						publisher_normal="unknown")
+					db.session.add(none_pub_entry)
+					db.session.flush()
 
-				none_pub_link = BookPublLink(
-					book_id=book_id,
-					publisher_id=none_pub_entry.id)
-				db.session.add(none_pub_link)
+					none_pub_link = BookPublLink(
+						book_id=book_id,
+						publisher_id=none_pub_entry.id)
+					db.session.add(none_pub_link)
+					
+				else:
+					none_pub_link = BookPublLink(
+						book_id=book_id,
+						publisher_id=query.id)
+					db.session.add(none_pub_link)
 
 			else:
 				publisher_normal = publisher.strip().lower()

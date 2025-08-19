@@ -3,11 +3,11 @@ from pathlib import Path
 import json
 
 current_directory = Path(__file__).parent.resolve()
-json_path = current_directory / 'fetched_data' / 'book_progr.json'
+json_path = current_directory / 'fetched_data' / 'book_literature.json'
 
 headers = {
 	"Content-Type": "application/json",
-	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTM0ODY1OCwianRpIjoiMzg2NzYyMDEtZTgyOS00MzdiLTliYWEtYTY0MzZjMjU2MDFkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1MzQ4NjU4LCJjc3JmIjoiMTk2NWM2ZTItNzM2Ny00OWRiLTljOTgtZGIxNTAyY2I0ZWUwIiwiZXhwIjoxNzU1MzUyMjU4LCJyb2xlIjoiYWRtaW4ifQ.RlFzSomXu5dHspESAQ39Gxr5lVKVsVu-ZyWY4IlDJOs"
+	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTYyMjQ2NCwianRpIjoiNTM1MTE2NGYtYjM3YS00M2VjLWIyYzItNTdhY2E3ZTE3YzVmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1NjIyNDY0LCJjc3JmIjoiMzUyNTcwOTUtN2ViOS00NWRmLThhYmEtNDk0OTY3MmU2YzNiIiwiZXhwIjoxNzU1NjI2MDY0LCJyb2xlIjoiYWRtaW4ifQ.pZf1lD7TJNrDpYwuddWl1n_oEL3mlRATu3cXgAWMunI"
 }
 url = "http://127.0.0.1:5000/a/v1/db/add"
 
@@ -62,11 +62,11 @@ for data in data_load:
 		"author3" : author3,
 		"author4" : author4,
 		"author5" : author5,
-		"category1" : category1,
-		"category2" : category2,
+		"category1" : category1 if categories is not None and len(categories) > 0 else "Uncategorized",
+		"category2" : category2 if categories is not None and len(categories) > 1 else "Uncategorized",
 		"description" : description,
-		"isbn1" : isbn1 if isbns is not None else None,
-		"isbn2" : isbn2 if isbns is not None else None,
+		"isbn1" : isbn1 if isbns is not None and len(isbns) > 0 else None,
+		"isbn2" : isbn2 if isbns is not None and len(isbns) > 1 else None,
 		"imagelink" : imagelink,
 		"publisher" : publisher,
 		"pub_date" : pub_date,
