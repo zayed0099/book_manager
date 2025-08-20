@@ -16,15 +16,6 @@ class UnivBookDB(db.Model):
 
 	subtitle = db.Column(db.String(200), default=None ,nullable=True)
 
-	category1 = db.Column(db.String(30), 
-		nullable=False)
-	category1_normal = db.Column(db.String(200), 
-		nullable=False, index=True)
-
-	category2 = db.Column(db.String(30), nullable=True)
-	category2_normal = db.Column(db.String(200), 
-		nullable=True, index=True)
-
 	description = db.Column(db.Text, nullable=True)
 
 	isbn1 = db.Column(db.String(200), default=None, nullable=True)
@@ -43,12 +34,17 @@ class UnivBookDB(db.Model):
 
 	# Foreign KEY from author table
 	univbook_bookauthlink = db.relationship('BookAuthorLink', 
-		backref='univauth_book',
+		backref='univbook_authlink',
 		passive_deletes=True, 
 		lazy=True)
 
 	univbook_bookpublink = db.relationship('BookPublLink', 
-		backref='univpub_book',
+		backref='univbook_publink',
+		passive_deletes=True, 
+		lazy=True)
+
+	univbook_bookcatlink = db.relationship('BookCatlLink', 
+		backref='univbook_catlink',
 		passive_deletes=True, 
 		lazy=True)
 	
@@ -56,3 +52,10 @@ class UnivBookDB(db.Model):
 	db.UniqueConstraint('isbn1', name='uq_isbn1'),
 	db.UniqueConstraint('isbn2', name='uq_isbn2'),
 	)
+
+'''
+backref structure
+firstpart_secondpart
+firstpart = db name
+secondpart = from which db
+'''

@@ -47,7 +47,6 @@ class StatBooks(Resource):
 
 class RecoBook(Resource):
 	@jwt_required()
-	@limiter.limit("100 per day")
 	def get(self):
 		from app.models import book_manager
 		user_id = get_jwt_identity()

@@ -1,12 +1,15 @@
 from .UniversalBookDB import UnivBookDB
 from .UniversalAuthorDB import UnivAuthorDB
 from .UniversalPublisherDB import UnivPubDB
-from .AllDBLink import BookAuthorLink, BookPublLink
+from .UniversalCategoryDB import UnivCatDB
+from .AllDBLink import BookAuthorLink, BookPublLink, BookCatlLink
 
 __all__ = [
 	"UnivBookDB",
 	"UnivAuthorDB",
-	"BookAuthorLink",
 	"UnivPubDB",
-	"BookPublLink"
+	"UnivCatDB",
+	"BookAuthorLink",
+	"BookPublLink",
+	"BookCatlLink"
 ]

@@ -45,6 +45,7 @@ class AddBook(Resource):
 
 		category2 = data.get("category2", None)
 		if category2 is not None:
+			if category2 is 
 			category2_normal = category2.strip().lower()
 
 		description = data.get("description", None)
