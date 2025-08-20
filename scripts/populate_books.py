@@ -3,11 +3,11 @@ from pathlib import Path
 import json
 
 current_directory = Path(__file__).parent.resolve()
-json_path = current_directory / 'fetched_data' / 'book_literature.json'
+json_path = current_directory / 'fetched_data' / 'book_progr.json'
 
 headers = {
 	"Content-Type": "application/json",
-	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTYyMjQ2NCwianRpIjoiNTM1MTE2NGYtYjM3YS00M2VjLWIyYzItNTdhY2E3ZTE3YzVmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1NjIyNDY0LCJjc3JmIjoiMzUyNTcwOTUtN2ViOS00NWRmLThhYmEtNDk0OTY3MmU2YzNiIiwiZXhwIjoxNzU1NjI2MDY0LCJyb2xlIjoiYWRtaW4ifQ.pZf1lD7TJNrDpYwuddWl1n_oEL3mlRATu3cXgAWMunI"
+	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTY5NTgwMiwianRpIjoiOWU0YWIzOTctOTExMi00M2MzLWFmODAtNmQ1NGVmOWFjNTI5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1Njk1ODAyLCJjc3JmIjoiYzI1ZGVkNjgtZmE3Ni00NGFhLTgzY2MtOGRjNDlmMWVhNmQzIiwiZXhwIjoxNzU1Njk5NDAyLCJyb2xlIjoiYWRtaW4ifQ.8TSopQOPHmvq7hx4hQtkLsF3x1FxkI7LzelEC3OtgdY"
 }
 url = "http://127.0.0.1:5000/a/v1/db/add"
 

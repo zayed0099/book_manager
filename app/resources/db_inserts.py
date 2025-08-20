@@ -15,9 +15,11 @@ from app.jwt_extensions import (jwt,
 	system_admin_required)
 from app.models import (UnivBookDB, 
 			UnivAuthorDB,
-			UnivPubDB, 
+			UnivPubDB,
+			UnivCatDB,
 			BookAuthorLink,
-			BookPublLink) 
+			BookPublLink,
+			BookCatlLink) 
 
 # This resource is registered in routes/admin.py
 class AddBook(Resource):
@@ -37,16 +39,6 @@ class AddBook(Resource):
 		normalized_title = title.strip().lower()
 
 		subtitle = data.get("subtitle", None)
-
-		# Category Section
-		category1 = data.get("category1", None)
-		if category1 is not None:
-			category1_normal = category1.strip().lower()
-
-		category2 = data.get("category2", None)
-		if category2 is not None:
-			if category2 is 
-			category2_normal = category2.strip().lower()
 
 		description = data.get("description", None)
 
@@ -150,10 +142,6 @@ class AddBook(Resource):
 				title = title,
 				normalized_title = normalized_title,
 				subtitle = subtitle,
-				category1 = category1,
-				category1_normal = category1_normal if category1 is not None else None,
-				category2 = category2,
-				category2_normal = category2_normal if category2 is not None else None,
 				description = description,
 				isbn1 = isbn1 if isbn1_raw is not None else None,
 				isbn2 = isbn2 if isbn2_raw is not None else None,
@@ -281,6 +269,76 @@ class AddBook(Resource):
 						book_id=book_id,
 						publisher_id=pub_query.id)
 					db.session.add(new_publink_entry_2)
+
+			# Category Section
+			category1 = data.get("category1", None)
+			category2 = data.get("category2", None)
+			
+			if category1 is None and category2 is None:
+				cat_check = UnivCatDB.query.filter_by(
+					category_normal='uncategorized').first()
+
+				if cat_check is None:
+					new_cat_entry = UnivCatDB(
+						category = 'uncategorized',
+						category_normal = 'uncategorized')
+					db.session.add(new_cat_entry)
+					db.session.flush()
+
+					new_book_uncat = BookCatlLink(
+						book_id = book_id,
+						category_id = new_cat_entry.id)
+					db.session.add(new_book_uncat)
+
+				else:
+					new_book_cat = BookCatlLink(
+						book_id = book_id,
+						category_id = cat_check.id)
+					db.session.add(new_book_cat)
+
+			if category1 is not None:
+				cat1_norm = category1.strip().lower()
+				cat_check1 = UnivCatDB.query.filter_by(
+					category_normal = cat1_norm).first()
+
+				if cat_check1 is None:
+					cat1_new = UnivCatDB(
+						category = category1,
+						category_normal = cat1_norm)
+					db.session.add(cat1_new)
+					db.session.flush()
+
+					book_newcat1 = BookCatlLink(
+						book_id = book_id,
+						category_id = cat1_new.id)
+					db.session.add(book_newcat1)
+				else:
+					cat1_add = BookCatlLink(
+						book_id = book_id,
+						category_id = cat_check1.id)
+					db.session.add(cat1_add)
+
+			if category2 is not None:
+				cat2_norm = category2.strip().lower()
+				cat_check2 = UnivCatDB.query.filter_by(
+					category_normal = cat2_norm).first()
+
+				if cat_check2 is None:
+					cat2_new = UnivCatDB(
+						category = category2,
+						category_normal = cat2_norm)
+					db.session.add(cat2_new)
+					db.session.flush()
+
+					book_newcat2 = BookCatlLink(
+						book_id = book_id,
+						category_id = cat2_new.id)
+					db.session.add(book_newcat2)
+				else:
+					cat2_add = BookCatlLink(
+						book_id = book_id,
+						category_id = cat_check2.id)
+					db.session.add(cat2_add)
 
 			db.session.commit()
 			return {'message' : 'Book successfully added'}, 201

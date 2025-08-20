@@ -41,7 +41,7 @@ class BookPublLink(db.Model):
 	status = db.Column(db.String(100), default="public", nullable=False)
 
 	__table_args__ = (
-	db.UniqueConstraint('book_id', 'publisher_id', name='uq_book_author'),
+	db.UniqueConstraint('book_id', 'publisher_id', name='uq_book_pub'),
 	CheckConstraint(
 		"status IN ('public' , 'archive')", 
 		name='status_validate'),
@@ -53,17 +53,17 @@ class BookCatlLink(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 
 	book_id = db.Column(db.Integer, 
-		db.ForeignKey('UnivCatDB.id', ondelete='CASCADE'), 
+		db.ForeignKey('UnivBookDB.id', ondelete='CASCADE'), 
 		index=True, nullable=False)
 
-	publisher_id = db.Column(db.Integer, 
-		db.ForeignKey('UnivPubDB.id', ondelete='CASCADE'), 
+	category_id = db.Column(db.Integer, 
+		db.ForeignKey('UnivCatDB.id', ondelete='CASCADE'), 
 		index=True, nullable=False)
 
 	status = db.Column(db.String(100), default="public", nullable=False)
 
 	__table_args__ = (
-	db.UniqueConstraint('book_id', 'publisher_id', name='uq_book_author'),
+	db.UniqueConstraint('book_id', 'category_id', name='uq_book_cat'),
 	CheckConstraint(
 		"status IN ('public' , 'archive')", 
 		name='status_validate'),
