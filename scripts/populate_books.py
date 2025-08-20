@@ -22,7 +22,7 @@ res_text = []
 data_count = len(data_load)
 
 for data in data_load:
-	title = data.get("title")
+	title = data.get("title", None)
 	subtitle = data.get("subtitle", None)
 	
 	authors = data.get("authors", None)

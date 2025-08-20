@@ -14,7 +14,7 @@ from app.jwt_extensions import (jwt,
 	limiter,
 	admin_required, 
 	system_admin_required)
-from app.logging.ext_admin import logger
+from app.logging.setup_all import admin_logger
 
 '''
 admin can see how manu users in there. 
@@ -48,7 +48,7 @@ class Admin_Crud(Resource):
 			from app.extensions import admin_schema
 			admins =  admin_schema.dump(pagination.items, many=True)
 
-			logger.info('Admin requested to see data of all admins.')
+			admin_logger.info('Admin requested to see data of all admins.')
 			return {
 			'admins': admins,
 			'page': pagination.page,
@@ -99,7 +99,7 @@ class Admin_Crud(Resource):
 				try:
 					db.session.add(new_admin)
 					db.session.commit()
-					logger.info(f'{username_new_admin} has been added as new admin')
+					admin_logger.info(f'{username_new_admin} has been added as new admin')
 					return {"Successful": "Head to '/login' to login and start using the api."}, 200
 				except SQLAlchemyError as e:
 					db.session.rollback()
@@ -125,7 +125,7 @@ class AdminUD(Resource):
 				check_user.role = 'admin'
 				check_user.was_admin = True
 				db.session.commit()
-				logger.info(f'{check_user.username} : promoted to user -> Admin')
+				admin_logger.info(f'{check_user.username} : promoted to user -> Admin')
 				return {'message' : 'User added as admin successfully'}, 200
 			except SQLAlchemyError as e:
 				db.session.rollback()
@@ -147,7 +147,7 @@ class AdminUD(Resource):
 			try:
 				check_user.role = 'user'
 				db.session.commit()
-				logger.info(f'{check_user.username} has been removed from admin.')
+				admin_logger.info(f'{check_user.username} has been removed from admin.')
 				return {
 					'message': (
 							"User removed from admin. "
@@ -222,7 +222,7 @@ class Admin_Book_Manage(Resource):
 			from app.extensions import admin_schema_book
 			books =  admin_schema_book.dump(pagination.items)
 
-			logger.info('All book data sent to admin')
+			admin_logger.info('All book data sent to admin')
 			return {
 			'user_id' : user_id,
 			'books': books,
@@ -249,7 +249,7 @@ class User_Show(Resource):
 			from app.extensions import admin_nomail_schema
 			users =  admin_nomail_schema.dump(pagination.items)
 
-			logger.info('All user data sent to admin')
+			admin_logger.info('All user data sent to admin')
 			return {
 			'users': users,
 			'page': pagination.page,
@@ -272,7 +272,7 @@ class User_Control(Resource):
 		try:
 			check_user.is_banned = True
 			db.session.commit()
-			logger.info(f'User [{check_user.username}] has been banned.')
+			admin_logger.info(f'User [{check_user.username}] has been banned.')
 			return {'message' : f'User [{check_user.username}] has been banned.'}
 		except SQLAlchemyError as e:
 			db.session.rollback()
@@ -291,7 +291,7 @@ class User_Control(Resource):
 		try:
 			check_user.is_banned = False
 			db.session.commit()
-			logger.info(f'User [{check_user.username}] has been unbanned.')
+			admin_logger.info(f'User [{check_user.username}] has been unbanned.')
 			return {'message' : f"Access for user '{check_user.username}' has been restored."}
 		except SQLAlchemyError as e:
 			db.session.rollback()
@@ -328,7 +328,7 @@ class UserCredChange(Resource):
 			check_user.password = generate_password_hash(new_pass)
 			try:
 				db.session.commit()
-				logger.info(f'User [{username_of_user}] password has been changed..')
+				admin_logger.info(f'User [{username_of_user}] password has been changed..')
 				return {'message' : f'User [{username_of_user}] password has been changed..'}, 200
 			except SQLAlchemyError as e:
 				db.session.rollback()
@@ -355,7 +355,7 @@ class Jwt_Manage(Resource):
 
 		try:
 			db.session.commit()
-			logger.info("JWT token blacklist database has been cleared.")
+			admin_logger.info("JWT token blacklist database has been cleared.")
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise e
@@ -384,7 +384,7 @@ class BookManage(Resource):
 				deleted_any = True
 		try:
 			db.session.commit()
-			logger.info("Soft deleted books have been deleted.")
+			admin_logger.info("Soft deleted books have been deleted.")
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise e
@@ -415,7 +415,7 @@ class UserAccDelete(Resource):
 
 		try:
 			db.session.commit()
-			logger.info(f"Following users have been removed from the db permanently: {', '.join(user_info)}.")
+			admin_logger.info(f"Following users have been removed from the db permanently: {', '.join(user_info)}.")
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			raise e
@@ -451,6 +451,7 @@ class UserStat(Resource):
 		total_favourites = result[1]
 		total_deleted = result[2]
 		
+		admin_logger.info("User's Stat has been shown to admin.")
 		return {
 			'total_book' : total_books,
 			'total_fav' : total_favourites,

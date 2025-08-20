@@ -16,6 +16,7 @@ from flask_jwt_extended import (
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import jwt, limiter, admin_required
+from app.logging.setup_all import admin_logger
 '''
 What this file contains :-
 = New user acc creation
@@ -192,14 +193,16 @@ class DeleteUser(Resource):
 			raise CustomBadRequest("Invalid JSON format.")
 
 		from app.extensions import deluserPschema
-		from app.models import DeleteUser
+		from app.models import DeleteUser, User
 
 		errors = deluserPschema.validate(data)
 
 		if errors:
 			raise CustomBadRequest("Validation failed")
 
-		user_tw = DeleteUser.query.filter_by(user_id=get_jwt_identity()).first()
+		user_id=get_jwt_identity()
+
+		user_tw = DeleteUser.query.filter_by(user_id=user_id).first()
 
 		note = data.get('note', None)
 
@@ -207,6 +210,7 @@ class DeleteUser(Resource):
 			return {'message' : 'User already has a pending delete request.'}, 400
 
 		else:
+			user = User.query.get(user_id)
 			new_request = DeleteUser(
 				user_id = get_jwt_identity(),
 				notes = note)
@@ -214,6 +218,7 @@ class DeleteUser(Resource):
 			try:
 				db.session.add(new_request)
 				db.session.commit()
+				admin_logger.info(f"User : {user.username} has requested to delete his account.")
 				return {'message' : 'User deleteion req has been submitted.'}, 200
 			except SQLAlchemyError as e:
 				db.session.rollback()
@@ -222,15 +227,18 @@ class DeleteUser(Resource):
 	@jwt_required()
 	@limiter.limit("1 per month")
 	def put(self):
-		from app.models import DeleteUser
-		user_tw = DeleteUser.query.filter_by(user_id=get_jwt_identity()).first()
+		from app.models import DeleteUser, User
+		user_id=get_jwt_identity()
+		user_tw = DeleteUser.query.filter_by(user_id=user_id).first()
 
 		if not user_tw:
 			abort(404, description="User does not have a pending deleteion request.")
 			
 		try:
+			user = User.query.get(user_id)
 			db.session.delete(user_tw)
 			db.session.commit()
+			admin_logger.info(f"User : {user.username} has revoked his acc deletion request.")
 			return {'message': 'User deletion request has been revoked.'}, 200
 		except SQLAlchemyError as e:
 			db.session.rollback()
