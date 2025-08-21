@@ -47,8 +47,8 @@ class BookPublLink(db.Model):
 		name='status_validate'),
 	)
 
-class BookCatlLink(db.Model):
-	__tablename__ = "BookCatlLink"
+class BookCatLink(db.Model):
+	__tablename__ = "BookCatLink"
 
 	id = db.Column(db.Integer, primary_key=True)
 

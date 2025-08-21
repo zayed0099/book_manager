@@ -43,7 +43,7 @@ class UnivBookDB(db.Model):
 		passive_deletes=True, 
 		lazy=True)
 
-	univbook_bookcatlink = db.relationship('BookCatlLink', 
+	univbook_bookcatlink = db.relationship('BookCatLink', 
 		backref='univbook_catlink',
 		passive_deletes=True, 
 		lazy=True)

@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 
 current_directory = Path(__file__).parent.resolve()
-json_path = current_directory.parent / 'fetched_data' / 'book_literature.json'
+json_path = current_directory.parent / 'fetched_data' / 'book_pro.json'
 
 
 if json_path.exists() and json_path.stat().st_size > 0:

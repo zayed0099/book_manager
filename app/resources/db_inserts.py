@@ -19,7 +19,7 @@ from app.models import (UnivBookDB,
 			UnivCatDB,
 			BookAuthorLink,
 			BookPublLink,
-			BookCatlLink) 
+			BookCatLink) 
 
 # This resource is registered in routes/admin.py
 class AddBook(Resource):
@@ -52,92 +52,28 @@ class AddBook(Resource):
 		isbn2_raw = data.get("isbn2", None)
 
 		if isbn1_raw is not None:
-		    isbn1 = isbn1_raw.upper().replace("ISBN:", "").replace("ISBN", "").replace("-", "").replace(" ", "")
+			isbn1 = isbn1_raw.upper().replace("ISBN:", "").replace("ISBN", "").replace("-", "").replace(" ", "")
 		if isbn2_raw is not None:
-		    isbn2 = isbn1_raw.upper().replace("ISBN:", "").replace("ISBN", "").replace("-", "").replace(" ", "")
+			isbn2 = isbn1_raw.upper().replace("ISBN:", "").replace("ISBN", "").replace("-", "").replace(" ", "")
 
-		imagelink = data.get("imagelink")
+		imagelink = data.get("imagelink", None)
 		if imagelink is None:
 			return {'message' : "Data w/o [imagelink] can't be accepted."}, 400
 
 		pub_date = data.get("pub_date", None)
 		page_count = data.get("page_count", None)
-		language = data.get("language", "en")
-
-		# Author Section
-		author1 = data.get("author1", None)
+		language = data.get("language", "unknown")
 		
-		if author1 is None:
-			return {'message' : "A book w/o author can't be accepted."}, 400
+		authors = data.get("authors", None)
+
+		if authors is None or not isinstance(authors, list) or len(authors) == 0:
+			return {'message' : "The book can't be accepted"}, 400
 		
-		author1_normal = author1.strip().lower()
+		for auth in authors:
+			if not isinstance(auth, str):
+				return {'message' : "The book can't be accepted"}, 400
 
-		author2 = data.get("author2", None)
-		if author2 is not None:
-			author2_normal = author2.strip().lower()
-
-		author3 = data.get("author3", None)
-		if author3 is not None:
-			author3_normal = author3.strip().lower()
-
-		author4 = data.get("author4", None)
-		if author4 is not None:
-			author4_normal = author4.strip().lower()
-
-		author5 = data.get("author5", None)
-		if author5 is not None:
-			author5_normal = author5.strip().lower()
-			
 		try:
-			author1_check = UnivAuthorDB.query.filter_by(
-				author_normal=author1_normal).first()
-
-			if author1_check is None:
-				author1_new = UnivAuthorDB(
-					author = author1,
-					author_normal = author1_normal)
-				db.session.add(author1_new)
-
-			if author2 is not None:
-				author2_check = UnivAuthorDB.query.filter_by(
-				author_normal=author2_normal).first()
-
-				if author2_check is None:
-					author2_new = UnivAuthorDB(
-						author = author2,
-						author_normal = author2_normal)
-					db.session.add(author2_new)
-			
-			if author3 is not None:
-				author3_check = UnivAuthorDB.query.filter_by(
-				author_normal=author3_normal).first()
-
-				if author3_check is None:
-					author3_new = UnivAuthorDB(
-						author = author3,
-						author_normal = author3_normal)
-					db.session.add(author3_new)
-
-			if author4 is not None:
-				author4_check = UnivAuthorDB.query.filter_by(
-				author_normal=author4_normal).first()
-
-				if author4_check is None:
-					author4_new = UnivAuthorDB(
-						author = author4,
-						author_normal = author4_normal)
-					db.session.add(author4_new)
-
-			if author5 is not None:
-				author5_check = UnivAuthorDB.query.filter_by(
-				author_normal=author5_normal).first()
-
-				if author5_check is None:
-					author5_new = UnivAuthorDB(
-						author = author5,
-						author_normal = author5_normal)
-					db.session.add(author5_new)
-
 			new_book = UnivBookDB(
 				title = title,
 				normalized_title = normalized_title,
@@ -151,21 +87,11 @@ class AddBook(Resource):
 				language = language
 				)
 			
-			filters = [
-			UnivAuthorDB.author_normal == author1_normal
-			]
+			filters = []
 			
-			if author2 is not None:
-				filters.append(UnivAuthorDB.author_normal == author2_normal)
-
-			if author3 is not None:
-				filters.append(UnivAuthorDB.author_normal == author3_normal)
-			
-			if author4 is not None:
-				filters.append(UnivAuthorDB.author_normal == author4_normal)
-
-			if author5 is not None:
-				filters.append(UnivAuthorDB.author_normal == author5_normal)
+			for author_ in authors:
+				author_norm =  author_.lower().strip()
+				filters.append(UnivAuthorDB.author_normal == author_norm)
 
 			query =( 
 				db.session.query(UnivBookDB)
@@ -191,38 +117,29 @@ class AddBook(Resource):
 
 			book_id = new_book.id
 
-			author_ids = []
-			author1_id = author1_new.id if author1_check is None else author1_check.id
-			author_ids.append(author1_id)
+			# Author Section
+			for author in authors:
+				author_normal = author.lower().strip()
+				author_check = UnivAuthorDB.query.filter_by(
+						author_normal=author_normal).first()
 
-			author2_id = None
-			author3_id = None
-			author4_id = None
-			author5_id = None
+				if author_check is None:
+					new_author = UnivAuthorDB(
+						author=author,
+						author_normal=author_normal)
+					db.session.add(new_author)
+					db.session.flush()
 
-			if author2 is not None:
-				author2_id = author2_new.id if author2_check is None else author2_check.id
-				author_ids.append(author2_id)
+					new_auth_book_link = BookAuthorLink(
+						book_id=book_id,
+						author_id=new_author.id)
+					db.session.add(new_auth_book_link)
+				else:
+					new_auth_book_link = BookAuthorLink(
+						book_id=book_id,
+						author_id=author_check.id)
+					db.session.add(new_auth_book_link)
 
-			if author3 is not None:
-				author3_id = author3_new.id if author3_check is None else author3_check.id
-				author_ids.append(author3_id)
-
-			if author4 is not None:
-				author4_id = author4_new.id if author4_check is None else author4_check.id
-				author_ids.append(author4_id)
-
-			if author5 is not None:
-				author5_id = author5_new.id if author5_check is None else author5_check.id
-				author_ids.append(author5_id)
-
-			for author_id in author_ids:
-				book_author_link_entry = BookAuthorLink(
-					book_id = book_id,
-					author_id = author_id
-					)
-				db.session.add(book_author_link_entry)
-			
 			publisher = data.get("publisher", None)
 
 			if publisher is None:
@@ -271,74 +188,40 @@ class AddBook(Resource):
 					db.session.add(new_publink_entry_2)
 
 			# Category Section
-			category1 = data.get("category1", None)
-			category2 = data.get("category2", None)
-			
-			if category1 is None and category2 is None:
-				cat_check = UnivCatDB.query.filter_by(
-					category_normal='uncategorized').first()
+			categories = data.get("categories", None)
 
-				if cat_check is None:
+			if categories is not None and isinstance(categories, list):
+				category_filtered = []
+				for category in categories:
+					if isinstance(category, str) and category.lower().strip() != 'uncategorized':
+						category_filtered.append(category)
+				
+				if len(category_filtered) == 0:
+					category_filtered.append('uncategorized')
+			else:
+				category_filtered = ['uncategorized']
+			
+			for filtered_category in category_filtered:
+				category_normal = filtered_category.lower().strip()
+				category_check = UnivCatDB.query.filter_by(
+					category_normal=category_normal).first()
+
+				if category_check is None:
 					new_cat_entry = UnivCatDB(
-						category = 'uncategorized',
-						category_normal = 'uncategorized')
+						category = filtered_category,
+						category_normal = category_normal)
 					db.session.add(new_cat_entry)
 					db.session.flush()
 
-					new_book_uncat = BookCatlLink(
+					new_book_cat_link = BookCatLink(
 						book_id = book_id,
 						category_id = new_cat_entry.id)
-					db.session.add(new_book_uncat)
-
+					db.session.add(new_book_cat_link)
 				else:
-					new_book_cat = BookCatlLink(
+					new_book_cat_link = BookCatLink(
 						book_id = book_id,
-						category_id = cat_check.id)
-					db.session.add(new_book_cat)
-
-			if category1 is not None:
-				cat1_norm = category1.strip().lower()
-				cat_check1 = UnivCatDB.query.filter_by(
-					category_normal = cat1_norm).first()
-
-				if cat_check1 is None:
-					cat1_new = UnivCatDB(
-						category = category1,
-						category_normal = cat1_norm)
-					db.session.add(cat1_new)
-					db.session.flush()
-
-					book_newcat1 = BookCatlLink(
-						book_id = book_id,
-						category_id = cat1_new.id)
-					db.session.add(book_newcat1)
-				else:
-					cat1_add = BookCatlLink(
-						book_id = book_id,
-						category_id = cat_check1.id)
-					db.session.add(cat1_add)
-
-			if category2 is not None:
-				cat2_norm = category2.strip().lower()
-				cat_check2 = UnivCatDB.query.filter_by(
-					category_normal = cat2_norm).first()
-
-				if cat_check2 is None:
-					cat2_new = UnivCatDB(
-						category = category2,
-						category_normal = cat2_norm)
-					db.session.add(cat2_new)
-					db.session.flush()
-
-					book_newcat2 = BookCatlLink(
-						book_id = book_id,
-						category_id = cat2_new.id)
-					db.session.add(book_newcat2)
-				else:
-					cat2_add = BookCatlLink(
-						book_id = book_id,
-						category_id = cat_check2.id)
-					db.session.add(cat2_add)
+						category_id = category_check.id)
+					db.session.add(new_book_cat_link)
 
 			db.session.commit()
 			return {'message' : 'Book successfully added'}, 201

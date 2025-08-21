@@ -28,7 +28,7 @@ class UnivCatDB(db.Model):
 		default=datetime.utcnow, onupdate=datetime.utcnow)
 
 	# Relationship with Universal Book DB
-	univcat_catbooklink = db.relationship('BookCatlLink', 
+	univcat_catbooklink = db.relationship('BookCatLink', 
 		backref='univcat',
 		passive_deletes=True, 
 		lazy=True)

@@ -8,7 +8,7 @@ from .universaldata import (UnivBookDB,
 	BookAuthorLink, 
 	UnivPubDB, 
 	BookPublLink,
-	BookCatlLink,
+	BookCatLink,
 	UnivCatDB)
 
 __all__ = [
@@ -25,6 +25,6 @@ __all__ = [
 	"BookAuthorLink",
 	"UnivPubDB",
 	"BookPublLink",
-	"BookCatlLink",
+	"BookCatLink",
 	"UnivCatDB"
 ]

@@ -3,11 +3,11 @@ from pathlib import Path
 import json
 
 current_directory = Path(__file__).parent.resolve()
-json_path = current_directory / 'fetched_data' / 'book_progr.json'
+json_path = current_directory / 'fetched_data' / 'book_pro.json'
 
 headers = {
 	"Content-Type": "application/json",
-	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTY5NTgwMiwianRpIjoiOWU0YWIzOTctOTExMi00M2MzLWFmODAtNmQ1NGVmOWFjNTI5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1Njk1ODAyLCJjc3JmIjoiYzI1ZGVkNjgtZmE3Ni00NGFhLTgzY2MtOGRjNDlmMWVhNmQzIiwiZXhwIjoxNzU1Njk5NDAyLCJyb2xlIjoiYWRtaW4ifQ.8TSopQOPHmvq7hx4hQtkLsF3x1FxkI7LzelEC3OtgdY"
+	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTc4NDcyMCwianRpIjoiZTRmZWU1NWYtOGZjMC00YzY5LWJjMGQtMDRlNGI3N2I5MjI0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1Nzg0NzIwLCJjc3JmIjoiNjI2MGQ3MzMtNTQzYy00M2E4LTg0ZTgtNDQwNzIzOTA3MjA3IiwiZXhwIjoxNzU1Nzg4MzIwLCJyb2xlIjoiYWRtaW4ifQ.6X5dlyJZqYrb7pMewVP7ss1RPPX3PgXFWqdFW-W3cEQ"
 }
 url = "http://127.0.0.1:5000/a/v1/db/add"
 
@@ -26,24 +26,19 @@ for data in data_load:
 	subtitle = data.get("subtitle", None)
 	
 	authors = data.get("authors", None)
-	if authors is not None:
-		author1 = authors[0] if len(authors) > 0 else None
-		author2 = authors[1] if len(authors) > 1 else None
-		author3 = authors[2] if len(authors) > 2 else None
-		author4 = authors[3] if len(authors) > 3 else None
-		author5 = authors[4] if len(authors) > 4 else None
 
 	description = data.get("description", None)
 
 	imagelink = data.get("imageLinks", {}).get("thumbnail", None)
 
-	publisher = data.get("publisher")
+	publisher = data.get("publisher", 'unknown')
 	pub_date = data.get("publishedDate")
 
-	categories = data.get("categories", None)
-	if categories is not None:
-		category1 = categories[0] if len(categories) > 0 else None
-		category2 = categories[1] if len(categories) > 1 else None
+	categories_api = data.get("categories", None)
+	if isinstance(categories_api, list):
+		categories = categories_api
+	else:
+		categories = None
 
 	isbns = data.get("industryIdentifiers", None)
 	if isbns is not None:
@@ -57,13 +52,8 @@ for data in data_load:
 	payload = {
 		"title" : title,
 		"subtitle" : subtitle,
-		"author1" : author1,
-		"author2" : author2,
-		"author3" : author3,
-		"author4" : author4,
-		"author5" : author5,
-		"category1" : category1 if categories is not None and len(categories) > 0 else "Uncategorized",
-		"category2" : category2 if categories is not None and len(categories) > 1 else "Uncategorized",
+		"authors" : authors,
+		"categories" : categories,
 		"description" : description,
 		"isbn1" : isbn1 if isbns is not None and len(isbns) > 0 else None,
 		"isbn2" : isbn2 if isbns is not None and len(isbns) > 1 else None,
