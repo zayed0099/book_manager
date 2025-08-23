@@ -32,18 +32,18 @@ class UnivBookDB(db.Model):
 
 	language = db.Column(db.String(10), nullable=True)
 
-	# Foreign KEY from author table
-	univbook_bookauthlink = db.relationship('BookAuthorLink', 
+	# relation from author table
+	bookauthlink = db.relationship('BookAuthorLink', 
 		backref='univbook_authlink',
 		passive_deletes=True, 
 		lazy=True)
 
-	univbook_bookpublink = db.relationship('BookPublLink', 
+	bookpublink = db.relationship('BookPublLink', 
 		backref='univbook_publink',
 		passive_deletes=True, 
 		lazy=True)
 
-	univbook_bookcatlink = db.relationship('BookCatLink', 
+	bookcatlink = db.relationship('BookCatLink', 
 		backref='univbook_catlink',
 		passive_deletes=True, 
 		lazy=True)

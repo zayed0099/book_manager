@@ -112,7 +112,7 @@ class Book_CR(Resource):
 			else:
 				genre_normal = None
 				
-			from app.models.book import book_manager
+			from app.models import book_manager
 
 			del_check = book_manager.query.filter_by(
 				user_id=get_jwt_identity()
