@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from flask_migrate import Migrate
+from argon2 import PasswordHasher
 
 # Local Import
 from app.schema import (BookSchema
@@ -46,6 +47,7 @@ exportschema = JSONExportSchema(many=True)
 # Global instances
 db = SQLAlchemy()
 migrate = Migrate()
+ph = PasswordHasher()
 
 # Enable foreign keys for SQLite
 @event.listens_for(Engine, "connect")

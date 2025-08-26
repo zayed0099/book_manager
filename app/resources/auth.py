@@ -1,6 +1,5 @@
 # auth.py
 from flask_restful import Resource, request, abort
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import BadRequest
@@ -14,7 +13,7 @@ from flask_jwt_extended import (
 
 # Local Import 
 from app.errors.handlers import CustomBadRequest
-from app.extensions import db
+from app.extensions import db, ph
 from app.jwt_extensions import jwt, limiter, admin_required
 from app.logging.setup_all import admin_logger
 '''
@@ -54,7 +53,7 @@ class AddUser(Resource):
 			if check_user:
 				raise CustomBadRequest("An error occured. Please, Try again")
 			else:
-				new_hashed_pw_signin = generate_password_hash(pass_txt_signin)
+				new_hashed_pw_signin = ph.hash(pass_txt_signin)
 
 				new_user = User(
 					username=username_signin,
@@ -101,15 +100,18 @@ class Login(Resource):
 				abort(404, description="User is banned. Email to user.support@bookroad.com")
 			
 			else:
-				if check_user and check_password_hash(check_user.password , pass_txt_login):
-					
+				try:
+					ph.verify(check_user.password, pass_txt_login)
+					# password is correct → log the user in
 					access_token = create_access_token(identity=check_user.id
 						,additional_claims={"role": check_user.role})
 					refresh_token = create_refresh_token(identity=check_user.id
 						,additional_claims={"role": check_user.role})
 					
-					return {"access_token": access_token, "refresh_token": refresh_token}, 200        
-				else:
+					return {"access_token": access_token, "refresh_token": refresh_token}, 200
+				
+				except argon2.exceptions.VerifyMismatchError:
+					# wrong password → reject
 					return {"message": "Bad username or password. Login unsuccessful"}, 401
 
 # JWT protected class to only get access token using the refresh token
@@ -125,7 +127,7 @@ class Ref_Token(Resource):
 		role = token['role']
 
 		try:
-			from app.models import jwt_blacklist
+			from app.models import jwt_blacklist, User
 
 			new_refresh_revoke = jwt_blacklist(jti=jti
 				,ttype=ttype
@@ -138,7 +140,6 @@ class Ref_Token(Resource):
 			db.session.rollback()
 			raise e
 
-		from app.models import User
 		user = db.session.get(User, identity)
 
 		access_token = create_access_token(

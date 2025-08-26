@@ -22,8 +22,10 @@ class book_manager(db.Model):
 
     # Foreign Key
     user_id = db.Column(db.Integer, 
-        db.ForeignKey('user_db.id', ondelete='CASCADE'), 
-        index=True, nullable=False)
+        db.ForeignKey('user_db.id',
+        ondelete='CASCADE'), 
+        index=True, 
+        nullable=False)
 
     # Relationship
     reviews_ratings = db.relationship('Ratings_Reviews', 

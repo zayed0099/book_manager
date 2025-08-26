@@ -1,14 +1,13 @@
 # admin.py
 from flask_restful import Resource, request, abort
 from datetime import datetime, timezone, timedelta
-from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import jwt_required
 from sqlalchemy import case, func
 
 # Local Import
-from app.extensions import db
+from app.extensions import db, ph
 from app.errors.handlers import CustomBadRequest
 from app.jwt_extensions import (jwt, 
 	limiter,
@@ -87,7 +86,7 @@ class Admin_Crud(Resource):
 			if check_user:
 				return {'message' : 'User already exists. Change his role to admin with a put req.'}
 			else:
-				new_hashed_pw_admin = generate_password_hash(pass_new_admin)
+				new_hashed_pw_admin = ph.hash(pass_new_admin)
 
 				new_admin = User(username=username_new_admin
 					,password=new_hashed_pw_admin
@@ -149,10 +148,8 @@ class AdminUD(Resource):
 				db.session.commit()
 				admin_logger.info(f'{check_user.username} has been removed from admin.')
 				return {
-					'message': (
-							"User removed from admin. "
-							"Go to /user/ban to ban the user from using the API."
-						)
+					'message': "User removed from admin.",
+					'info' : "Go to /user/ban to ban the user from using the API."
 					}, 200
 			except SQLAlchemyError as e:
 				db.session.rollback()
@@ -325,7 +322,7 @@ class UserCredChange(Resource):
 			if not check_user:
 				return {'message' : 'User not found.'}
 
-			check_user.password = generate_password_hash(new_pass)
+			check_user.password = ph.hash(new_pass)
 			try:
 				db.session.commit()
 				admin_logger.info(f'User [{username_of_user}] password has been changed..')
