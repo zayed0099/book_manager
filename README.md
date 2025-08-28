@@ -13,10 +13,12 @@ A Flask-based REST API for managing personal book collections with user authenti
 
 ### Book Management
 - **CRUD Operations** - Create, Read, Update, Delete books in your collection
-- **Search & Filter** - Search by title, author, genre with sorting options
+- **Search, Filter & Pagination** - Search with sorting options & Efficient pagination
 - **Soft Delete** - Books are marked as deleted but can be recovered
 - **Favorites System** - Mark books as favorites for quick access
-- **Pagination** - Efficient pagination for large collections
+- **Universal Database** - Universal Book, Author, Category, Publisher database.
+- **Rating & Review** - Rate and write Review a book.
+- **Custom List** - User created custom list(5 list/user) with privacy control.
 
 ### Admin Features
 - **User Management** - Ban/unban users, promote users to admin
@@ -30,8 +32,9 @@ A Flask-based REST API for managing personal book collections with user authenti
 - **Database**: SQLAlchemy with SQLite
 - **Authentication**: Flask-JWT-Extended
 - **Validation**: Marshmallow
-- **Security**: Werkzeug password hashing
+- **Security**: Argon2-cffi password hashing
 - **Rate Limiting**: Flask-Limiter
+- **Frontend**: HTML, CSS, Vanilla JS
 
 ## Getting Started
 
