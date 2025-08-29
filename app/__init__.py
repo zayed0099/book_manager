@@ -53,7 +53,8 @@ def create_app():
 		book_bp,
 		admin_bp,
 		export_bp,
-		dashboard_bp)
+		dashboard_bp,
+		univdb_bp)
 
 	register_error_handlers(app)
 	app.register_blueprint(auth_bp)
@@ -61,6 +62,7 @@ def create_app():
 	app.register_blueprint(admin_bp)
 	app.register_blueprint(export_bp)
 	app.register_blueprint(dashboard_bp)
+	app.register_blueprint(univdb_bp)
 	
 	app.register_blueprint(admin_ui_bp)
 	app.register_blueprint(user_ui_bp)

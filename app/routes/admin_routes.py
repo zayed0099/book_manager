@@ -15,8 +15,6 @@ from app.resources.admin import (Admin_Crud,
 	UserAccDelete,
 	UserStat)
 
-from app.resources.db_inserts import AddBook
-
 # Admin seeing all admin data, Adding completely new user as admin
 admin_api.add_resource(Admin_Crud, '/manage')
 
@@ -47,6 +45,3 @@ admin_api.add_resource(UserAccDelete, '/user/clear')
 
 # Get all or user specific data (total books, fav, del number)
 admin_api.add_resource(UserStat, '/stat')
-
-# Adding bulk books in Universal Book DB
-admin_api.add_resource(AddBook, '/db/add')

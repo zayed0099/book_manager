@@ -149,7 +149,7 @@ class AddBook(Resource):
 
 			missing_authors = [
 			{"norm" : auth, "raw_auth" : author_norm_dict[auth]["raw_auth"]}
-			for auth in author_normal
+			for auth in author_norm_dict
 			if auth not in authors_dict
 			]
 			 
@@ -183,7 +183,7 @@ class AddBook(Resource):
 			publisher_check = UnivPubDB.query.filter(
 					UnivPubDB.publisher_normal == publisher_normal).first()
 			
-			if publisher is None:
+			if publisher_check is None:
 				unknown_pub_add = UnivPubDB(
 					publisher="unknown", publisher_normal="unknown")
 				db.session.add(unknown_pub_add)
@@ -219,7 +219,7 @@ class AddBook(Resource):
 				for category in categories:
 					if isinstance(category, str):
 						normal_category = category.lower().strip()
-					 	if normal_category != 'uncategorized':
+						if normal_category != 'uncategorized':
 							category_normal.append(normal_category)
 							category_normal_dict[normal_category] = {"raw_category" : category}
 
@@ -232,11 +232,11 @@ class AddBook(Resource):
 			category_check = UnivCatDB.query.filter(
 				UnivCatDB.category_normal.in_(category_normal)).all()
 
-			existing_category = {row.category_normal : {row.id} for row in category_check}
+			existing_category = {row.category_normal : {"id" : row.id} for row in category_check}
 
 			missing_categories = [
 			{"norm" : category , "raw_category" : category_normal_dict[category]["raw_category"]}
-			for category in category_normal
+			for category in category_normal_dict
 			if category not in existing_category
 			]
 
@@ -249,8 +249,8 @@ class AddBook(Resource):
 
 			if len(missing_categories) > 0:
 				for catg in missing_categories:
-					new_catg = UnivCatDB(category=catg,
-						category_normal=catg["raw_category"])
+					new_catg = UnivCatDB(category=catg["raw_category"],
+						category_normal=catg)
 
 					db.session.add(new_catg)
 					db.session.flush()

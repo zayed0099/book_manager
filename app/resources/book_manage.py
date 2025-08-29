@@ -20,7 +20,7 @@ class BookRatings(Resource):
 	def get(self, id=None):
 		current_user_id = get_jwt_identity()
 		
-		from app.models.book import (book_manager,
+		from app.models.book import (UnivBookDB,
 			Ratings_Reviews)
 		
 		from app.extensions import (
@@ -29,16 +29,11 @@ class BookRatings(Resource):
 			books_schema)
 
 		if id:
-			results = db.session.query(book_manager, Ratings_Reviews)\
-			.join(Ratings_Reviews,
-				and_( 
-					Ratings_Reviews.user_id == book_manager.user_id,
-					Ratings_Reviews.book_id == book_manager.id
-					)
-				)\
-			.filter(Ratings_Reviews.id == id)\
-			.first()
-
+			results = (db.session.query(UnivBookDB, Ratings_Reviews)
+				.join(Ratings_Reviews, Ratings_Reviews.book_id == UnivBookDB.id)
+				.filter(Ratings_Reviews.id == id)
+				.first())
+			
 			if not results:
 				abort(404, description="Book not found.")
 
@@ -59,15 +54,12 @@ class BookRatings(Resource):
 
 			params = get_book_query_params()
 			filters, order_by = book_filters_and_sorting(params)
-
-			db_query = db.session.query(book_manager, Ratings_Reviews)\
-			.join(Ratings_Reviews, 
-				and_(
-					Ratings_Reviews.user_id == book_manager.user_id,
-					Ratings_Reviews.book_id == book_manager.id
-					)
-				)\
-			.filter(*filters)
+			
+			db_query = (
+				db.session.query(UnivBookDB, Ratings_Reviews)
+				.join(Ratings_Reviews, Ratings_Reviews.book_id == UnivBookDB.id)
+				.filter(*filters)
+			)
 
 			if order_by:
 				db_query = db_query.order_by(*order_by)
@@ -136,7 +128,6 @@ class BookRatings(Resource):
 			except SQLAlchemyError as e:
 				db.session.rollback()
 				return {'message' : 'An error occured'}, 500
-
 
 class BookRatings_UD(Resource):
 	@jwt_required()
@@ -273,14 +264,14 @@ class Tags(Resource):
 		search_term = f"%{user_query}%"
 
 		if user_query is not None:
-			search_data = db.session.query(review_tags, Ratings_Reviews)\
+			search_data = (db.session.query(review_tags, Ratings_Reviews)
 			.join(Ratings_Reviews, 
 				and_(
 					Ratings_Reviews.user_id == review_tags.user_id,
 					Ratings_Reviews.id == review_tags.review_id
 					)
-				)\
-			.filter(review_tags.normaliazed_tag.ilike(search_term))
+				)
+			.filter(review_tags.normaliazed_tag.ilike(search_term)))
 			# as ratings and reviews should be public
 			
 			pagination = search_data.paginate(

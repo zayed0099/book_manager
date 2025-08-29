@@ -3,13 +3,13 @@ from pathlib import Path
 import json
 
 current_directory = Path(__file__).parent.resolve()
-json_path = current_directory / 'fetched_data' / 'book_pro.json'
+json_path = current_directory / 'fetched_data' / 'book_literature.json'
 
 headers = {
 	"Content-Type": "application/json",
-	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NTc4NDcyMCwianRpIjoiZTRmZWU1NWYtOGZjMC00YzY5LWJjMGQtMDRlNGI3N2I5MjI0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU1Nzg0NzIwLCJjc3JmIjoiNjI2MGQ3MzMtNTQzYy00M2E4LTg0ZTgtNDQwNzIzOTA3MjA3IiwiZXhwIjoxNzU1Nzg4MzIwLCJyb2xlIjoiYWRtaW4ifQ.6X5dlyJZqYrb7pMewVP7ss1RPPX3PgXFWqdFW-W3cEQ"
+	"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1NjQ3NTQ3OSwianRpIjoiYWNiZTk2NDctOTM0Yy00ZjI2LTg3ZjctNmYwOGEyODEzMmI0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6MSwibmJmIjoxNzU2NDc1NDc5LCJjc3JmIjoiNDU1ZjJlNTgtODA1Yi00ZTU2LTkzNWItZjk3Y2I2ZWEzZmViIiwiZXhwIjoxNzU2NDc5MDc5LCJyb2xlIjoiYWRtaW4ifQ.KEa37ti5lFrOUg7Ml5KbvmwKDisev3lGgYT4Y8VZelc"
 }
-url = "http://127.0.0.1:5000/a/v1/db/add"
+url = "http://127.0.0.1:5000/univdb/v1/add"
 
 if json_path.exists() and json_path.stat().st_size > 0:
 	with open(json_path, "r", encoding="utf-8") as f:
