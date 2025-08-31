@@ -1,10 +1,12 @@
 from .UnivDBManage import (
 	AddBook, 
-	AuthorCRUD, 
-	PublisherUD)
+	AuthorUD, 
+	PublisherUD,
+	CategoryUD)
 
 __all__ = [
 	"AddBook",
-	"AuthorCRUD",
-	"PublisherUD"
+	"AuthorUD",
+	"PublisherUD",
+	"CategoryUD"
 ]

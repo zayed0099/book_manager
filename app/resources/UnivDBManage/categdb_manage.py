@@ -1,4 +1,4 @@
-# authdb_manage.py
+# pubdb_manage.py
 from flask_restful import Resource, request, abort
 from werkzeug.exceptions import BadRequest
 from flask_jwt_extended import jwt_required
@@ -13,10 +13,10 @@ from app.jwt_extensions import (
 	admin_required,
 	system_admin_required)
 from app.models import ( 
-	UnivAuthorDB,
+	UnivCatDB,
 	BookAuthorLink)
 
-class AuthorUD(Resource):
+class CategoryUD(Resource):
 	# to update a authors name in the db
 	@jwt_required()
 	@system_admin_required
@@ -28,44 +28,36 @@ class AuthorUD(Resource):
 		except BadRequest:
 			raise CustomBadRequest("Invalid JSON format.")
 
-		author = data.get("author", None)
+		category = data.get("category", None)
 		status = data.get("status", None)
 
 		if (
-			author is None 
-			or status is None 
-			or not isinstance(author, str) 
+			category is None 
+			status is None
+			or not isinstance(category, str)
 			or not isinstance(status, str)
 		):
-			return {"message" : "Author name is required in Str format."}, 400
-		else:	
-			author_normal = author.strip().lower()
+			return {"message" : "Category name/status is required in Str format."}, 400
+		else:
 			status_norm = status.strip().lower()
+			category_normal = category.strip().lower()
 
-		accepted = ['active' , 'banned' , 'on_hold']
-
-		query = UnivAuthorDB.query.filter(
-			UnivAuthorDB.id == id).first()
+		query = UnivCatDB.query.filter(
+			UnivCatDB.id == id).first()
 
 		if not query:
-			return {"message" : "No author Found."}, 404
-
+			return {"message" : "No category Found."}, 404
+			
 		try:
-			if author is not None:
-				query.author = author
-				query.author_normal = author_normal
+			if category is not None:
+				query.category = category
+				query.category_normal = category_normal
 			
 			if status is not None:
 				query.status = status_norm
-				
+
 			db.session.commit()
-			return {'message' : 'Author data successfully updated.'}, 200
+			return {'message' : 'Category data successfully updated.'}, 200
 		except SQLAlchemyError as e:
 			db.session.rollback()
 			return {'message' : 'An error occured'}, 500
-
-class AuthorCR(Resource):
-	@jwt_required()
-	@admin_required
-	def get():
-		pass

@@ -1,9 +1,11 @@
 from .db_inserts import AddBook
-from .authdb_manage import AuthorCRUD
+from .authdb_manage import AuthorUD
 from .pubdb_manage import PublisherUD
+from .categdb_manage import CategoryUD
 
 __all__ = [
 	"AddBook",
-	"AuthorCRUD",
-	"PublisherUD"
+	"AuthorUD",
+	"PublisherUD",
+	"CategoryUD"
 ]

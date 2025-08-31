@@ -22,7 +22,7 @@ def create_app():
 	app.config.from_object(jwt_config)
 	
 	CORS(app)
-
+	
 	limiter.init_app(app)
 	db.init_app(app)
 	jwt.init_app(app)

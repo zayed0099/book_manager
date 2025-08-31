@@ -4,7 +4,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
-
 # Local Import
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db, book_schema, books_schema
@@ -161,44 +160,6 @@ class Book_RUD(Resource):
 			abort(404, description="Book not found.")
 		else:
 			return (book_schema.dump(book_to_work)), 200
-
-	# PATCH is more used now instead of this....
-	@jwt_required()
-	@limiter.limit("50 per day")
-	def put(self, id):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-		
-		from app.models.book import book_manager
-		from app.extensions import book_schema
-
-		errors = book_schema.validate(data)
-
-		if errors:
-			raise CustomBadRequest("Validation failed")
-			
-		else:
-			current_user_id = get_jwt_identity()
-			
-			book_to_work = book_manager.query.filter_by(user_id=current_user_id, id=id, is_deleted = False).first()
-			
-			if not book_to_work:
-				abort(404, description="Book not found.")
-
-			try:
-				book_to_work.title = data['title']
-				book_to_work.author = data['author']
-				book_to_work.normalized_title = data['title'].lower().strip() 
-				db.session.commit()
-				return {"message" : "Updated Successfully"}, 200 
-			except SQLAlchemyError as e:
-				db.session.rollback()
-				raise e
-				return {'message' : 'An error occured'}, 500
 
 	@jwt_required()
 	@limiter.limit("50 per day")
