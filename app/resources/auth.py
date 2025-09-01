@@ -51,7 +51,7 @@ class AddUser(Resource):
 				,User.email == email_signin).first()
 
 			if check_user:
-				raise CustomBadRequest("An error occured. Please, Try again")
+				raise CustomBadRequest("An error occured. Please, Try again"), 409
 			else:
 				new_hashed_pw_signin = ph.hash(pass_txt_signin)
 
@@ -85,7 +85,7 @@ class Login(Resource):
 		pass_txt_login = data.get("password")
 
 		if not username_for_login and pass_txt_login:
-			raise CustomBadRequest("Validation failed")
+			raise CustomBadRequest("Validation failed"), 400
 
 		else:
 			from app.models import User
@@ -199,7 +199,7 @@ class DeleteUser(Resource):
 		errors = deluserPschema.validate(data)
 
 		if errors:
-			raise CustomBadRequest("Validation failed")
+			raise CustomBadRequest("Validation failed"), 400
 
 		user_id=get_jwt_identity()
 
