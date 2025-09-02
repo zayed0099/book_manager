@@ -15,11 +15,13 @@ class review_tags(db.Model):
 
 	# Foreign Keys
 	user_id = db.Column(db.Integer, 
-		db.ForeignKey('user_db.id', ondelete='CASCADE'), 
+		db.ForeignKey('user_db.id', 
+			ondelete='CASCADE'), 
 		index=True, nullable=False)
 	
 	review_id = db.Column(db.Integer, 
-		db.ForeignKey('RatingsReviews.id', ondelete='CASCADE'), 
+		db.ForeignKey('RatingsReviews.id', 
+			ondelete='CASCADE'), 
 		index=True, nullable=False)
 
 	__table_args__ = (

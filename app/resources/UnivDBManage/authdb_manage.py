@@ -1,7 +1,7 @@
 # authdb_manage.py
 from flask_restful import Resource, request, abort
 from werkzeug.exceptions import BadRequest
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 
 # Local Imports
@@ -15,11 +15,12 @@ from app.jwt_extensions import (
 from app.models import ( 
 	UnivAuthorDB,
 	BookAuthorLink)
+from app.logging.setup_all import admin_logger
 
 class AuthorUD(Resource):
 	# to update a authors name in the db
 	@jwt_required()
-	@system_admin_required
+	@admin_required
 	def patch(self, id):
 		try:
 			data = request.get_json()
@@ -59,6 +60,8 @@ class AuthorUD(Resource):
 				query.status = status_norm
 				
 			db.session.commit()
+			admin_logger.info(
+				f'{query.author}[id : {query.id}] data has been updated by admin[id : {get_jwt_identity()}]')
 			return {'message' : 'Author data successfully updated.'}, 200
 		except SQLAlchemyError as e:
 			db.session.rollback()

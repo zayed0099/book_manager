@@ -11,84 +11,32 @@ from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import limiter
 
-# I am a little confused about the review/rating and making them public. 
-# May need to revisit while creating the frontend
-
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):
 	@jwt_required()
-	def get(self, id=None):
-		current_user_id = get_jwt_identity()
+	def get(self):
+		from app.models import Ratings_Reviews
+		from app.extensions import review_schema
 		
-		from app.models.book import (UnivBookDB,
-			Ratings_Reviews)
+		page = request.args.get("page", default=1, type=int),
+        per_page = request.args.get("per_page", default=5, type=int)
+
+		pagination = Ratings_Reviews.query.paginate(
+			page=page, 
+			per_page=per_page, 
+			error_out=False)
 		
-		from app.extensions import (
-			review_schema,
-			book_schema,
-			books_schema)
+		if not pagination.items:
+			abort(404, description="Book not found.")
 
-		if id:
-			results = (db.session.query(UnivBookDB, Ratings_Reviews)
-				.join(Ratings_Reviews, Ratings_Reviews.book_id == UnivBookDB.id)
-				.filter(Ratings_Reviews.id == id)
-				.first())
-			
-			if not results:
-				abort(404, description="Book not found.")
-
-			else:
-				book = book_schema.dump(results[0])
-				review = review_schema.dump(results[1])
-
-				return {
-				'message' : 'The requested book and review is successfully retrieved.' ,
-				'book' : book,
-				'review' : review
-				}, 200
-
-		else:
-			from app.functions import (
-				book_filters_and_sorting, 
-				get_book_query_params)
-
-			params = get_book_query_params()
-			filters, order_by = book_filters_and_sorting(params)
-			
-			db_query = (
-				db.session.query(UnivBookDB, Ratings_Reviews)
-				.join(Ratings_Reviews, Ratings_Reviews.book_id == UnivBookDB.id)
-				.filter(*filters)
-			)
-
-			if order_by:
-				db_query = db_query.order_by(*order_by)
-
-			pagination = db_query.paginate(
-				page=params['page'], 
-				per_page=params['per_page'], 
-				error_out=False)
-			
-			if not pagination.items:
-				abort(404, description="Book not found.")
-
-			else:
-				combined_data = []
-
-				for book, review in pagination.items:
-					combined_data.append({
-						"book" : book_schema.dump(book),
-						"review" : review_schema.dump(review)
-						})
-
-				return {
-				'message' : 'Successfully retrieved all books for GET',
-				'combined_data' : combined_data,
-				'page': pagination.page,
-				'per_page': pagination.per_page,
-				'total_items': pagination.total,
-				'total_pages': pagination.pages
-				}, 200
+		return {
+		'message' : 'Successfully retrieved all books for GET',
+		'reviws' : pagination.items,
+		'page': pagination.page,
+		'per_page': pagination.per_page,
+		'total_items': pagination.total,
+		'total_pages': pagination.pages
+		}, 200
 
 	@jwt_required()
 	@limiter.limit("50 per day")
@@ -111,7 +59,7 @@ class BookRatings(Resource):
 			review = data.get('review')
 			book_id = data.get('book_id')
 
-			from app.models.book import Ratings_Reviews, book_manager
+			from app.models.book import Ratings_Reviews
 			new_review = Ratings_Reviews(
 				rating = rating,
 				review = review,
@@ -143,7 +91,7 @@ class BookRatings_UD(Resource):
 		rating = data.get('rating')
 		review = data.get('review')
 
-		from app.models.book import Ratings_Reviews
+		from app.models import Ratings_Reviews
 		
 		review_tw = Ratings_Reviews.query.filter_by(
 			user_id=get_jwt_identity(), 
@@ -179,7 +127,7 @@ class BookRatings_UD(Resource):
 	def delete(self, id):
 		current_user_id = get_jwt_identity()
 
-		from app.models.book import Ratings_Reviews
+		from app.models import Ratings_Reviews
 		from app.extensions import review_schema
 		review_tw = Ratings_Reviews.query.filter_by(
 			user_id=get_jwt_identity(), 
@@ -193,7 +141,7 @@ class BookRatings_UD(Resource):
 				db.session.delete(review_tw)
 				db.session.commit()
 				return {'message' : 'Review successfully deleted.' ,
-					'deleted_book' : review_schema.dump(review_tw)}
+					'deleted_review' : review_schema.dump(review_tw)}
 			except SQLAlchemyError as e:
 				db.session.rollback()
 				return {'message' : 'An error occured'}, 500
@@ -212,7 +160,7 @@ class Tags(Resource):
 
 		from app.models.book import review_tags
 		from app.extensions import tagschema
-
+		
 		errors = tagschema.validate(data)
 		
 		if errors:

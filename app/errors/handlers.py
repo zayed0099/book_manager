@@ -13,10 +13,6 @@ def register_error_handlers(app):
     def no_data_error(e):
         return {"message": e.description}, 400
 
-    # @app.errorhandler(SQLAlchemyError)
-    # def db_entry_error(e):
-    #     return {"error": "Failed to save entry to database"}, 500
-
     @app.errorhandler(404)
     def data_not_found_error(e):
         return {"message": e.description or "Resource not found."}, 404

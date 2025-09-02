@@ -12,7 +12,7 @@ class UnivAuthorDB(db.Model):
 	author = db.Column(db.String(200), nullable=False)
 	author_normal = db.Column(db.String(200), 
 		unique=True, 
-		nullable=False, 
+		nullable=False,
 		index=True)
 
 	status = db.Column(db.String(100), default="active", nullable=False)

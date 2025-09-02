@@ -56,6 +56,7 @@ class Ratings_Reviews(db.Model):
     user_id = db.Column(db.Integer, 
         db.ForeignKey('user_db.id', ondelete='CASCADE'),
         index=True, nullable=False)
+    
     book_id = db.Column(db.Integer, 
         db.ForeignKey('book_manager.id', ondelete='CASCADE'), 
         index=True, nullable=False)

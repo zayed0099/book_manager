@@ -18,8 +18,13 @@ class UnivBookDB(db.Model):
 
 	description = db.Column(db.Text, nullable=True)
 
-	isbn1 = db.Column(db.String(200), default=None, nullable=True)
-	isbn2 = db.Column(db.String(200), nullable=True)
+	isbn1 = db.Column(db.String(200), 
+		default=None, 
+		nullable=True,
+		unique=True)
+	isbn2 = db.Column(db.String(200), 
+		nullable=True,
+		unique=True)
 
 	imagelink = db.Column(db.String(250), nullable=False)
 
@@ -47,11 +52,6 @@ class UnivBookDB(db.Model):
 		backref='univbook_catlink',
 		passive_deletes=True, 
 		lazy=True)
-	
-	__table_args__ = (
-	db.UniqueConstraint('isbn1', name='uq_isbn1'),
-	db.UniqueConstraint('isbn2', name='uq_isbn2'),
-	)
 
 '''
 backref structure
