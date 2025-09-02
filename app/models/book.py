@@ -10,7 +10,7 @@ class book_manager(db.Model):
     title = db.Column(db.String(200), nullable=False)
     author = db.Column(db.String(200), nullable=False)
     normalized_title = db.Column(db.String(200), nullable=False, index=True)
-    genre = db.Column(db.String(30), nullable=True)
+    genre = db.Column(db.String(30), default=None, nullable=True)
     genre_normal = db.Column(db.String(200), nullable=True)
     status = db.Column(db.String(100), server_default="wishlist", nullable=False)
 

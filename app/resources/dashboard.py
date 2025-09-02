@@ -98,8 +98,7 @@ class RecoBook(Resource):
 
 		if len(books) == 0:
 			return {'message' : 'No book could be recommended.'}, 500
-
-
+			
 		return {'message' : f'These books are recommended for user_id: {user_id}',
 				'books' : books,
 				'most_read_genre' : genres

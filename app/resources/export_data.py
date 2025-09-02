@@ -1,7 +1,9 @@
 # book manage.py
 import os
 import json
-from flask import jsonify, send_file
+import csv
+import io
+from flask import jsonify, send_file, make_response
 from flask_restful import Resource, request, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.exceptions import BadRequest
@@ -119,4 +121,46 @@ class JSONExport(Resource):
 				)
 		else:
 			return {"message": "File not found"}, 404
+
+class CSVExport(Resource):
+	@jwt_required()
+	def get(self):
+		user_id = get_jwt_identity()
+
+		from app.models import book_manager
+
+		books = book_manager.query.filter_by(
+			user_id=user_id).limit(50).all()
+
+		temp_file = io.StringIO()
+		cw = csv.writer(temp_file)
+
+		cw.writerow([
+			'ID', 
+			'Title', 
+			'Author',
+			'Genre', 
+			'Status', 
+			'Is_deleted',
+			'Favourite'
+			])
+
+		for book in books:
+			cw.writerow([
+				book.id,
+				book.title,
+				book.author,
+				book.genre,
+				book.status,
+				book.is_deleted,
+				book.favourite
+				])
+
+		output = temp_file.getvalue()
+
+		response = make_response(output)
+		response.headers["Content-Disposition"] = (
+			f"attachment; filename=books_user_{user_id}.csv")
+		response.headers["Content-type"] = "text/csv"
+		return response
 

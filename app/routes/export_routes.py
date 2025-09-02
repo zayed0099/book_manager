@@ -5,10 +5,14 @@ export_bp = Blueprint('export', __name__, url_prefix='/api/v1/export')
 export_api = Api(export_bp)
 
 from app.resources.export_data import ( 
-	JSONExport)
+	JSONExport,
+	CSVExport)
 
 # Generating PDF
 # export_api.add_resource(PDFExport, '/pdf', endpoint='export_pdf')
 
 # generating JSON data
 export_api.add_resource(JSONExport, '/json', endpoint='export_json')
+
+# generating csv data
+export_api.add_resource(CSVExport, '/csv', endpoint='export_csv')

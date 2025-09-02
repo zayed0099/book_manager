@@ -2,11 +2,12 @@
 from flask import Blueprint
 from flask_restful import Api
 
-from app.resources import (
+from app.resources.UnivDBManage import (
 	AddBook,
 	AuthorUD,
 	PublisherUD,
-	CategoryUD)
+	CategoryUD,
+	BookUD)
 
 univdb_bp = Blueprint('univdb', __name__, url_prefix='/univdb/v1')
 univdb_api = Api(univdb_bp)
@@ -32,3 +33,6 @@ univdb_api.add_resource(PublisherUD, '/pub/<int:id>')
 
 # ================Category Section
 univdb_api.add_resource(CategoryUD, '/cat/<int:id>')
+
+#================Book Section
+univdb_api.add_resource(BookUD, '/book/<int:id>')
