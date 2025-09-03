@@ -16,6 +16,7 @@ from app.errors.handlers import CustomBadRequest
 from app.extensions import db, ph
 from app.jwt_extensions import jwt, limiter, admin_required
 from app.logging.setup_all import admin_logger
+from app.functions import json_required
 '''
 What this file contains :-
 = New user acc creation
@@ -24,15 +25,9 @@ What this file contains :-
 = checking if a user is logged in or not
 '''
 class AddUser(Resource):
+	@json_required
 	@limiter.limit("3 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		from app.extensions import user_schema
 		errors = user_schema.validate(data)
 
@@ -51,7 +46,7 @@ class AddUser(Resource):
 				,User.email == email_signin).first()
 
 			if check_user:
-				raise CustomBadRequest("An error occured. Please, Try again"), 409
+				raise CustomBadRequest("An error occured. Please, Try again")
 			else:
 				new_hashed_pw_signin = ph.hash(pass_txt_signin)
 
@@ -72,20 +67,14 @@ class AddUser(Resource):
 
 # User login class
 class Login(Resource):
+	@json_required
 	@limiter.limit("3 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		username_for_login = data.get("username")
 		pass_txt_login = data.get("password")
 
 		if not username_for_login and pass_txt_login:
-			raise CustomBadRequest("Validation failed"), 400
+			raise CustomBadRequest("Validation failed")
 
 		else:
 			from app.models import User
@@ -184,22 +173,16 @@ class CheckUser(Resource):
 
 class DeleteUser(Resource):
 	@jwt_required()
+	@json_required
 	@limiter.limit("1 per month")
-	def delete(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def delete(self, data):
 		from app.extensions import deluserPschema
 		from app.models import DeleteUser, User
 
 		errors = deluserPschema.validate(data)
 
 		if errors:
-			raise CustomBadRequest("Validation failed"), 400
+			raise CustomBadRequest("Validation failed")
 
 		user_id=get_jwt_identity()
 

@@ -16,12 +16,14 @@ from app.models import (
 	UnivAuthorDB,
 	BookAuthorLink)
 from app.logging.setup_all import admin_logger
+from app.functions import json_required
 
 class AuthorUD(Resource):
 	# to update a authors name in the db
 	@jwt_required()
+	@json_required
 	@admin_required
-	def patch(self, id):
+	def patch(self, data, id):
 		try:
 			data = request.get_json()
 			if data is None:
@@ -69,6 +71,7 @@ class AuthorUD(Resource):
 
 class AuthorCR(Resource):
 	@jwt_required()
+	@json_required
 	@admin_required
-	def get():
+	def get(data):
 		pass

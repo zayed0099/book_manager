@@ -10,18 +10,13 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import limiter
+from app.functions import json_required
 
 class BookListName(Resource):
 	@jwt_required()
+	@json_required
 	@limiter.limit("10 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing Json in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		from app.extensions import listdataschema
 
 		errors = listdataschema.validate(data)
@@ -58,15 +53,9 @@ class BookListName(Resource):
 			return {'message' : 'An error occured'}, 500
 
 	@jwt_required()
+	@json_required
 	@limiter.limit("5 per day")
-	def put(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing Json in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def put(self, data):
 		from app.extensions import booklistschema
 
 		errors = booklistschema.validate(data)
@@ -132,15 +121,9 @@ class BookListName(Resource):
 				
 class CustomBookList(Resource):
 	@jwt_required()
+	@json_required
 	@limiter.limit("50 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing Json in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		from app.extensions import booklistschema
 
 		errors = booklistschema.validate(data)
@@ -181,15 +164,9 @@ class CustomBookList(Resource):
 				return {'message' : 'An error occured'}, 500		
 
 	@jwt_required()
+	@json_required
 	@limiter.limit("50 per day")
-	def patch(self, id):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def patch(self, data, id):
 		from app.models import ListBook
 		book_tw = ListBook.query.filter_by(id=id).first()
 

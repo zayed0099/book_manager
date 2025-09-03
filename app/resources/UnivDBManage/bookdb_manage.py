@@ -15,25 +15,14 @@ from app.jwt_extensions import (
 from app.models import ( 
 	UnivBookDB)
 from app.logging.setup_all import admin_logger
-
-def set_field(obj, data, key, attr, transform=lambda x:x):
-	value = data.get(key)
-	if value is not None:
-		setattr(obj, attr, transform(value))
-
+from app.functions import update_field, json_required
 
 class BookUD(Resource):
 	# to update a authors name in the db
 	@jwt_required()
+	@json_required
 	@admin_required
-	def patch(self, id):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def patch(self, id, data):
 		title = data.get("title", None)
 		subtitle = data.get("subtitle", None)
 		description = data.get("description", None)
@@ -49,18 +38,18 @@ class BookUD(Resource):
 			UnivBookDB.id == id).first()
 
 		if not book_tw:
-			return {"message" : "No publisher Found."}, 404
+			return {"message" : "No book Found."}, 404
 
-		set_field(book_tw, data, "title", "title")
-		set_field(book_tw, data, "title", "normalized_title", lambda v: v.lower().strip())
-		set_field(book_tw, data, "description", "description")
-		set_field(book_tw, data, "description", "description")
-		set_field(book_tw, data, "isbn1", "isbn1")
-		set_field(book_tw, data, "isbn2", "isbn2")
-		set_field(book_tw, data, "imagelink", "imagelink")
-		set_field(book_tw, data, "pub_date", "pub_date")
-		set_field(book_tw, data, "page_count", "page_count")
-		set_field(book_tw, data, "language", "language")
+		update_field(book_tw, data, "title", "title")
+		update_field(book_tw, data, "title", "normalized_title", lambda v: v.lower().strip())
+		update_field(book_tw, data, "subtitle", "subtitle")
+		update_field(book_tw, data, "description", "description")
+		update_field(book_tw, data, "isbn1", "isbn1")
+		update_field(book_tw, data, "isbn2", "isbn2")
+		update_field(book_tw, data, "imagelink", "imagelink")
+		update_field(book_tw, data, "pub_date", "pub_date")
+		update_field(book_tw, data, "page_count", "page_count")
+		update_field(book_tw, data, "language", "language")
 
 		admin_user_id = get_jwt_identity()
 		try:

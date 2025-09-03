@@ -16,12 +16,14 @@ from app.models import (
 	UnivCatDB,
 	BookAuthorLink)
 from app.logging.setup_all import admin_logger
+from app.functions import json_required
 
 class CategoryUD(Resource):
 	# to update a authors name in the db
 	@jwt_required()
+	@json_required
 	@admin_required
-	def patch(self, id):
+	def patch(self, data, id):
 		try:
 			data = request.get_json()
 			if data is None:
@@ -34,7 +36,7 @@ class CategoryUD(Resource):
 
 		if (
 			category is None 
-			status is None
+			or status is None
 			or not isinstance(category, str)
 			or not isinstance(status, str)
 		):

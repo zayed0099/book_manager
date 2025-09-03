@@ -10,6 +10,7 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import limiter
+from app.functions import json_required
 
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):
@@ -19,7 +20,7 @@ class BookRatings(Resource):
 		from app.extensions import review_schema
 		
 		page = request.args.get("page", default=1, type=int),
-        per_page = request.args.get("per_page", default=5, type=int)
+		per_page = request.args.get("per_page", default=5, type=int)
 
 		pagination = Ratings_Reviews.query.paginate(
 			page=page, 
@@ -39,15 +40,9 @@ class BookRatings(Resource):
 		}, 200
 
 	@jwt_required()
+	@json_required
 	@limiter.limit("50 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		from app.extensions import review_schema
 		errors = review_schema.validate(data)
 
@@ -79,15 +74,9 @@ class BookRatings(Resource):
 
 class BookRatings_UD(Resource):
 	@jwt_required()
+	@json_required
 	@limiter.limit("50 per day")
-	def patch(self, id):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing Json in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def patch(self, data, id):
 		rating = data.get('rating')
 		review = data.get('review')
 
@@ -149,15 +138,9 @@ class BookRatings_UD(Resource):
 # Tagging review
 class Tags(Resource):
 	@jwt_required()
+	@json_required
 	@limiter.limit("50 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing Json in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		from app.models.book import review_tags
 		from app.extensions import tagschema
 		

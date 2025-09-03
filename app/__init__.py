@@ -6,7 +6,10 @@ from flask_cors import CORS
 # Local Import
 from app.errors.handlers import register_error_handlers
 from app.extensions import db, migrate
-from .config import Config, dbconfig, jwt_config
+from .config import (
+	Config, 
+	TestDBConfig,
+	jwt_config)
 from app.jwt_extensions import jwt, limiter
 from app.ui_routes.admin_routes import admin_ui_bp
 from app.ui_routes.user_routes import user_ui_bp
@@ -18,7 +21,7 @@ def create_app():
 	api = Api(app)
 
 	app.config.from_object(Config)
-	app.config.from_object(dbconfig)
+	app.config.from_object(TestDBConfig)
 	app.config.from_object(jwt_config)
 	
 	CORS(app)

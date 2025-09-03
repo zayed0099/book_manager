@@ -56,4 +56,3 @@ def enable_sqlite_foreign_keys(dbapi_connection, connection_record):
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-    

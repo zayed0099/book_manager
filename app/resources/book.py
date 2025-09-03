@@ -8,6 +8,10 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db, book_schema, books_schema
 from app.jwt_extensions import limiter
+from app.functions import (
+	get_book_query_params, 
+	book_filters_and_sorting,
+	json_required)
 '''
 What this file contains :-
 = Books CRUD
@@ -17,58 +21,20 @@ What this file contains :-
 class Book_CR(Resource):
 	@jwt_required()
 	def get(self):
-		page = request.args.get('page', default=1, type=int)
-		per_page = request.args.get('per_page', default=5, type=int)
-
-		title_get = request.args.get('title', '', type=str)
-		author = request.args.get('author', '', type=str)
-
-		title = title_get.strip().lower()
-
-		current_user_id = get_jwt_identity()
-		
-		genre = request.args.get('genre', default=None, type=str)
-
-		sort_query = request.args.get('sort', default=None, type=str)
-		order = request.args.get('order', 'asc', type=str)
-
 		from app.models.book import book_manager
 		from app.extensions import books_schema
 
-		filters = [book_manager.user_id == current_user_id, book_manager.is_deleted == False]
-		filt = []
+		params = get_book_query_params()
+		filters, order_by = book_filters_and_sorting(params)
 
-		if genre is not None:
-			filters.append(book_manager.genre == genre)
+		query = book_manager.query.filter(*filters)
 
-		if title and author:
-			filters.append(book_manager.normalized_title == title)
-			filters.append(book_manager.author == author)
+		if order_by:
+			query = query.order_by(*order_by)
 
-		elif author:
-			filters.append(book_manager.author == author)
-			
-			if sort_query == 'author' and order == 'desc':
-				filt = [book_manager.author.desc()]
-			elif sort_query == 'author':
-				filt = [book_manager.author.asc()]
-
-		elif title:
-			filters.append(book_manager.normalized_title == title)
-
-			if sort_query == 'title' and order == 'desc':
-				filt = [book_manager.title.desc()]
-			elif sort_query == 'title':
-				filt = [book_manager.title.asc()]
+		pagination = query.paginate(
+			page=params["page"], per_page=params["per_page"], error_out=False)
 		
-		if sort_query is None:
-			pagination = book_manager.query.filter(*filters).paginate(
-			page=page, per_page=per_page, error_out=False)
-		else:
-			pagination = book_manager.query.filter(*filters).order_by(
-				*filt).paginate(
-				page=page, per_page=per_page, error_out=False)
-
 		if not pagination.items:
 			abort(404, description="Book not found.")
 
@@ -84,15 +50,9 @@ class Book_CR(Resource):
 			}, 200
 
 	@jwt_required()
+	@json_required
 	@limiter.limit("50 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		from app.extensions import book_schema
 		errors = book_schema.validate(data)
 
@@ -154,7 +114,11 @@ class Book_RUD(Resource):
 		from app.extensions import book_schema
 
 		current_user_id = get_jwt_identity()
-		book_to_work = book_manager.query.filter_by(user_id=current_user_id, id=id, is_deleted = False).first()        
+		book_to_work = book_manager.query.filter_by(
+			user_id=current_user_id, 
+			id=id, 
+			is_deleted = False
+			).first()        
 		
 		if not book_to_work:
 			abort(404, description="Book not found.")
@@ -162,17 +126,12 @@ class Book_RUD(Resource):
 			return (book_schema.dump(book_to_work)), 200
 
 	@jwt_required()
+	@json_required
 	@limiter.limit("50 per day")
-	def patch(self, id):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
-		current_user_id = get_jwt_identity()
+	def patch(self, data, id):
 		from app.models.book import book_manager
+		current_user_id = get_jwt_identity()
+		
 		book_tw = book_manager.query.filter_by(user_id=current_user_id, id=id).first()
 		
 		if not book_tw:
@@ -296,65 +255,25 @@ class BookRecover(Resource):
 class Book_Favourite_get(Resource):
 	@jwt_required()
 	def get(self):
-		page = request.args.get('page', 1, type=int)
-		per_page = request.args.get('per_page', 5, type=int)
-
-		title_get = request.args.get('title', '', type=str)
-		author = request.args.get('author', '', type=str)
-
-		title = title_get.strip().lower()
-
-		current_user_id = get_jwt_identity()
-		
-		sort_query = request.args.get('sort', default=None, type=str)
-		order = request.args.get('order', 'asc', type=str)
-		
-		genre = request.args.get('genre', default=None, type=str)
-
 		from app.models.book import book_manager
 		from app.extensions import books_schema
+
+		params = get_book_query_params() 
+		filters, order_by = book_filters_and_sorting(params)
+
+		filters.append(book_manager.favourite == True)
 		
-		filters = [
-			book_manager.user_id == current_user_id,
-			book_manager.favourite == True,
-			book_manager.is_deleted == False,
-		]
+		query = book_manager.query.filter(*filters)
 
-		filt = []
+		if order_by:
+			query = query..order_by(*order_by)
 
-		if genre is not None:
-			filters.append(book_manager.genre == genre)
-
-		if title and author:
-			filters.append(book_manager.normalized_title == title)
-			filters.append(book_manager.author == author)
-
-		elif author:
-			filters.append(book_manager.author == author)
-			
-			if sort_query == 'author' and order == 'desc':
-				filt = [book_manager.author.desc()]
-			elif sort_query == 'author':
-				filt = [book_manager.author.asc()]
-
-		elif title:
-			filters.append(book_manager.normalized_title == title)
-
-			if sort_query == 'title' and order == 'desc':
-				filt = [book_manager.title.desc()]
-			elif sort_query == 'title':
-				filt = [book_manager.title.asc()]
-		
-		if sort_query is None:
-			pagination = book_manager.query.filter(*filters).paginate(
-			page=page, per_page=per_page, error_out=False)
-		else:
-			pagination = book_manager.query.filter(*filters).order_by(
-				*filt).paginate(
-				page=page, per_page=per_page, error_out=False)
+		pagination = query.paginate(
+			page=params["page"], 
+			per_page=params["per_page"], error_out=False)
 
 		if not pagination.items:
-			abort(404, description="Book not found.")
+			abort(404, description="Books not found.")
 
 		else:
 			books =  books_schema.dump(pagination.items)

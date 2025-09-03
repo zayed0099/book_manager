@@ -48,7 +48,7 @@ class BookDetails(Resource):
 		)
 
 		if not all_query:
-    		return {"error": "Book not found"}, 404
+			return {"error": "Book not found"}, 404
 
 		author_details = set()
 		publisher = set()

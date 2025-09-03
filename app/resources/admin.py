@@ -14,6 +14,7 @@ from app.jwt_extensions import (jwt,
 	admin_required, 
 	system_admin_required)
 from app.logging.setup_all import admin_logger
+from app.functions import json_required
 
 '''
 admin can see how manu users in there. 
@@ -58,16 +59,10 @@ class Admin_Crud(Resource):
 	
 	# Adding new admin. (full new user)
 	@jwt_required()
+	@json_required
 	@system_admin_required
 	@limiter.limit("1 per day")
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		from app.extensions import user_schema
 		errors = user_schema.validate(data)
 
@@ -299,15 +294,9 @@ class User_Control(Resource):
 # To reset a users password
 class UserCredChange(Resource):
 	@jwt_required()
+	@json_required
 	@system_admin_required
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		username_of_user = data.get("username")
 		email = data.get('email')
 		new_pass = data.get('password')

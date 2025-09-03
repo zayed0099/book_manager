@@ -21,19 +21,14 @@ from app.models import (
 	BookAuthorLink,
 	BookPublLink,
 	BookCatLink) 
+from app.functions import json_required
 
 # This resource is registered in routes/admin.py
 class AddBook(Resource):
 	@jwt_required()
+	@json_required
 	@admin_required
-	def post(self):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def post(self, data):
 		title = data.get("title", None)
 		if title is None:
 			return {'message' : "Book without 'title' can't be accepted"}, 400

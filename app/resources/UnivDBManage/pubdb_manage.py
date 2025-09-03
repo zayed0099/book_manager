@@ -16,25 +16,20 @@ from app.models import (
 	UnivPubDB,
 	BookAuthorLink)
 from app.logging.setup_all import admin_logger
+from app.functions import json_required
 
 class PublisherUD(Resource):
 	# to update a authors name in the db
 	@jwt_required()
+	@json_required
 	@admin_required
-	def patch(self, id):
-		try:
-			data = request.get_json()
-			if data is None:
-				raise CustomBadRequest("Missing JSON in request.")
-		except BadRequest:
-			raise CustomBadRequest("Invalid JSON format.")
-
+	def patch(self, data, id):
 		publisher = data.get("publisher", None)
 		status = data.get("status", None)
 
 		if (
 			publisher is None 
-			status is None
+			or status is None
 			or not isinstance(publisher, str)
 			or not isinstance(status, str)
 		):
