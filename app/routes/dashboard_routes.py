@@ -9,8 +9,13 @@ from app.resources.dashboard import (
     RecoBook
 )
 
+from app.resources.feed import BookDetails
+
 # To get stat of total book, fav book, deleted book
 dashboard_api.add_resource(StatBooks, '/stat', endpoint='stat')
 
 # To recommend books to a user based on his most read genre
 dashboard_api.add_resource(RecoBook, '/recommend', endpoint='recommend')
+
+# News Feed Route to show book to a user 
+dashboard_api.add_resource(BookDetails, '/bookdetails', endpoint='bookdetails')

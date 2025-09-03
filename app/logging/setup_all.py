@@ -71,6 +71,18 @@ def main():
     ush = User_Show()
     ush.get()
 
+    pubud = PublisherUD()
+    pubud.patch()
+
+    catgud = CategoryUD()
+    catgud.patch()
+
+    bookud = BookUD()
+    bookud.patch()
+
+    authud = AuthorUD()
+    authud.patch()
+
     admin_logger.info("Finished admin actions")
 
 

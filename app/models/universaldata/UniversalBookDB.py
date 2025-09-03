@@ -37,6 +37,8 @@ class UnivBookDB(db.Model):
 
 	language = db.Column(db.String(10), nullable=True)
 
+	status = db.Column(db.String(100), default="active", nullable=False)
+
 	# relation from author table
 	bookauthlink = db.relationship('BookAuthorLink', 
 		backref='univbook_authlink',
@@ -53,6 +55,11 @@ class UnivBookDB(db.Model):
 		passive_deletes=True, 
 		lazy=True)
 
+	__table_args__ = (
+	CheckConstraint(
+		"status IN ('active' , 'banned' , 'on_hold')", 
+		name='status_validate'),
+	)
 '''
 backref structure
 firstpart_secondpart

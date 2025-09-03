@@ -12,8 +12,11 @@ from app.resources.UnivDBManage import (
 univdb_bp = Blueprint('univdb', __name__, url_prefix='/univdb/v1')
 univdb_api = Api(univdb_bp)
 
+
 # Adding bulk books in Universal Book DB
 univdb_api.add_resource(AddBook, '/add')
+
+
 
 # ================Author Section
 
@@ -23,6 +26,8 @@ univdb_api.add_resource(AuthorUD, '/author', endpoint='authors')
 # Author Patch/Delete
 univdb_api.add_resource(AuthorUD, '/author/<int:id>', endpoint='author_by_id')
 
+
+
 # ================Publisher Section
 
 # Get all publisher and Adding publisher one by one
@@ -31,8 +36,12 @@ univdb_api.add_resource(AuthorUD, '/author/<int:id>', endpoint='author_by_id')
 # Publisher Patch/Delete
 univdb_api.add_resource(PublisherUD, '/pub/<int:id>')
 
+
+
 # ================Category Section
 univdb_api.add_resource(CategoryUD, '/cat/<int:id>')
 
-#================Book Section
+
+
+#=================Book Section
 univdb_api.add_resource(BookUD, '/book/<int:id>')

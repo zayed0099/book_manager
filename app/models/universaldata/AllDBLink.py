@@ -10,11 +10,13 @@ class BookAuthorLink(db.Model):
 
 	book_id = db.Column(db.Integer, 
 		db.ForeignKey('UnivBookDB.id', ondelete='CASCADE'), 
-		index=True, nullable=False)
+		index=True, 
+		nullable=False)
 
 	author_id = db.Column(db.Integer, 
 		db.ForeignKey('UnivAuthorDB.id', ondelete='CASCADE'), 
-		index=True, nullable=False)
+		index=True, 
+		nullable=False)
 
 	status = db.Column(db.String(100), default="public", nullable=False)
 
@@ -32,11 +34,13 @@ class BookPublLink(db.Model):
 
 	book_id = db.Column(db.Integer, 
 		db.ForeignKey('UnivBookDB.id', ondelete='CASCADE'), 
-		index=True, nullable=False)
+		index=True, 
+		nullable=False)
 
 	publisher_id = db.Column(db.Integer, 
 		db.ForeignKey('UnivPubDB.id', ondelete='CASCADE'), 
-		index=True, nullable=False)
+		index=True, 
+		nullable=False)
 
 	status = db.Column(db.String(100), default="public", nullable=False)
 
@@ -54,11 +58,13 @@ class BookCatLink(db.Model):
 
 	book_id = db.Column(db.Integer, 
 		db.ForeignKey('UnivBookDB.id', ondelete='CASCADE'), 
-		index=True, nullable=False)
+		index=True, 
+		nullable=False)
 
 	category_id = db.Column(db.Integer, 
 		db.ForeignKey('UnivCatDB.id', ondelete='CASCADE'), 
-		index=True, nullable=False)
+		index=True, 
+		nullable=False)
 
 	status = db.Column(db.String(100), default="public", nullable=False)
 
