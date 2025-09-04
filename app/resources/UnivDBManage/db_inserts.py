@@ -21,7 +21,7 @@ from app.models import (
 	BookAuthorLink,
 	BookPublLink,
 	BookCatLink) 
-from app.functions import json_required
+from app.services import json_required, add_to_fts
 
 # This resource is registered in routes/admin.py
 class AddBook(Resource):

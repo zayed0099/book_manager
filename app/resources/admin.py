@@ -14,7 +14,7 @@ from app.jwt_extensions import (jwt,
 	admin_required, 
 	system_admin_required)
 from app.logging.setup_all import admin_logger
-from app.functions import json_required
+from app.services import json_required
 
 '''
 admin can see how manu users in there. 

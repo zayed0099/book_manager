@@ -16,7 +16,7 @@ from app.errors.handlers import CustomBadRequest
 from app.extensions import db, ph
 from app.jwt_extensions import jwt, limiter, admin_required
 from app.logging.setup_all import admin_logger
-from app.functions import json_required
+from app.services import json_required
 '''
 What this file contains :-
 = New user acc creation

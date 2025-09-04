@@ -51,31 +51,40 @@ class BookDetails(Resource):
 			return {"error": "Book not found"}, 404
 
 		author_details = set()
-		publisher = set()
+		publisher = []
 		category = set()
+		
+		is_book_data_fetched = False
+		is_publisher_data_fetched = False
+
 
 		for data in all_query:
-			book_details = {
-				"title" : data.book.title,
-				"subtitle" : data.book.subtitle,
-				"description" : data.book.description,
-				"isbn1" : data.book.isbn1,
-				"isbn2" : data.book.isbn2,
-				"imagelink" : data.book.imagelink,
-				"pub_date" : data.book.pub_date,
-				"page_count" : data.book.page_count,
-				"language" : data.book.language,
-			}
+			if not is_book_data_fetched:
+				book_details = {
+					"title" : data.book.title,
+					"subtitle" : data.book.subtitle,
+					"description" : data.book.description,
+					"isbn1" : data.book.isbn1,
+					"isbn2" : data.book.isbn2,
+					"imagelink" : data.book.imagelink,
+					"pub_date" : data.book.pub_date,
+					"page_count" : data.book.page_count,
+					"language" : data.book.language,
+				}
+				is_book_data_fetched = True
 			
 			author_details.add(data.author)
-			publisher.add(data.publisher)
 			category.add(data.category)
+			
+			if not is_publisher_data_fetched:
+				publisher.append(data.publisher)
+				is_publisher_data_fetched = True
 
 		return {
 			"status" : "Successful",
 			"book_details" : book_details,
 			"authors" : list(author_details),
-			"publisher" : list(publisher),
+			"publisher" : publisher,
 			"category" : list(category)
 		}, 200
 

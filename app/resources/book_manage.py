@@ -10,7 +10,7 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import limiter
-from app.functions import json_required
+from app.services import json_required
 
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):

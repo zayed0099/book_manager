@@ -8,10 +8,11 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db, book_schema, books_schema
 from app.jwt_extensions import limiter
-from app.functions import (
+from app.services import (
 	get_book_query_params, 
 	book_filters_and_sorting,
-	json_required)
+	json_required,
+	update_field)
 '''
 What this file contains :-
 = Books CRUD
@@ -65,6 +66,7 @@ class Book_CR(Resource):
 			genre = data.get("genre", None)
 
 			normalized_title = title.lower().strip()
+			author_normal = author.lower().strip()
 
 			if genre is not None:
 				genre_normal = genre.lower().strip()
@@ -83,6 +85,7 @@ class Book_CR(Resource):
 					title = title,
 					author = author,
 					normalized_title = normalized_title,
+					author_normal = author_normal,
 					user_id = get_jwt_identity(),
 					is_deleted = False,
 					genre = genre,
@@ -137,16 +140,17 @@ class Book_RUD(Resource):
 		if not book_tw:
 			abort(404, description="Book not found.")
 
-		if 'title' in data and data['title'] is not None:
-			book_tw.title = data['title']
-			book_tw.normalized_title = data['title'].lower().strip()
+		update_field(book_tw, data, "title", "title")
+		update_field(book_tw, data, "title", 
+			"normalized_title", lambda v:v.lower().strip())
 		
-		if 'author' in data and data['author'] is not None:
-			book_tw.author = data['author']
-
-		if 'genre' in data and data['genre'] is not None:
-			book_tw.genre = data['genre']
-			book_tw.genre_normal = data['genre'].lower().strip()
+		update_field(book_tw, data, "author", "author")
+		update_field(book_tw, data, "author", 
+			"author_normal", lambda v:v.lower().strip())
+		
+		update_field(book_tw, data, "genre", "genre")
+		update_field(book_tw, data, "genre", 
+			"genre_normal", lambda v:v.lower().strip())
 
 		allowed = ['wishlist' , 'in_progress' , 'completed' , 'abandoned']
 
@@ -181,7 +185,10 @@ class Book_RUD(Resource):
 		current_user_id = get_jwt_identity()
 		
 		from app.models.book import book_manager
-		book_tw = book_manager.query.filter_by(user_id=current_user_id, id=id).first()
+		book_tw = book_manager.query.filter_by(
+			user_id=current_user_id, 
+			id=id).first()
+		
 		if not book_tw:
 			abort(404, description="Book not found.")
 
@@ -198,11 +205,11 @@ class Book_RUD(Resource):
 class Book_reuse(Resource):
 	@jwt_required()
 	def get(self):
+		from app.models import book_manager
+		from app.extensions import books_schema
+
 		page = request.args.get('page', 1, type=int)
 		per_page = request.args.get('per_page', 5, type=int)
-
-		from app.models.book import book_manager
-		from app.extensions import books_schema
 		
 		current_user_id = get_jwt_identity()
 		
@@ -255,7 +262,7 @@ class BookRecover(Resource):
 class Book_Favourite_get(Resource):
 	@jwt_required()
 	def get(self):
-		from app.models.book import book_manager
+		from app.models import book_manager
 		from app.extensions import books_schema
 
 		params = get_book_query_params() 
@@ -299,22 +306,21 @@ class Book_Favourite_ud(Resource):
 		if not check:
 			return {"message" : "Book not found"}, 404
 
-		else:
-			if check.favourite:
-				return {'message' : 'Book already added as favourite.'}, 404
+		if check.favourite:
+			return {'message' : 'Book already added as favourite.'}, 404
 
-			elif check.is_deleted:
-				return {'message' : 'Book deleted. Restore to add as favourite.'}, 400 
+		elif check.is_deleted:
+			return {'message' : 'Book deleted. Restore to add as favourite.'}, 400 
 
-			elif not check.favourite:
-				try:
-					check.favourite = True
-					db.session.commit()
-					return {'message' : 'Book added as favourite'}, 200
-				except SQLAlchemyError as e:
-					db.session.rollback()
-					raise e
-					return {'message' : 'An error occured.'}, 500
+		elif not check.favourite:
+			try:
+				check.favourite = True
+				db.session.commit()
+				return {'message' : 'Book added as favourite'}, 200
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				raise e
+				return {'message' : 'An error occured.'}, 500
 
 	@jwt_required()
 	def delete(self, id):
@@ -328,17 +334,16 @@ class Book_Favourite_ud(Resource):
 		
 		if not check:
 			return {"message" : "Book not found"}
+			
+		if check.is_deleted:
+			return {'message' : 'Book already deleted. Head to /api/v1/recovery to restore.'}, 404
 
-		else:
-			if check.is_deleted:
-				return {'message' : 'Book already deleted. Head to /api/v1/recovery to restore.'}, 404
-
-			elif check.favourite:
-				try:
-					check.favourite = False
-					db.session.commit()
-					return {'message' : 'Book removed from favourites.'}, 200
-				except SQLAlchemyError as e:
-					db.session.rollback()
-					raise e
-					return {'message' : 'An error occured.'}, 500
+		elif check.favourite:
+			try:
+				check.favourite = False
+				db.session.commit()
+				return {'message' : 'Book removed from favourites.'}, 200
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				raise e
+				return {'message' : 'An error occured.'}, 500

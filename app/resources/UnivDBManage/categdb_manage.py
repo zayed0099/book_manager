@@ -16,7 +16,7 @@ from app.models import (
 	UnivCatDB,
 	BookAuthorLink)
 from app.logging.setup_all import admin_logger
-from app.functions import json_required
+from app.services import json_required
 
 class CategoryUD(Resource):
 	# to update a authors name in the db

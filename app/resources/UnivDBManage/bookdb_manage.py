@@ -15,7 +15,9 @@ from app.jwt_extensions import (
 from app.models import ( 
 	UnivBookDB)
 from app.logging.setup_all import admin_logger
-from app.functions import update_field, json_required
+from app.services import (
+	update_field, 
+	json_required)
 
 class BookUD(Resource):
 	# to update a authors name in the db
@@ -23,17 +25,6 @@ class BookUD(Resource):
 	@json_required
 	@admin_required
 	def patch(self, id, data):
-		title = data.get("title", None)
-		subtitle = data.get("subtitle", None)
-		description = data.get("description", None)
-		isbn1 = data.get("isbn1", None)
-		isbn2 = data.get("isbn2", None)
-
-		imagelink = data.get("imagelink", None)
-		pub_date = data.get("pub_date", None)
-		page_count = data.get("page_count", None)
-		language = data.get("language", None)
-
 		book_tw = UnivBookDB.query.filter(
 			UnivBookDB.id == id).first()
 
@@ -41,7 +32,8 @@ class BookUD(Resource):
 			return {"message" : "No book Found."}, 404
 
 		update_field(book_tw, data, "title", "title")
-		update_field(book_tw, data, "title", "normalized_title", lambda v: v.lower().strip())
+		update_field(book_tw, data, "title", 
+			"normalized_title", lambda v: v.lower().strip())
 		update_field(book_tw, data, "subtitle", "subtitle")
 		update_field(book_tw, data, "description", "description")
 		update_field(book_tw, data, "isbn1", "isbn1")
