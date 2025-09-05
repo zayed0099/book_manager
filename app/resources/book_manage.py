@@ -10,7 +10,10 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import limiter
-from app.services import json_required
+from app.services import (
+	json_required, 
+	add_to_fts,
+	update_field)
 
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):
@@ -44,6 +47,8 @@ class BookRatings(Resource):
 	@limiter.limit("50 per day")
 	def post(self, data):
 		from app.extensions import review_schema
+		from app.models import Ratings_Reviews
+
 		errors = review_schema.validate(data)
 
 		if errors:
@@ -54,19 +59,23 @@ class BookRatings(Resource):
 			review = data.get('review')
 			book_id = data.get('book_id')
 
-			from app.models.book import Ratings_Reviews
 			new_review = Ratings_Reviews(
 				rating = rating,
 				review = review,
 				user_id = get_jwt_identity(),
 				book_id = book_id
 				)
-
-			from app.extensions import review_schema
 			
 			try:
 				db.session.add(new_review)
 				db.session.commit()
+
+				add_to_fts(
+					review,
+					new_review.id,
+					review=new_review.review
+				)
+
 				return review_schema.dump(new_review), 201
 			except SQLAlchemyError as e:
 				db.session.rollback()
@@ -89,11 +98,8 @@ class BookRatings_UD(Resource):
 		if not review_tw:
 			abort(404, description="Review not found.")
 
-		if 'rating' in data and data['rating'] is not None:
-			review_tw.rating = rating
-
-		if 'review' in data and data['review'] is not None:
-			review_tw.review = review
+		update_field(review_tw, data, "rating", "rating")
+		update_field(review_tw, data, "review", "review")		
 
 		try:
 			review_tw.updated_at = datetime.utcnow()
@@ -141,7 +147,7 @@ class Tags(Resource):
 	@json_required
 	@limiter.limit("50 per day")
 	def post(self, data):
-		from app.models.book import review_tags
+		from app.models import review_tags
 		from app.extensions import tagschema
 		
 		errors = tagschema.validate(data)
@@ -183,15 +189,15 @@ class Tags(Resource):
 	@jwt_required()
 	@limiter.limit("50 per day")
 	def get(self):
-		current_user_id = get_jwt_identity()
-
 		from app.models.book import review_tags, Ratings_Reviews
 		from app.extensions import gettagschema, review_schema
+
+		current_user_id = get_jwt_identity()
 
 		page = request.args.get('page', 1, type=int)
 		per_page = request.args.get('per_page', 20, type=int)
 
-		user_query = request.args.get('tag')
+		user_query = request.args.get('tag', None)
 		search_term = f"%{user_query}%"
 
 		if user_query is not None:

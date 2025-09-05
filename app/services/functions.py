@@ -1,8 +1,5 @@
-from flask import request
 from flask_jwt_extended import get_jwt_identity
 from app.models.book import book_manager
-from functools import wraps
-from werkzeug.exceptions import BadRequest
 
 def get_book_query_params():
 	return {
@@ -49,18 +46,3 @@ def update_field(obj, data, key, attr, transform=lambda x:x):
 	value = data.get(key)
 	if value is not None:
 		setattr(obj, attr, transform(value))
-
-def json_required(func):
-	@wraps(func)
-	def wrapper(*args, **kwargs):
-		try:
-			json_data = request.get_json()
-			if json_data is None:
-				return {"message" : "Valid JSON required."}, 400
-		except BadRequest:
-			return {"message" : "Valid JSON required."}, 400
-
-		kwargs["data"] = json_data 
-		return func(*args, **kwargs)
-
-	return wrapper

@@ -2,32 +2,32 @@ from flask_sqlalchemy import SQLAlchemy
 from app.extensions import db
 
 with db.engine.connect() as conn:
-    conn.execute("""
-    CREATE VIRTUAL TABLE IF NOT EXISTS book_fts 
-    USING fts5(
-    title, subtitle, description, isbn1, isbn2, language);
-    """)
-    
-    conn.execute("""
-    CREATE VIRTUAL TABLE IF NOT EXISTS author_fts 
-    USING fts5(author);
-    """)
-    
-    conn.execute("""
-    CREATE VIRTUAL TABLE IF NOT EXISTS publisher_fts 
-    USING fts5(publisher);
-    """)
+	conn.execute("""
+	CREATE VIRTUAL TABLE IF NOT EXISTS book_fts 
+	USING fts5(
+	title, subtitle, description, isbn1, isbn2, language);
+	""")
+	
+	conn.execute("""
+	CREATE VIRTUAL TABLE IF NOT EXISTS author_fts 
+	USING fts5(author);
+	""")
+	
+	conn.execute("""
+	CREATE VIRTUAL TABLE IF NOT EXISTS publisher_fts 
+	USING fts5(publisher);
+	""")
 
-    conn.execute("""
-    CREATE VIRTUAL TABLE IF NOT EXISTS category_fts 
-    USING fts5(category);
-    """)
+	conn.execute("""
+	CREATE VIRTUAL TABLE IF NOT EXISTS category_fts 
+	USING fts5(category);
+	""")
 
-    conn.execute("""
-    CREATE VIRTUAL TABLE IF NOT EXISTS review_fts 
-    USING fts5(review);
-    """)
-    conn.commit()
+	conn.execute("""
+	CREATE VIRTUAL TABLE IF NOT EXISTS review_fts 
+	USING fts5(review);
+	""")
+	conn.commit()
 
 
 def add_to_fts(table_name , row_id, **fields):
@@ -43,3 +43,4 @@ def add_to_fts(table_name , row_id, **fields):
 
 		conn.execute(sql, values)
 		conn.commit()
+

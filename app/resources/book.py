@@ -12,7 +12,8 @@ from app.services import (
 	get_book_query_params, 
 	book_filters_and_sorting,
 	json_required,
-	update_field)
+	update_field
+)
 '''
 What this file contains :-
 = Books CRUD
@@ -43,11 +44,11 @@ class Book_CR(Resource):
 			books =  books_schema.dump(pagination.items)
 
 			return {
-			'books': books,
-			'page': pagination.page,
-			'per_page': pagination.per_page,
-			'total_items': pagination.total,
-			'total_pages': pagination.pages
+				'books': books,
+				'page': pagination.page,
+				'per_page': pagination.per_page,
+				'total_items': pagination.total,
+				'total_pages': pagination.pages
 			}, 200
 
 	@jwt_required()
@@ -184,7 +185,7 @@ class Book_RUD(Resource):
 	def delete(self, id):
 		current_user_id = get_jwt_identity()
 		
-		from app.models.book import book_manager
+		from app.models import book_manager
 		book_tw = book_manager.query.filter_by(
 			user_id=current_user_id, 
 			id=id).first()
@@ -226,11 +227,11 @@ class Book_reuse(Resource):
 			books =  books_schema.dump(pagination.items)
 
 			return {
-			'del_books': books,
-			'page': pagination.page,
-			'per_page': pagination.per_page,
-			'total_items': pagination.total,
-			'total_pages': pagination.pages
+				'del_books': books,
+				'page': pagination.page,
+				'per_page': pagination.per_page,
+				'total_items': pagination.total,
+				'total_pages': pagination.pages
 			}, 200
 
 
@@ -247,17 +248,16 @@ class BookRecover(Resource):
 		if not check:
 			return {"message" : "Book not found"}, 404
 
+		if check.is_deleted:
+			try:
+				check.is_deleted = False
+				db.session.commit()
+				return {'message' : 'Book recovered.'}, 200
+			except SQLAlchemyError as e:
+				db.session.rollback()
+				return {'message' : 'An error occured.'}, 500
 		else:
-			if check.is_deleted:
-				try:
-					check.is_deleted = False
-					db.session.commit()
-					return {'message' : 'Book recovered.'}, 200
-				except SQLAlchemyError as e:
-					db.session.rollback()
-					return {'message' : 'An error occured.'}, 500
-			else:
-				return {'message' : 'Book is already recovered. No need to send another recovery request.'}, 200
+			return {'message' : 'Book is already recovered.'}, 200
 
 class Book_Favourite_get(Resource):
 	@jwt_required()
@@ -273,24 +273,25 @@ class Book_Favourite_get(Resource):
 		query = book_manager.query.filter(*filters)
 
 		if order_by:
-			query = query..order_by(*order_by)
+			query = query.order_by(*order_by)
 
 		pagination = query.paginate(
 			page=params["page"], 
-			per_page=params["per_page"], error_out=False)
+			per_page=params["per_page"], 
+			error_out=False)
 
 		if not pagination.items:
 			abort(404, description="Books not found.")
 
 		else:
-			books =  books_schema.dump(pagination.items)
+			books = books_schema.dump(pagination.items)
 
 			return {
-			'favourite_books': books,
-			'page': pagination.page,
-			'per_page': pagination.per_page,
-			'total_items': pagination.total,
-			'total_pages': pagination.pages
+				'favourite_books': books,
+				'page': pagination.page,
+				'per_page': pagination.per_page,
+				'total_items': pagination.total,
+				'total_pages': pagination.pages
 			}, 200
 
 class Book_Favourite_ud(Resource):
@@ -309,10 +310,10 @@ class Book_Favourite_ud(Resource):
 		if check.favourite:
 			return {'message' : 'Book already added as favourite.'}, 404
 
-		elif check.is_deleted:
+		if check.is_deleted:
 			return {'message' : 'Book deleted. Restore to add as favourite.'}, 400 
 
-		elif not check.favourite:
+		if not check.favourite:
 			try:
 				check.favourite = True
 				db.session.commit()
@@ -338,7 +339,7 @@ class Book_Favourite_ud(Resource):
 		if check.is_deleted:
 			return {'message' : 'Book already deleted. Head to /api/v1/recovery to restore.'}, 404
 
-		elif check.favourite:
+		if check.favourite:
 			try:
 				check.favourite = False
 				db.session.commit()

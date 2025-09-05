@@ -10,7 +10,7 @@ from datetime import datetime
 from app.errors.handlers import CustomBadRequest
 from app.extensions import db
 from app.jwt_extensions import limiter
-from app.services import json_required
+from app.services import json_required, update_field
 
 class BookListName(Resource):
 	@jwt_required()
@@ -18,7 +18,8 @@ class BookListName(Resource):
 	@limiter.limit("10 per day")
 	def post(self, data):
 		from app.extensions import listdataschema
-
+		from app.models import ListOwner
+		
 		errors = listdataschema.validate(data)
 		
 		if errors:
@@ -26,22 +27,28 @@ class BookListName(Resource):
 
 		user_id = get_jwt_identity()
 		listname_raw = data.get('list_name')
-		listname = listname_raw.lower().strip()
+		listname = listname_raw.lower().strip()	
+		audience = data.get("audience", None)
 
-		from app.models import ListOwner	
-		
+		accepted_audience = ['everyone' , 'private']
+
+		if (audience is None 
+			or audience not in accepted_audience):
+			audience = 'everyone'
+
 		# checking how many list does the user have
 		check = db.session.query(func.count(ListOwner.id)).filter(
 			ListOwner.user_id == user_id).scalar()
 
 		if check >= 5:
-			return {'message' : 'Limit exceeded. A user can only have 3 book list'}, 400
+			return {'message' : 'Limit exceeded. A user can only have 5 book list'}, 400
 
 		try:
 			new_list = ListOwner(
 				list_name = listname_raw ,
 				list_name_norm = listname ,
-				user_id = user_id
+				user_id = user_id,
+				audience = audience
 				)
 
 			db.session.add(new_list)
@@ -57,16 +64,18 @@ class BookListName(Resource):
 	@limiter.limit("5 per day")
 	def put(self, data):
 		from app.extensions import booklistschema
+		from app.models import ListOwner
 
 		errors = booklistschema.validate(data)
-
 		if errors:
 			raise CustomBadRequest("Validation failed")
 
 		list_name = data.get('list_name')
 		list_name_norm = list_name.lower().strip()
 
-		from app.models import ListOwner
+		if list_name is None:
+			return {"message" : "List name required."}, 400
+
 		query = ListOwner.query.filter_by(list_name_norm=list_name_norm,
 			is_deleted=False).first()
 
@@ -135,6 +144,7 @@ class CustomBookList(Resource):
 		title = data.get('title')
 		norm_title = title.lower().strip()
 		author = data.get('author')
+		normalized_author = author.lower().strip()
 		genre = data.get('genre', None)
 		status = data.get('status')
 
@@ -152,6 +162,7 @@ class CustomBookList(Resource):
 					title = title,
 					normalized_title = norm_title,
 					author = author,
+					normalized_author=normalized_author,
 					genre = genre,
 					status = status
 					)
@@ -176,15 +187,15 @@ class CustomBookList(Resource):
 		if book_tw.is_list_deleted:
 			return {'message' : 'The list is deleted. No change can be made now.'}, 409
 			
-		if 'title' in data and data['title'] is not None:
-			book_tw.title = data['title']
-			book_tw.normalized_title = data['title'].lower().strip()
+		update_field(book_tw, data, "title", "title")
+		update_field(book_tw, data, "title", 
+			"normalized_title", lambda v:v..lower().strip())
+		
+		update_field(book_tw, data, "author", "author")
+		update_field(book_tw, data, "author", 
+			"normalized_author", lambda v:v.lower().strip())
 
-		if 'author' in data and data['author'] is not None:
-			book_tw.author = data['author']
-
-		if 'genre' in data['genre'] is not None:
-			book_tw.genre = data['genre']
+		update_field(book_tw, data, "genre", "genre")
 
 		allowed = ['wishlist' , 'in_progress' , 'completed' , 'abandoned']
 

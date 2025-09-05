@@ -34,30 +34,3 @@ def check_if_token_revoked(jwt_header, jwt_payload: dict) -> bool:
     return token is not None
 # "Return True (i.e., token is revoked) only if we found the token in the blocklist."
 
-def admin_required(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        token = get_jwt()
-        role = token.get('role', None)
-        accepted = ['admin' , 'system_admin']
-        
-        if role in accepted:
-            return func(*args, **kwargs)
-        else:
-            return {'message': 'Access denied'}, 403
-
-    return wrapper
-    
-def system_admin_required(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        user_id = get_jwt_identity()
-        check = db.session.query(User).filter_by(id=user_id,
-            role='system_admin').scalar()
-
-        if check:
-            return func(*args, **kwargs)
-        else:
-            return {'message': 'Access denied'}, 403
-
-    return wrapper

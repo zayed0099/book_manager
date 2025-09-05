@@ -11,8 +11,7 @@ from app.extensions import db
 from app.errors.handlers import CustomBadRequest
 from app.jwt_extensions import (
 	jwt, 
-	limiter,
-	admin_required)
+	limiter)
 from app.models import (
 	UnivBookDB, 
 	UnivAuthorDB,
@@ -21,7 +20,7 @@ from app.models import (
 	BookAuthorLink,
 	BookPublLink,
 	BookCatLink) 
-from app.services import json_required, add_to_fts
+from app.services import json_required, add_to_fts, admin_required
 
 # This resource is registered in routes/admin.py
 class AddBook(Resource):
@@ -121,6 +120,17 @@ class AddBook(Resource):
 
 				db.session.add(new_book)
 				db.session.flush()
+
+				add_to_fts(
+					book,
+					new_book.id,
+					title=title,
+					subtitle=subtitle,
+					description=description,
+					isbn1=isbn1 if isbn1_raw is not None else None,
+					isbn2=isbn2 if isbn2_raw is not None else None,
+					language=language
+				)
 			
 			else:
 				debug_dict = {
@@ -162,6 +172,12 @@ class AddBook(Resource):
 					db.session.add(new_author)
 					db.session.flush()
 
+					add_to_fts(
+						author,
+						new_author.id,
+						author=new_author.author
+					)
+
 					new_auth_book_link = BookAuthorLink(
 						book_id=book_id, author_id=new_author.id)
 					db.session.add(new_auth_book_link)
@@ -184,6 +200,12 @@ class AddBook(Resource):
 				db.session.add(unknown_pub_add)
 				db.session.flush()
 
+				add_to_fts(
+						publisher,
+						unknown_pub_add.id,
+						publisher=unknown_pub_add.publisher
+					)
+
 				unknown_pub_link = BookPublLink(
 					book_id=book_id, publisher_id=unknown_pub_add.id)
 				db.session.add(unknown_pub_link)
@@ -199,6 +221,12 @@ class AddBook(Resource):
 						publisher=publisher, publisher_normal=publisher_normal)
 					db.session.add(new_pub)
 					db.session.flush()
+
+					add_to_fts(
+						publisher,
+						new_pub.id,
+						publisher=new_pub.publisher
+					)
 
 					new_publink_entry_1 = BookPublLink(
 						book_id=book_id, publisher_id=new_pub.id)
@@ -249,6 +277,12 @@ class AddBook(Resource):
 
 					db.session.add(new_catg)
 					db.session.flush()
+
+					add_to_fts(
+						category,
+						new_catg.id,
+						category=new_catg.category
+					)
 
 					new_link = BookCatLink(
 						book_id=book_id, category_id=new_catg.id)

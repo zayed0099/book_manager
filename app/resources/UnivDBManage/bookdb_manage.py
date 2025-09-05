@@ -9,15 +9,14 @@ from app.extensions import db
 from app.errors.handlers import CustomBadRequest
 from app.jwt_extensions import (
 	jwt, 
-	limiter,
-	admin_required,
-	system_admin_required)
+	limiter)
 from app.models import ( 
 	UnivBookDB)
 from app.logging.setup_all import admin_logger
 from app.services import (
 	update_field, 
-	json_required)
+	json_required,
+	admin_required)
 
 class BookUD(Resource):
 	# to update a authors name in the db

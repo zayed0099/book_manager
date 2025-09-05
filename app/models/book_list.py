@@ -43,6 +43,7 @@ class ListBook(db.Model):
 	title = db.Column(db.String(200), nullable=False)
 	author = db.Column(db.String(200), nullable=False)
 	normalized_title = db.Column(db.String(200), nullable=False, index=True)
+	normalized_author = db.Column(db.String(200), nullable=False, index=True)
 	genre = db.Column(db.String(30), nullable=True)
 	status = db.Column(db.String(100), server_default="wishlist", nullable=False)
 	created_at = db.Column(db.DateTime, default=datetime.utcnow)
