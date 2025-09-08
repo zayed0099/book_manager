@@ -325,7 +325,7 @@ class Book_Favourite_ud(Resource):
 
 	@jwt_required()
 	def delete(self, id):
-		from app.models.book import book_manager
+		from app.models import book_manager
 		
 		current_user_id = get_jwt_identity()
 

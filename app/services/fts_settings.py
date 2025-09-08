@@ -3,29 +3,29 @@ from app.extensions import db
 
 with db.engine.connect() as conn:
 	conn.execute("""
-	CREATE VIRTUAL TABLE IF NOT EXISTS book_fts 
-	USING fts5(
-	title, subtitle, description, isbn1, isbn2, language);
+		CREATE VIRTUAL TABLE IF NOT EXISTS book_fts 
+		USING fts5(
+		title, subtitle, description, isbn1, isbn2, language);
 	""")
 	
 	conn.execute("""
-	CREATE VIRTUAL TABLE IF NOT EXISTS author_fts 
-	USING fts5(author);
+		CREATE VIRTUAL TABLE IF NOT EXISTS author_fts 
+		USING fts5(author);
 	""")
 	
 	conn.execute("""
-	CREATE VIRTUAL TABLE IF NOT EXISTS publisher_fts 
-	USING fts5(publisher);
+		CREATE VIRTUAL TABLE IF NOT EXISTS publisher_fts 
+		USING fts5(publisher);
 	""")
 
 	conn.execute("""
-	CREATE VIRTUAL TABLE IF NOT EXISTS category_fts 
-	USING fts5(category);
+		CREATE VIRTUAL TABLE IF NOT EXISTS category_fts 
+		USING fts5(category);
 	""")
 
 	conn.execute("""
-	CREATE VIRTUAL TABLE IF NOT EXISTS review_fts 
-	USING fts5(review);
+		CREATE VIRTUAL TABLE IF NOT EXISTS review_fts 
+		USING fts5(review);
 	""")
 	conn.commit()
 
@@ -43,4 +43,15 @@ def add_to_fts(table_name , row_id, **fields):
 
 		conn.execute(sql, values)
 		conn.commit()
+
+
+def search_fts(table_name, query):
+	with db.engine.connect() as conn:
+		result = conn.execute(
+			f"SELECT rowid, snippet({table_name}_fts) AS snippet"
+			f"FROM {table_name}_fts WHERE {table_name}_fts MATCH ?"
+			(query,)
+		).fetchall()
+
+		return result
 

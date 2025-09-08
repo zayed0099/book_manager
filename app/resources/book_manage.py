@@ -13,7 +13,8 @@ from app.jwt_extensions import limiter
 from app.services import (
 	json_required, 
 	add_to_fts,
-	update_field)
+	update_field,
+	search_fts)
 
 # A Class to show all or user query specific book review and ratings
 class BookRatings(Resource):
@@ -199,6 +200,8 @@ class Tags(Resource):
 
 		user_query = request.args.get('tag', None)
 		search_term = f"%{user_query}%"
+
+		#search_fts() 
 
 		if user_query is not None:
 			search_data = (db.session.query(review_tags, Ratings_Reviews)
